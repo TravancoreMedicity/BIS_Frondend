@@ -1,0 +1,17 @@
+.bouncing-element {
+  display: inline-block; /* Ensure the element can be animated */
+  animation: moveX 2s infinite ease-in-out;
+}
+
+
+@keyframes moveX {
+  0% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(5px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}

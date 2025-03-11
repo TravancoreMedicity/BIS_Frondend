@@ -1,0 +1,127 @@
+.light {
+  --bg-nav: 76, 102, 117; /* Brightened for --bg-nav */
+  --nav-header-color: 249, 249, 249;
+  --bg-drawer: 63, 132, 170; /* Lightened for --bg-drawer */
+  --bg-common: 240, 246, 245; /* Brighter counterpart for --bg-common */
+  --bg-card: 255, 255, 255; /* Slightly brighter than --bg-nav */
+
+  --drawer-btn-bg-color: 48, 52, 58, 0.4;
+  --drawer-font-color: 249, 249, 249;
+
+  --active-bg: 48, 52, 58; /* Lighter and softer active background */
+
+  --bg-offwhite: 243, 243, 243; /* Pure white for off-white */
+
+  --border-primary: 80, 83, 86, 0.2; /* Lightened version of --border-primary */
+  --border-secondary: 85, 183, 231; /* Brighter secondary border */
+
+  --icon-primary: 216, 75, 154, 1; /* Dark grey for primary icons in light mode */
+  --icon-secondary: 4, 150, 255, 0.7; /* Slightly lighter secondary icons */
+  --icon-green: 78, 78, 78; /* More vibrant green */
+
+  --logo-light-blue: 130, 210, 255; /* Brightened blue */
+  --logo-dark-blue: 90, 180, 230; /* Softer blue */
+  --logo-violet: 150, 120, 190; /* Softer violet */
+  --logo-pink: 240, 140, 190; /* Soft pink */
+
+  --color-blue: 92, 186, 232; /* Softer blue color */
+  --color-pink: 213, 82, 155; /* Brighter pink */
+  --color-violet: 98, 77, 174; /* Gentle violet */
+  --color-white: 255, 255, 255; /* Unchanged white */
+
+  --font-black: 40, 40, 40; /* Darker grey for font */
+  --font-blue: 50, 120, 240; /* Vibrant blue for fonts */
+  --font-darkGrey: 100, 110, 120; /* Softened dark grey */
+  --font-light: 100, 110, 120; /* Slightly lighter for light mode fonts */
+
+  --font-primary-white: 100, 110, 120; /* Pure white for primary font */
+  --font-secondary-white: 200, 200, 200; /* Muted white for secondary font */
+
+  --table-head: 76, 102, 117; /* Brightened table head */
+  --table-body: 230, 230, 230; /* Brighter table body */
+  --table-border-color: 76, 102, 117;
+
+  --tab-border-color: 255, 255, 255;
+  --tab-color: 76, 102, 117;
+
+  --font-varient: Montserrat, sans-serif; /* Unchanged font variant */
+
+  --input-bg-color: 255, 255, 255;
+  --input-border-color: 126, 131, 136, 0.8;
+  --input-font-color: 78, 78, 78;
+  --input-hover-bg-color: 255, 255, 255;
+  --input-hover-border-color: 85, 183, 231;
+  --input-hover-font-color: 78, 78, 78;
+
+  --list-bg-color: 255, 255, 255;
+  --list-border-color: 213, 82, 155, 0.4;
+  --list-font-color: 78, 78, 78;
+  --list-hover-bg-color: 243, 243, 243;
+  --list-hover-font-color: 78, 78, 78;
+
+  --modal-bg-color: 255, 255, 255;
+}
+
+.dark {
+  --bg-nav: 31, 34, 36; /*set*/
+  --nav-header-color: 249, 249, 249;
+  --bg-drawer: 31, 34, 36; /*set*/
+  --bg-common: 19, 21, 22; /*set*/
+  --bg-card: 31, 34, 36; /*set*/
+
+  --drawer-btn-bg-color: 48, 52, 58;
+  --drawer-font-color: 249, 249, 249;
+
+  --active-bg: 48, 52, 58; /*set*/
+
+  --bg-offwhite: 243, 243, 243;
+
+  --border-primary: 80, 83, 86; /*set*/
+  --border-secondary: 126, 131, 136; /*set*/
+
+  --icon-primary: 255, 255, 255, 0.8; /*set*/
+  --icon-secondary: 82, 83, 99; /*set*/
+  --icon-green: 25, 86, 27; /*set*/
+
+  --logo-light-blue: 83, 182, 231;
+  --logo-dark-blue: 0, 125, 196;
+  --logo-violet: 124, 81, 160;
+  --logo-pink: 216, 75, 154;
+
+  --color-blue: 92, 186, 232;
+  --color-pink: 213, 82, 155;
+  --color-violet: 98, 77, 174;
+  --color-white: 255, 255, 255;
+
+  --font-black: 78, 78, 78;
+  --font-blue: 35, 86, 225;
+  --font-darkGrey: 76, 102, 117;
+  --font-light: 238, 239, 241; /*set*/
+
+  --font-primary-white: 249, 249, 249; /*set*/
+  --font-secondary-white: 126, 131, 136, 1; /*set*/
+
+  --table-head: 74, 76, 79;
+  --table-body: 74, 76, 79;
+  --table-border-color: 92, 186, 232;
+
+  --tab-border-color: 31, 34, 36;
+  --tab-color: 76, 102, 117;
+
+  --font-varient: Montserrat, sans-serif; /*set*/
+
+  --input-bg-color: 80, 83, 86;
+  --input-border-color: 126, 131, 136;
+  --input-font-color: 238, 239, 241;
+  --input-hover-bg-color: 243, 243, 243;
+  --input-hover-border-color: 0, 125, 196;
+  --input-hover-font-color: 78, 78, 78;
+
+  --list-bg-color: 48, 52, 58;
+  --list-border-color: 80, 83, 86;
+  --list-font-color: 255, 255, 255;
+  --list-hover-bg-color: 243, 243, 243;
+  --list-hover-font-color: 78, 78, 78;
+
+  --modal-bg-color: 19, 21, 22;
+}
