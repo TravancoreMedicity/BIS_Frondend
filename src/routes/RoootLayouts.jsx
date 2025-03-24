@@ -59,7 +59,7 @@ const RoootLayouts = () => {
 
   // GENERATE OTP FUNCTION
   const generateOtp = useCallback(() => {
-    console.log(mobileNumber);
+    // console.log(mobileNumber);
     if (mobileNumber === "") {
       warningNofity("Mobile Number cannot be empty");
       return;
@@ -72,8 +72,12 @@ const RoootLayouts = () => {
     }
     setLoading(true);
     const sanitizedMobileNumber = sanitizeInput(mobileNumber);
+    // console.log("sanitizedMobileNumber", sanitizedMobileNumber);
+
     axiosApi.get("/generateOTP/" + sanitizedMobileNumber).then((res) => {
       const { message, success } = res.data;
+      // console.log("success", success);
+
       if (success === 0) {
         errorNofity(message);
       } else if (success === 1) {
@@ -124,8 +128,7 @@ const RoootLayouts = () => {
               authType: btoa(login_type),
               authTimeStamp: getTime(new Date(tokenValidity)),
             };
-
-            console.log(authData);
+            console.log(authData, 'ygvgyv');
 
             setAuth((prev) => {
               return {

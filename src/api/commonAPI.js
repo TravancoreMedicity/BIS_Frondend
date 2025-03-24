@@ -439,3 +439,109 @@ export const getSelectCustodianDepartmentData = async () => {
       }
     });
 };
+
+// Jomol George 17/3/2025 02:52 pm
+export const getAllSuperUsers = async () => {
+  return await axiosApi.get(`/user/getSuperUsers`).then((res) => {
+    const { success, data } = res.data;
+    if (success === 1) {
+      return data;
+    }
+  });
+};
+
+export const getAllUsers = async () => {
+  return await axiosApi.get(`/user/getAllUser`).then((res) => {
+    const { success, data } = res.data;
+    if (success === 1) {
+      return data;
+    }
+  });
+};
+
+export const userTypes = async () => {
+  return await axiosApi.get(`/UserTypeMaster/getdatas`).then((res) => {
+    const { success, data } = res.data;
+    console.log("data", data);
+
+    if (success === 1 && Array.isArray(data)) {
+      return data.map(item => ({
+        value: item.user_type_slno,
+        label: item.user_type
+      }));
+    }
+  });
+};
+
+export const getModules = async () => {
+  return await axiosApi.get(`/ModuleNameMaster/getdatas`).then((res) => {
+    const { success, data } = res.data;
+    if (success === 1 && Array.isArray(data)) {
+      return data.map(item => ({
+        value: item.bis_module_slno,
+        label: item.bis_module_name
+      }));
+    }
+  });
+};
+
+export const getAllModules = async () => {
+  return await axiosApi.get(`/ModuleNameMaster/selectAllModules`).then((res) => {
+    const { success, data } = res.data;
+    if (success === 1) {
+      return data
+    }
+  });
+};
+export const getModuleMast = async () => {
+  return await axiosApi.get(`/ModuleGroupMaster/getdatas`).then((res) => {
+    const { success, data } = res.data;
+    console.log("dataaaaa", data);
+
+    if (success === 1) {
+      return data;
+    }
+  });
+};
+export const getuserType = async () => {
+  return await axiosApi.get(`/UserTypeMaster/getdatas`).then((res) => {
+    const { success, data } = res.data;
+    if (success === 1) {
+      return data;
+    }
+  });
+};
+export const getMenuNames = async () => {
+  return await axiosApi.get(`/MenuNameMaster/getdatas`).then((res) => {
+    const { success, data } = res.data;
+    if (success === 1) {
+      return data;
+    }
+  });
+};
+
+export const getUserModules = async (module_name) => {
+  return await axiosApi.get(`/UserGroupRightMaster/ModulewiseMenus/${module_name}`).then((res) => {
+    const { success, data } = res.data;
+    if (success === 1) {
+      return data ? data : [];
+    }
+  });
+};
+export const userWiseSettingsRights = async (loggedUser) => {
+  return await axiosApi.get(`/UserGroupRightMaster/userWiseSettingsRights/${loggedUser}`).then((res) => {
+    const { success, data } = res.data;
+    if (success === 2) {
+      return data ? data : [];
+    }
+  });
+};
+
+export const SubCategoryById = async (catSlno) => {
+  return await axiosApi.get(`/docSubCategoryName/getSubCategoryById/${catSlno}`).then((res) => {
+    const { success, data } = res.data;
+    if (success === 1) {
+      return data
+    }
+  });
+};

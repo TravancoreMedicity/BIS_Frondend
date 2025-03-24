@@ -1,7 +1,5 @@
-// @ts-nocheck
-import React, { memo } from "react";
+import React, { useState, useCallback, useMemo, memo } from "react";
 import Box from "@mui/material/Box";
-import Divider from "@mui/material/Divider";
 import Drawer from "@mui/material/Drawer";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
@@ -9,46 +7,41 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
 import { ListSubheader } from "@mui/material";
-import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
-import { NavArrowRight } from 'iconoir-react'
-import { useCallback } from "react";
-import { useMemo } from "react";
-import {
-    HomeAltSlimHoriz,
-    ShieldUpload,
-    PageSearch,
-    Settings,
-    DocMagnifyingGlass
-} from 'iconoir-react'
+import { Settings, NavArrowRight, PharmacyCrossCircle, PharmacyCrossTag } from 'iconoir-react';
+import { useNavigate } from 'react-router-dom';  // Import useNavigate hook
 
-const DrawerWindow = memo(({ drawerWidth, handleDrawerClose }) => {
+const DrawerPage = ({ drawerWidth, handleDrawerClose }) => {
+    // State for TMCH and KMCH selections
+    const [selectedIndexTMCH, setSelectedIndexTMCH] = useState(null);
+    const [selectedIndexKMCH, setSelectedIndexKMCH] = useState(null);
+    const navigate = useNavigate();  // Initialize navigate
 
-    const navigation = useNavigate()
+    const handleListItemClick = useCallback((event, index, route, section) => {
+        // Update the selected index based on the section clicked
+        if (section === "TMCH") {
+            setSelectedIndexTMCH(index);  // Only update TMCH selection
+        } else if (section === "KMCH") {
+            setSelectedIndexKMCH(index);  // Only update KMCH selection
+        }
+        navigate(route);  // Use navigate to route to the new page
+    }, [navigate]);
 
-    const [selectedIndex, setSelectedIndex] = useState(null);
+    const TMCH = useMemo(() => [
+        { slno: 1, menu: "Pharmacy sales", text: "/Home/TmchGraphicalView", icon: <PharmacyCrossCircle height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> },
+        { slno: 2, menu: "Pharmacy Purchase", text: "/Home/Settings", icon: <PharmacyCrossTag height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> },
+        { slno: 3, menu: "Settings", text: "/Home/Settings", icon: <Settings height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> }
+    ], []);
 
-    const handleListItemClick = useCallback((event, index, route) => {
-        setSelectedIndex(index);
-        navigation(route);
-    }, []);
+    const KMCH = useMemo(() => [
+        { slno: 4, menu: "Pharmacy sales", text: "/Home/KmchGraphicalView", icon: <PharmacyCrossCircle height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> },
+        { slno: 5, menu: "Pharmacy Purchase", text: "/Home/Settings", icon: <PharmacyCrossTag height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> },
+        { slno: 6, menu: "Settings", text: "/Home/Settings", icon: <Settings height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> }
+    ], []);
 
-    const drawerMenu = useMemo(() => {
-        return [
-            { menu: "Pharmacy sales", text: "/Home/GraphicalViewMain", icon: <HomeAltSlimHoriz height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> },
-            { menu: "Pharmacy Purchase", text: "/Home/Settings", icon: <HomeAltSlimHoriz height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> },
-            { menu: "Settings", text: "/Home/Settings", icon: <Settings height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> },
-        ]
-    }, [])
-
-
-
-    const drawer = useMemo(() => (
+    const renderDrawerSection = (sectionTitle, menuItems, section) => (
         <div>
             <Toolbar variant="dense" />
-            <Divider />
             <List
                 subheader={
                     <ListSubheader
@@ -61,22 +54,22 @@ const DrawerWindow = memo(({ drawerWidth, handleDrawerClose }) => {
                             color: "rgba(var(--drawer-font-color))",
                         }}
                     >
-                        Travancore Medicity
+                        {sectionTitle}
                     </ListSubheader>
                 }
             >
-                {drawerMenu?.map((val, index) => (
+                {menuItems?.map((val, index) => (
                     <ListItem
                         key={index}
                         disablePadding
-                        sx={{ display: "flex", }}
+                        sx={{ display: "flex" }}
                         secondaryAction={
-                            <NavArrowRight height={20} width={20} color="rgba(var(--drawer-font-color))" className={selectedIndex === index ? "bouncing-element" : ''} />
+                            <NavArrowRight height={20} width={20} color="rgba(var(--drawer-font-color))" className={section === "TMCH" && selectedIndexTMCH === index ? "bouncing-element" : (section === "KMCH" && selectedIndexKMCH === index ? "bouncing-element" : '')} />
                         }
                     >
                         <ListItemButton
-                            selected={selectedIndex === index ? true : false}
-                            onClick={(e) => handleListItemClick(e, index, val.text)}
+                            selected={section === "TMCH" ? selectedIndexTMCH === index : section === "KMCH" ? selectedIndexKMCH === index : false}
+                            onClick={(e) => handleListItemClick(e, index, val.text, section)}
                             sx={{
                                 display: "flex",
                                 mx: 0,
@@ -116,7 +109,7 @@ const DrawerWindow = memo(({ drawerWidth, handleDrawerClose }) => {
                             </ListItemIcon>
                             <Typography
                                 noWrap
-                                className="hoverClass text-fontsecondarywhite "
+                                className="hoverClass text-fontsecondarywhite"
                                 sx={{
                                     display: "flex",
                                     fontFamily: "var(--font-varient)",
@@ -132,9 +125,8 @@ const DrawerWindow = memo(({ drawerWidth, handleDrawerClose }) => {
                     </ListItem>
                 ))}
             </List>
-            <Divider />
         </div>
-    ), [selectedIndex, handleListItemClick])
+    );
 
     return (
         <Box
@@ -142,7 +134,6 @@ const DrawerWindow = memo(({ drawerWidth, handleDrawerClose }) => {
             sx={{
                 width: { sm: drawerWidth },
                 transition: "width 0.5s",
-                // flexShrink: { sm: 0 }
             }}
             aria-label="mailbox folders"
         >
@@ -158,11 +149,11 @@ const DrawerWindow = memo(({ drawerWidth, handleDrawerClose }) => {
                 }}
                 onClose={handleDrawerClose}
             >
-                {drawer}
+                {renderDrawerSection('Travancore Medical College', TMCH, "TMCH")}
+                {renderDrawerSection('Kerala Medical College', KMCH, "KMCH")}
             </Drawer>
-
         </Box>
-    )
-})
+    );
+}
 
-export default DrawerWindow
+export default memo(DrawerPage);
