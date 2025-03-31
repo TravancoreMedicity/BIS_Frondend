@@ -462,7 +462,6 @@ export const getAllUsers = async () => {
 export const userTypes = async () => {
   return await axiosApi.get(`/UserTypeMaster/getdatas`).then((res) => {
     const { success, data } = res.data;
-    console.log("data", data);
 
     if (success === 1 && Array.isArray(data)) {
       return data.map(item => ({
@@ -496,8 +495,6 @@ export const getAllModules = async () => {
 export const getModuleMast = async () => {
   return await axiosApi.get(`/ModuleGroupMaster/getdatas`).then((res) => {
     const { success, data } = res.data;
-    console.log("dataaaaa", data);
-
     if (success === 1) {
       return data;
     }
