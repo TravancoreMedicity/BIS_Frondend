@@ -17,14 +17,18 @@ const OverallSalesProgress = () => {
 
     return (
         <Fragment>
-            <Box sx={{ width: "100%", p: 2, }}>
-                <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "space-between", mt: 4, flexWrap: "wrap" }}>
-                    <DateRangeCompAll setSalesData={setSalesData} setXAxisData={setXAxisData} />
-                    <Box>
+            <Box sx={{
+                p: 0, px: 1.5, height: "100%"
+            }}>
+                <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "space-around", flexWrap: "wrap" }}>
+                    <Box sx={{ mt: 1 }}>
+                        <DateRangeCompAll setSalesData={setSalesData} setXAxisData={setXAxisData} />
+                    </Box>
+                    <Box sx={{ mt: 2 }}>
                         <SelectGraphicalView Chartlayout={Chartlayout} seChartlayout={seChartlayout} />
                     </Box>
                 </Box>
-                <Box sx={{ mt: 3 }}>
+                <Box sx={{ mt: 3, width: "100%", }}>
                     {parseInt(Chartlayout) === 1 ?
                         < BarGraphicalRep salesData={salesData} xAxisData={xAxisData} />
                         : parseInt(Chartlayout) === 2 ?

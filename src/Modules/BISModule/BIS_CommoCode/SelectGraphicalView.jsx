@@ -1,28 +1,84 @@
-import React, { memo } from 'react'
-import { TextField, MenuItem } from '@mui/material';  // Ensure consistent MUI imports
-import { Box } from '@mui/joy';
-
+import React, { memo } from 'react';
+import { TextField, MenuItem } from '@mui/material';
 
 const SelectGraphicalView = ({ Chartlayout, seChartlayout }) => {
-
     return (
-        <div> <Box sx={{ display: 'flex', justifyContent: 'flex-end', px: 2 }}>
+        <div>
             <TextField
-                size='small'
+                size="small"
                 select
-                sx={{ minWidth: 150 }}
+                sx={{
+                    minWidth: 150,
+                    '& .MuiInputBase-root': {
+                        color: 'rgb(var(--graph-font-clr))',
+                    },
+                    '& .MuiInputLabel-root': {
+                        color: 'rgb(var(--graph-font-clr))',
+                    },
+                    '&:hover': {
+                        backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                        color: 'black',
+                    },
+                    '@media (max-width:600px)': {
+                        minWidth: '120px',
+                    },
+                    '@media (max-width:400px)': {
+                        minWidth: '100px',
+                    },
+                }}
                 label="Graphical view"
                 value={Chartlayout}
                 onChange={(event) => seChartlayout(event.target.value)}
-                style={{ borderRadius: 55, borderColor: "red" }}
-                color="tertry"
+                style={{
+                    borderColor: 'red',
+                }}
             >
-                <MenuItem value="1">Bar Chart</MenuItem>
-                <MenuItem value="2">Line Chart</MenuItem>
-                <MenuItem value="3">Pie Chart</MenuItem>
+                <MenuItem
+                    value="1"
+                    sx={{
+                        color: 'rgb(var(--graph-font-clr))',
+                        backgroundColor: 'rgba(var(--graph-bg-color))',
+                        '&.Mui-selected': {
+                            backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                            color: 'black',
+                        },
+                        '&:hover': {
+                            backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                            color: 'black',
+                        },
+                    }}
+                >
+                    Bar Chart
+                </MenuItem>
+                <MenuItem
+                    value="2"
+                    sx={{
+                        color: 'rgb(var(--graph-font-clr))',
+                        backgroundColor: 'rgba(var(--graph-bg-color))',
+                        '&.Mui-selected': {
+                            backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                            color: 'black',
+                        },
+                    }}
+                >
+                    Line Chart
+                </MenuItem>
+                <MenuItem
+                    value="3"
+                    sx={{
+                        color: 'rgb(var(--graph-font-clr))',
+                        backgroundColor: 'rgba(var(--graph-bg-color))',
+                        '&.Mui-selected': {
+                            backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                            color: 'black',
+                        },
+                    }}
+                >
+                    Pie Chart
+                </MenuItem>
             </TextField>
-        </Box></div>
-    )
-}
+        </div>
+    );
+};
 
-export default memo(SelectGraphicalView) 
+export default memo(SelectGraphicalView);

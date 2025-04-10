@@ -1,48 +1,49 @@
 import React, { Fragment, memo } from 'react';
-// import PharmacyWise from '../BIS_CommoCode/PharmacyWise';
-// import LineChartRep from '../BIS_CommoCode/LineChartRep';
-import ComparisonChart from '../BIS_CommoCode/ComparisonChart';
-// import GraphicalBarChart from '../BIS_CommoCode/GraphicalBarChart';
-// import PolarGraph from '../BIS_CommoCode/PolarGraph';
 import { Box, Typography } from '@mui/material';
 import OverallSalesProgress from '../BIS_CommoCode/SalesProgress/OverallSalesProgress';
+import ComparisonChart from '../BIS_CommoCode/ComparisonChart';
 import LastThreeYearsComparison from '../BIS_CommoCode/LastThreeYearsComparison';
 
 const TmchGraphicalView = () => {
 
   return (
     <Fragment>
-      <Box>
-        <Typography textAlign="center" sx={{ fontWeight: 'bold', fontSize: 25, color: 'rgba(var(--input-font-color))', mt: 3 }}>
-          Pharmacy Sales
-        </Typography>
-      </Box>
-      <Box>
-        <OverallSalesProgress />
-        <Box sx={{ mt: 10 }}>
+      <Box sx={{ display: "flex", flexDirection: "row", mt: 1, flexWrap: "wrap", width: "100%" }}>
+        <Box sx={{
+          display: "flex", flexDirection: "row", mt: 1, gap: 1, flexWrap: "wrap", width: "100%",
+        }}>
+          <Box sx={{
+            width: { sm: "100%", xl: "50%" }, height: 455, border: 1, overflowX: "auto", overflowY: "auto", borderColor: "#3F84AA",
+            backgroundColor: 'rgba(var(--graph-bg-color))'
+          }}>
+            <Typography sx={{ fontSize: { xl: 25, sm: 25, textAlign: "center", color: 'rgb(var(--graph-font-clr))', backgroundColor: 'rgba(var(--graph-bg-color))' } }}>Overall Sales Graph</Typography>
+            <OverallSalesProgress />
+          </Box>
+          <Box sx={{ flex: 1, height: 455, border: 1, overflowX: "auto", overflowY: "auto", borderColor: "#3F84AA", backgroundColor: 'rgba(var(--graph-bg-color))' }}>
+            Second
+          </Box>
+        </Box>
+        <Box sx={{ width: "100%", minHeight: 455, border: 1, borderColor: "#3F84AA", p: 1, width: "100%", flexDirection: "row", mt: 1, backgroundColor: 'rgba(var(--graph-bg-color))' }}>
+          <Typography sx={{ textAlign: "center", fontSize: 25, mt: 1, color: 'rgb(var(--graph-font-clr))' }}> Comparison Chart</Typography>
           <ComparisonChart />
         </Box>
-        {/* <Box sx={{ mt: 10 }}>
+        <Box sx={{
+          width: "100%",
+          height: 455,
+          border: 1,
+          borderColor: "#3F84AA",
+          backgroundColor: 'rgba(var(--graph-bg-color))',
+          overflowX: "auto",
+          overflowY: "auto",
+          mt: 1
+        }}>
+          <Typography sx={{ textAlign: "center", fontSize: 25, mt: 1, color: 'rgb(var(--graph-font-clr))' }}>Last Three Years Comparison Chart</Typography>
           <LastThreeYearsComparison />
-        </Box> */}
-        {/* <Box sx={{ mt: 10 }}>
-          <PharmacyWise />
         </Box>
-        <Box sx={{ mt: 10 }}>
-          <LineChartRep />
-        </Box>
-        <Box sx={{ mt: 10 }}>
-          <ComparisonChart />
-        </Box>
-        <Box sx={{ mt: 10, width: '100%' }}>
-          <GraphicalBarChart />
-        </Box>
-        <Box sx={{ mt: 10, width: '100%' }}>
-          <PolarGraph />
-        </Box> */}
       </Box>
-    </Fragment>
+    </Fragment >
   );
 };
 
 export default memo(TmchGraphicalView);
+

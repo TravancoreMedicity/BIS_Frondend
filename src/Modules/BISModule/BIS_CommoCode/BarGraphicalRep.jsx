@@ -1,9 +1,9 @@
-import { Box } from '@mui/joy';
 import React, { Fragment, memo } from 'react';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
+import ChartDataLabels from "chartjs-plugin-datalabels";
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ChartDataLabels);
 
 const BarGraphicalRep = ({ salesData, xAxisData }) => {
 
@@ -13,13 +13,12 @@ const BarGraphicalRep = ({ salesData, xAxisData }) => {
             {
                 label: 'Sales Graph',
                 data: salesData,
-                backgroundColor: 'rgb(199, 240, 219)',
-                borderColor: 'rgba(186, 35, 35, 0.6)',
-                borderWidth: 1,
-                borderRadius: 10,
-                barThickness: 70,
+                borderColor: 'rgb(208, 219, 227)',
+                backgroundColor: 'rgba(155, 173, 178, 0.75)',
+                barThickness: 40,
+                color: 'rgb(var(--graph-font-clr))'
             },
-        ]
+        ],
     };
 
     const options = {
@@ -31,27 +30,41 @@ const BarGraphicalRep = ({ salesData, xAxisData }) => {
             },
             y: {
                 beginAtZero: true,
-            }
+            },
         },
         plugins: {
             title: {
                 display: true,
                 text: 'Pharmacy Sales',
+                color: 'rgb(var(--graph-font-clr))'
             },
             tooltip: {
                 enabled: true,
+            },
+            datalabels: {
+                // color: 'black',
+                color: 'rgb(var(--graph-font-clr))',
+                align: 'top',
+                anchor: 'top',
+                font: {
+                    weight: 'bold',
+                    size: 12,
+                },
+                rotation: 270,
+                formatter: (value, context) => context.chart.data.labels[context.dataIndex], // Display xAxisData (dates) on the bars
             },
         },
     };
 
     return (
         <Fragment>
-            <Box >
-                <Bar data={data} options={options} style={{ width: 500, maxHeight: 400 }} />
-            </Box>
-        </Fragment >
+            <Bar data={data} options={options} style={{ width: '100%', maxHeight: 335 }} />
+        </Fragment>
     );
 };
 
 export default memo(BarGraphicalRep);
+
+
+
 

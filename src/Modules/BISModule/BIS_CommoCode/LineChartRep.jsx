@@ -1,105 +1,71 @@
-import { Box, Typography } from '@mui/joy'
-import { LineChart } from '@mui/x-charts'
+import { Box } from '@mui/joy'
 import React, { memo } from 'react'
+import { Line } from 'react-chartjs-2';
+import {
+    Chart as ChartJS, Title, Tooltip, Legend, ArcElement, CategoryScale, LineElement,
+    PointElement,
+    LinearScale,
+    Filler
+} from 'chart.js';
+
+ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale,
+    LineElement,
+    PointElement,
+    LinearScale,
+    Filler
+);
 
 const LineChartRep = ({ salesData, xAxisData }) => {
-    // console.log("salesData",salesData, xAxisData);
-    // console.log("salesData, xAxisData",salesData, xAxisData);
+    const options = {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top',
+            },
+            customCanvasBackgroundColor: {
+                color: 'green',
+            },
+            title: {
+                display: true,
+                text: 'Monthly Data Line Chart',
+            },
+        },
+        animations: {
+            tension: {
+                duration: 1000,
+                easing: 'linear',
+                from: 1,
+                to: 0,
+                loop: true
+            }
+        },
+
+    };
+
+
+    const Datas = {
+        labels: xAxisData,
+        datasets: [
+            {
+                label: 'Sales',
+                data: salesData,
+                borderColor: '#F7CFD8',
+                backgroundColor: 'rgba(247, 207, 216, 0.2)',
+                fill: true,
+                tension: 0.4
+            },
+        ],
+    };
 
 
     return (
         <div>
-            <Box sx={{ width: "100%", maxWidth: '1200px', margin: '0 auto' }}> {/* Define max width */}
-                <Typography sx={{ textAlign: "center" }}>Line Chart</Typography>
-                <LineChart
-                    xAxis={[{ data: [1, 2, 3, 5, 8, 10] }]}
-                    series={[
-                        {
-                            data: [2, 5.5, 2, 8.5, 1.5, 5],
-                        },
-                    ]}
-                    style={{ width: "100%", height: 400 }} // Ensure full width of the parent container
-                />
+            <Box sx={{ width: "100%", margin: '0 auto' }}>
+                <Line data={Datas} options={options} style={{ width: '100%', maxHeight: 305 }} />
             </Box>
         </div>
     )
 }
 
 export default memo(LineChartRep)
-
-//jomol (28-03-2024)- 01:10 PM
-// import { Box, Typography } from '@mui/joy';
-// import { LineChart } from '@mui/x-charts';
-// import React, { memo } from 'react';
-
-// const LineChartRep = ({ salesData, xAxisData }) => {
-//     console.log("salesData", salesData);
-//     console.log("xAxisData", xAxisData);
-
-//     const dataRep = {
-//         xAxis: xAxisData,
-//         series: [
-//             {
-//                 data: salesData,
-//                 label: 'Sales Data',
-//             },
-//         ],
-//     };
-
-//     return (
-//         <div>
-//             <Box sx={{ width: "100%", maxWidth: '1200px', margin: '0 auto' }}>
-//                 <Typography sx={{ textAlign: "center" }}>Line Chart</Typography>
-//                 <LineChart
-//                     xAxis={[{ data: dataRep.xAxis }]}
-//                     series={dataRep.series}
-//                     // series={dataRep.series}
-//                     sx={{ width: "100%", height: 400 }}
-//                 />
-//             </Box>
-//         </div>
-//     );
-// };
-
-// export default memo(LineChartRep);
-
-// ***************************************
-
-// import { Typography } from '@mui/joy';
-// import { LineChart } from '@mui/x-charts';
-// import React, { memo } from 'react';
-
-// const LineChartRep = ({ salesDat = [], xAxisData = [] }) => {
-//     // console.log("salesDat", salesDat);
-//     console.log("xAxisData", xAxisData);
-
-
-//     // Check if the data is valid
-//     if (!Array.isArray(salesDat) || salesDat.length === 0) {
-//         console.error('Sales data is empty or not an array!');
-//         return <Typography sx={{ textAlign: 'center', color: 'red' }}>No Data Available</Typography>;
-//     }
-
-
-
-//     return (
-//         <div>
-//             <Typography sx={{ textAlign: 'center' }}>Line Chart</Typography>
-//             <LineChart
-//                 xAxis={[{ data: xAxisData }]}
-//                 // series={formattedSalesDat} // Ensure data is formatted correctly
-//                 series={[
-//                     {
-//                         data: salesDat,
-//                     },
-//                 ]}
-//                 width={1900}
-//                 height={300}
-//             />
-//         </div>
-//     );
-// };
-
-// export default memo(LineChartRep);
-
 

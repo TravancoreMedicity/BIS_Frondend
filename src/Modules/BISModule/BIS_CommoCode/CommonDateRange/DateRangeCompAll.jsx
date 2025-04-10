@@ -1,7 +1,6 @@
 
-import { Box, Button, ButtonGroup, IconButton, Input, Typography } from '@mui/joy';
+import { Box, Button, ButtonGroup, Input, Typography } from '@mui/joy';
 import React, { memo, useCallback, useState, useEffect } from 'react';
-import { Calendar } from 'iconoir-react';
 import { addDays, eachDayOfInterval, format, startOfMonth, startOfWeek, subMonths, subWeeks } from "date-fns";
 
 const DateRangeCompAll = ({ setSalesData, setXAxisData }) => {
@@ -60,17 +59,15 @@ const DateRangeCompAll = ({ setSalesData, setXAxisData }) => {
     }, [fromDate, toDate]);
     return (
         <div>
-            <Box sx={{ flexWrap: "wrap", mt: 1 }}>
+            <Box sx={{ flexWrap: "wrap", mt: 0.5, flex: 1, }}>
                 <ButtonGroup
                     aria-label="radius button group"
                     sx={{ '--ButtonGroup-radius': '40px' }}
                 >
-                    <IconButton>
-                        <Calendar sx={{ color: "rgba(var( --input-font-color))" }} />
-                    </IconButton>
                     <Button onClick={() => handlePeriodChange(1)}>
                         <Typography
                             sx={{
+                                fontSize: 11,
                                 color: "rgba(var( --input-font-color))", '&:hover': {
                                     color: 'rgba(var( --font-black))', backgroundColor: 'transparent',
                                 }
@@ -78,6 +75,7 @@ const DateRangeCompAll = ({ setSalesData, setXAxisData }) => {
                     </Button>
                     <Button onClick={() => handlePeriodChange(2)}>
                         <Typography sx={{
+                            fontSize: 11,
                             color: "rgba(var( --input-font-color))",
                             '&:hover': {
                                 color: 'rgba(var( --font-black))',
@@ -87,6 +85,7 @@ const DateRangeCompAll = ({ setSalesData, setXAxisData }) => {
                     </Button>
                     <Button onClick={() => handlePeriodChange(3)}>
                         <Typography sx={{
+                            fontSize: 11,
                             color: "rgba(var( --input-font-color))",
                             '&:hover': {
                                 color: 'rgba(var( --font-black))',
@@ -96,6 +95,7 @@ const DateRangeCompAll = ({ setSalesData, setXAxisData }) => {
                     </Button>
                     <Button onClick={() => handlePeriodChange(4)}>
                         <Typography sx={{
+                            fontSize: 11,
                             color: "rgba(var( --input-font-color))",
                             '&:hover': {
                                 color: 'rgba(var( --font-black))',
@@ -105,6 +105,7 @@ const DateRangeCompAll = ({ setSalesData, setXAxisData }) => {
                     </Button>
                     <Button onClick={() => handlePeriodChange(5)}>
                         <Typography sx={{
+                            fontSize: 11,
                             color: "rgba(var( --input-font-color))",
                             '&:hover': {
                                 color: 'rgba(var( --font-black))',
@@ -113,39 +114,27 @@ const DateRangeCompAll = ({ setSalesData, setXAxisData }) => {
                         }}>This Year</Typography>
                     </Button>
                     <Button onClick={() => handlePeriodChange(6)}>
-                        <Typography sx={{
-                            color: "rgba(var( --input-font-color))",
-                            '&:hover': {
-                                color: 'rgba(var( --font-black))',
-                                backgroundColor: 'transparent',
-                            }
-                        }}>Date Range</Typography>
-                    </Button>
-                    <Button>
-                        {
-                            dayCount === 6 ?
-                                <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
-                                    <Input
-                                        type="date"
-                                        value={fromDate}
-                                        onChange={(e) => setFromDate(e.target.value)}
-                                        size='s'
-                                    />
-                                    <Input
-                                        type="date"
-                                        value={toDate}
-                                        onChange={(e) => setToDate(e.target.value)}
-                                        size='s'
-                                        slotProps={{
-                                            input: {
-                                                min: fromDate
-                                            }
-                                        }}
-                                    />
-                                </Box>
-                                :
-                                <Calendar sx={{ color: "rgba(var( --input-font-color))" }} />
-                        }
+                        <Box sx={{ display: "flex", flexDirection: "row", gap: 1 }}>
+                            <Input
+                                type="date"
+                                value={fromDate}
+                                onChange={(e) => setFromDate(e.target.value)}
+                                size='xs'
+                                sx={{ p: 1, backgroundColor: "#EBEAFF" }}
+                            />
+                            <Input
+                                type="date"
+                                value={toDate}
+                                onChange={(e) => setToDate(e.target.value)}
+                                size='xs'
+                                sx={{ p: 1, backgroundColor: "#EBEAFF" }}
+                                slotProps={{
+                                    input: {
+                                        min: fromDate
+                                    }
+                                }}
+                            />
+                        </Box>
                     </Button>
                 </ButtonGroup>
             </Box>

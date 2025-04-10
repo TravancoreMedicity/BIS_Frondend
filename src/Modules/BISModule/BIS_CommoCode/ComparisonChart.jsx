@@ -1,13 +1,12 @@
 import { React, memo, useCallback, useState, useEffect } from 'react';
 import { BarChart, barElementClasses } from '@mui/x-charts/BarChart';
 import { axisClasses } from '@mui/x-charts/ChartsAxis';
-import { Box, Button, ButtonGroup, IconButton, Input, Typography } from '@mui/joy';
+import { Box, Button, ButtonGroup, Input, Typography } from '@mui/joy';
 import { Fragment } from 'react';
 import SelectGraphicalView from './SelectGraphicalView';
 import LineChartRep from './LineChartRep';
 import PolarGraph from '../BIS_CommoCode/PolarGraph';
-import { Calendar } from 'iconoir-react';
-import { addDays, differenceInDays, eachDayOfInterval, format, min, startOfMonth, startOfWeek, subDays, subMonths, subWeeks, subYears } from "date-fns";
+import { addDays, differenceInDays, eachDayOfInterval, endOfMonth, format, startOfMonth, startOfWeek, subDays, subMonths, subWeeks, subYears } from "date-fns";
 
 const ComparisonChart = () => {
     const [salesData1, setSalesData1] = useState([]);
@@ -33,7 +32,7 @@ const ComparisonChart = () => {
 
     const PrevMonth = format(subMonths(new Date(StartOfcurrentMonth), 1), "yyyy-MM-dd");
 
-    const colors = ['#006BD6', '#EC407A'];
+    const colors = ['#E69DB8', '#97C3C7'];
 
     const handlePeriodChange = useCallback((period) => {
         setDayCount(period);
@@ -66,13 +65,13 @@ const ComparisonChart = () => {
             sales1 = xAxis1.map(() => Math.floor(Math.random() * 10));
 
             const FirstIn = format(StartOfcurrentMonth, 'yyyy-MMM');
-            setChooseDate(FirstIn)
 
             const FirstOut = format(subMonths(FirstIn, 5), 'yyyy-MMM')
 
             const SecondOut = format(subMonths(FirstOut, 1), "yyyy-MMM")
 
             const SecondIn = format(subMonths(FirstOut, 6), "yyyy-MMM")
+            setChooseDate(FirstIn)
             setPrevDate(SecondOut)
             setFirstOut(FirstOut)
             setSecondIn(SecondIn)
@@ -130,7 +129,7 @@ const ComparisonChart = () => {
         }
         else if (fromDate && toDate) {
             const startDate = new Date(fromDate);
-            const endDate = new Date(toDate);
+            const endDate = endOfMonth(new Date(toDate));
 
             const xAxis1 = eachDayOfInterval({ start: startDate, end: endDate }).map(date => format(date, 'yyyy-MM-dd'));
 
@@ -138,235 +137,224 @@ const ComparisonChart = () => {
             setXAxisData1(xAxis1)
             setSalesData1(sales1)
 
-            const nextStartDate = subDays(new Date(endDate), 1)
             const diffDateRange = differenceInDays(endDate, startDate)
-            const nextEndDate = subDays(new Date(nextStartDate), diffDateRange)
+            const nextStartDate = subDays(new Date(endDate), diffDateRange + 1)
+            const nextEndDates = subDays(new Date(nextStartDate), diffDateRange)
 
-            console.log("startDate", startDate);
-            console.log("endDate", endDate);
-
-            console.log("nextStartDate", nextStartDate);
-            console.log("diffDateRange", diffDateRange);
-            console.log("nextEndDate", nextEndDate);
-
-            const xAxis2 = eachDayOfInterval({ start: nextStartDate, end: nextEndDate }).map(date => format(date, 'yyyy-MM-dd'));
+            const xAxis2 = eachDayOfInterval({ start: nextStartDate, end: nextEndDates }).map(date => format(date, 'yyyy-MM-dd'));
             const sales2 = xAxis1.map(() => Math.floor(Math.random() * 10));
 
             setXAxisData2(xAxis2);
             setSalesData2(sales2);
+
+            const first = format(new Date(startDate), 'yyyy-MMM')
+            const second = format(new Date(endDate), 'yyyy-MMM')
+            const third = format(new Date(nextStartDate), 'yyyy-MMM')
+            const fourth = format(new Date(nextEndDates), 'yyyy-MMM')
+
+            setChooseDate(first)
+            setPrevDate(second)
+            setFirstOut(third)
+            setSecondIn(fourth)
         }
     }, [fromDate, toDate]);
 
 
     return (
         <Fragment>
-            <Typography sx={{ textAlign: "center" }}>Comparison Chart</Typography>
-
-            <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "space-between", mt: 4, px: 4, flexWrap: "wrap" }}>
-
-                {/* Date Rage Section */}
-
-                <Box sx={{ flexWrap: "wrap", mt: 1 }}>
-                    <ButtonGroup
-                        aria-label="radius button group"
-                        sx={{ '--ButtonGroup-radius': '40px' }}
-                    >
-                        <IconButton>
-                            <Calendar sx={{ color: "rgba(var( --input-font-color))" }} />
-                        </IconButton>
-                        <Button onClick={() => handlePeriodChange(1)}>
-                            <Typography sx={{
-                                color: "rgba(var( --input-font-color))",
-                                '&:hover': {
-                                    color: 'rgba(var( --font-black))',
-                                    backgroundColor: 'transparent',
-                                }
-                            }}>This Month</Typography>
-                        </Button>
-                        <Button onClick={() => handlePeriodChange(2)}>
-                            <Typography sx={{
-                                color: "rgba(var( --input-font-color))",
-                                '&:hover': {
-                                    color: 'rgba(var( --font-black))',
-                                    backgroundColor: 'transparent',
-                                }
-                            }}>Last 6 months</Typography>
-                        </Button>
-                        <Button onClick={() => handlePeriodChange(3)}>
-                            <Typography sx={{
-                                color: "rgba(var( --input-font-color))",
-                                '&:hover': {
-                                    color: 'rgba(var( --font-black))',
-                                    backgroundColor: 'transparent',
-                                }
-                            }}>This Year</Typography>
-                        </Button>
-                        <Button onClick={() => handlePeriodChange(4)}>
-                            <Typography sx={{
-                                color: "rgba(var( --input-font-color))",
-                                '&:hover': {
-                                    color: 'rgba(var( --font-black))',
-                                    backgroundColor: 'transparent',
-                                }
-                            }}>Date Range</Typography>
-                        </Button>
-                        <Button>
-                            {
-                                dayCount === 4 ?
-                                    <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
-                                        <Input
-                                            type="month"
-                                            value={fromDate}
-                                            onChange={(e) => setFromDate(e.target.value)}
-                                            size='s'
-                                        />
-                                        <Input
-                                            type="month"
-                                            // type="date"
-                                            value={toDate}
-                                            onChange={(e) => setToDate(e.target.value)}
-                                            size='s'
-                                            slotProps={{
-                                                input: {
-                                                    min: fromDate
-                                                }
-                                            }}
-                                        />
-                                    </Box>
-                                    :
-                                    <Calendar sx={{ color: "rgba(var( --input-font-color))" }} />
-                            }
-                        </Button>
-                    </ButtonGroup>
+            <Box sx={{ mt: 1, width: "100%" }}>
+                <Box sx={{ display: "flex", flexDirection: "row", gap: 1, width: "100%", justifyContent: "space-between" }}>
+                    <Box>
+                        <ButtonGroup
+                            aria-label="radius button group"
+                            sx={{ '--ButtonGroup-radius': '40px' }}
+                        >
+                            <Button onClick={() => handlePeriodChange(1)}>
+                                <Typography sx={{
+                                    fontSize: 11,
+                                    color: "rgba(var( --input-font-color))",
+                                    '&:hover': {
+                                        color: 'rgba(var( --font-black))',
+                                        backgroundColor: 'transparent',
+                                    }
+                                }}>This Month</Typography>
+                            </Button>
+                            <Button onClick={() => handlePeriodChange(2)}>
+                                <Typography sx={{
+                                    fontSize: 11,
+                                    color: "rgba(var( --input-font-color))",
+                                    '&:hover': {
+                                        color: 'rgba(var( --font-black))',
+                                        backgroundColor: 'transparent',
+                                    }
+                                }}>Last 6 months</Typography>
+                            </Button>
+                            <Button onClick={() => handlePeriodChange(3)}>
+                                <Typography sx={{
+                                    fontSize: 11,
+                                    color: "rgba(var( --input-font-color))",
+                                    '&:hover': {
+                                        color: 'rgba(var( --font-black))',
+                                        backgroundColor: 'transparent',
+                                    }
+                                }}>This Year</Typography>
+                            </Button>
+                            <Button onClick={() => handlePeriodChange(4)}>
+                                <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
+                                    <Input
+                                        type="month"
+                                        value={fromDate}
+                                        onChange={(e) => setFromDate(e.target.value)}
+                                        size='xs'
+                                    />
+                                    <Input
+                                        type="month"
+                                        value={toDate}
+                                        onChange={(e) => setToDate(e.target.value)}
+                                        size='xs'
+                                        slotProps={{
+                                            input: {
+                                                min: fromDate
+                                            }
+                                        }}
+                                    />
+                                </Box>
+                            </Button>
+                        </ButtonGroup>
+                    </Box>
+                    <Box>
+                        <SelectGraphicalView Chartlayout={Chartlayout} seChartlayout={seChartlayout} />
+                    </Box>
                 </Box>
-                {/* Date Rage Section over */}
 
-                <Box>
-                    <SelectGraphicalView Chartlayout={Chartlayout} seChartlayout={seChartlayout} />
-                </Box>
-            </Box>
-            <Box sx={{ mt: 3 }}>
-                {parseInt(Chartlayout) === 1 ?
-                    // < BarGraphicalRep salesData={salesData} xAxisData={xAxisData} />
-                    <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "space-around" }}>
-                        <Box sx={{ mt: 3 }}>
+                <Box sx={{ width: "100%", display: "flex", flexDirection: "row", gap: 1, mt: 2, flexWrap: { sm: 'wrap', xl: "nowrap" } }}>
+                    <Box sx={{ width: { xl: "50%", sm: '100%' }, maxHeight: 335, }}>
+                        <Box>
                             <Typography sx={{ textAlign: "center" }}>
                                 {dayCount === 1 ? ChooseDate :
                                     dayCount === 2 ? `${ChooseDate} - ${FirstOut}` :
                                         dayCount === 3 ? ChooseDate :
-                                            ChooseDate}
+                                            dayCount === 4 ? `${ChooseDate} - ${FirstOut}` :
+                                                ChooseDate}
                             </Typography>
-                            <BarChart
-                                sx={(theme) => ({
-                                    [`.${barElementClasses.root}`]: {
-                                        fill: theme.palette.background.paper,
-                                        strokeWidth: 2,
-                                    },
-                                    [`.MuiBarElement-series-l_id`]: {
-                                        stroke: colors[0],
-                                    },
-                                    [`.MuiBarElement-series-r_id`]: {
-                                        stroke: colors[1],
-                                    },
-                                    [`.${axisClasses.root}`]: {
-                                        [`.${axisClasses.tick}, .${axisClasses.line}`]: {
-                                            stroke: '#006BD6',
-                                            strokeWidth: 3,
-                                        },
-                                        [`.${axisClasses.tickLabel}`]: {
-                                            fill: '#006BD6',
-                                        },
-                                    },
-                                    border: '1px solid rgba(0, 0, 0, 0.1)',
-                                    backgroundImage:
-                                        'linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, 0.1) 1px, transparent 1px)',
-                                    backgroundSize: '35px 35px',
-                                    backgroundPosition: '20px 20px, 20px 20px',
-                                    ...theme.applyStyles('dark', {
-                                        borderColor: 'rgba(255,255,255, 0.1)',
-                                        backgroundImage:
-                                            'linear-gradient(rgba(255,255,255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255, 0.1) 1px, transparent 1px)',
-                                    }),
-                                })}
-                                xAxis={[{ scaleType: 'band', data: xAxisData1 }]}
-                                series={[
-                                    { data: salesData1, label: 'l', id: 'l_id' },
-                                    // { data: rData, label: 'r', id: 'r_id' },
-                                ]}
-                                colors={colors}
-                                width={900}
-                                height={300}
-                            />
                         </Box>
+                        {
+                            parseInt(Chartlayout) === 1 ?
 
-                        <Box sx={{ mt: 3 }}>
+                                <Box sx={{ overflowX: "auto", overflowY: "auto" }}>
+                                    <BarChart
+                                        sx={(theme) => ({
+                                            [`.${barElementClasses.root}`]: {
+                                                fill: theme.palette.background.paper,
+                                                strokeWidth: 2,
+                                            },
+                                            [`.MuiBarElement-series-l_id`]: {
+                                                fill: colors[0],
+                                            },
+                                            [`.MuiBarElement-series-r_id`]: {
+                                                fill: colors[1],
+                                            },
+                                            [`.${axisClasses.root}`]: {
+                                                [`.${axisClasses.tick}, .${axisClasses.line}`]: {
+                                                    stroke: '#006BD6',
+                                                    strokeWidth: 3,
+                                                },
+                                                [`.${axisClasses.tickLabel}`]: {
+                                                    fill: '#006BD6',
+                                                },
+                                            },
+
+                                            border: '1px solid rgba(0, 0, 0, 0.1)',
+                                            backgroundImage:
+                                                'linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, 0.1) 1px, transparent 1px)',
+                                            backgroundSize: '35px 35px',
+                                            backgroundPosition: '20px 20px, 20px 20px',
+                                            ...theme.applyStyles('dark', {
+                                                borderColor: 'rgba(255,255,255, 0.1)',
+                                                backgroundImage:
+                                                    'linear-gradient(rgba(255,255,255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255, 0.1) 1px, transparent 1px)',
+                                            }),
+                                        })}
+                                        xAxis={[{ scaleType: 'band', data: xAxisData1, },]}
+                                        series={[
+                                            { data: salesData1, label: 'l', id: 'l_id' },
+                                        ]}
+                                        colors={colors}
+                                        width={900}
+                                        height={300}
+
+                                    />
+                                </Box>
+                                : parseInt(Chartlayout) === 2 ?
+                                    <LineChartRep salesData={salesData1} xAxisData={xAxisData1} />
+                                    : parseInt(Chartlayout) === 3 ?
+                                        <PolarGraph salesData={salesData1} xAxisData={xAxisData1} />
+                                        : null
+                        }
+                    </Box>
+
+                    <Box sx={{ width: { xl: "50%", sm: '100%' }, mt: { sm: 1, xl: 0 }, maxHeight: 335 }}>
+                        <Box>
                             <Typography sx={{ textAlign: "center" }}>
                                 {dayCount === 1 ? prevDate :
                                     dayCount === 2 ? `${prevDate} - ${SecondIn}` :
                                         dayCount === 3 ? prevDate :
-                                            prevDate}
+                                            dayCount === 4 ? `${prevDate} - ${SecondIn}` :
+                                                prevDate}
                             </Typography>
-                            <BarChart
-                                sx={(theme) => ({
-                                    [`.${barElementClasses.root}`]: {
-                                        fill: theme.palette.background.paper,
-                                        strokeWidth: 2,
-                                    },
-                                    [`.MuiBarElement-series-l_id`]: {
-                                        stroke: colors[0],
-                                    },
-                                    [`.MuiBarElement-series-r_id`]: {
-                                        stroke: colors[1],
-                                    },
-                                    [`.${axisClasses.root}`]: {
-                                        [`.${axisClasses.tick}, .${axisClasses.line}`]: {
-                                            stroke: '#006BD6',
-                                            strokeWidth: 3,
+                        </Box>
+                        {parseInt(Chartlayout) === 1 ?
+                            <Box sx={{ overflowX: "auto", overflowY: "auto" }}>
+                                <BarChart
+                                    sx={(theme) => ({
+                                        [`.${barElementClasses.root}`]: {
+                                            fill: theme.palette.background.paper,
+                                            strokeWidth: 2,
                                         },
-                                        [`.${axisClasses.tickLabel}`]: {
-                                            fill: '#006BD6',
+                                        [`.MuiBarElement-series-l_id`]: {
+                                            fill: colors[0],
                                         },
-                                    },
-                                    border: '1px solid rgba(0, 0, 0, 0.1)',
-                                    backgroundImage:
-                                        'linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, 0.1) 1px, transparent 1px)',
-                                    backgroundSize: '35px 35px',
-                                    backgroundPosition: '20px 20px, 20px 20px',
-                                    ...theme.applyStyles('dark', {
-                                        borderColor: 'rgba(255,255,255, 0.1)',
+                                        [`.MuiBarElement-series-r_id`]: {
+                                            fill: colors[1],
+                                        },
+                                        [`.${axisClasses.root}`]: {
+                                            [`.${axisClasses.tick}, .${axisClasses.line}`]: {
+                                                stroke: '#006BD6',
+                                                strokeWidth: 3,
+                                            },
+                                            [`.${axisClasses.tickLabel}`]: {
+                                                fill: '#006BD6',
+                                            },
+                                        },
+
+                                        border: '1px solid rgba(0, 0, 0, 0.1)',
                                         backgroundImage:
-                                            'linear-gradient(rgba(255,255,255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255, 0.1) 1px, transparent 1px)',
-                                    }),
-                                })}
-                                xAxis={[{ scaleType: 'band', data: xAxisData2 }]}
-                                series={[
-                                    // { data: lsData, label: 'l', id: 'l_id' },
-                                    { data: salesData2, label: 'r', id: 'r_id' },
-                                ]}
-                                colors={colors}
-                                width={900}
-                                height={300}
-                            />
-                        </Box>
-                    </Box>
-                    : parseInt(Chartlayout) === 2 ?
-                        <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "space-around", width: "100%" }}>
-                            {/* <LineChartRep salesDat={salesData} xAxisData={xAxisData} /> */}
-                            <Box sx={{ width: "50%" }}><LineChartRep salesData={salesData1} xAxisData={xAxisData1} /></Box>
-                            <Box sx={{ width: "50%" }}><LineChartRep salesData={salesData2} xAxisData={xAxisData2} /></Box>
-
-                        </Box>
-                        : parseInt(Chartlayout) === 3 ?
-
-
-                            <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "space-around", width: "100%" }}>
-                                {/* <LineChartRep salesDat={salesData} xAxisData={xAxisData} /> */}
-                                <PolarGraph salesData={salesData1} xAxisData={xAxisData1} />
-                                <PolarGraph salesData={salesData2} xAxisData={xAxisData2} />
-
+                                            'linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, 0.1) 1px, transparent 1px)',
+                                        backgroundSize: '35px 35px',
+                                        backgroundPosition: '20px 20px, 20px 20px',
+                                        ...theme.applyStyles('dark', {
+                                            borderColor: 'rgba(255,255,255, 0.1)',
+                                            backgroundImage:
+                                                'linear-gradient(rgba(255,255,255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255, 0.1) 1px, transparent 1px)',
+                                        }),
+                                    })}
+                                    xAxis={[{ scaleType: 'band', data: xAxisData2 }]}
+                                    series={[
+                                        { data: salesData2, label: 'r', id: 'r_id' },
+                                    ]}
+                                    colors={colors}
+                                    width={900}
+                                    height={300}
+                                />
                             </Box>
-                            : "null"
-                }
+                            : parseInt(Chartlayout) === 2 ?
+                                <LineChartRep salesData={salesData2} xAxisData={xAxisData2} />
+                                : parseInt(Chartlayout) === 3 ?
+                                    <PolarGraph salesData={salesData2} xAxisData={xAxisData2} />
+                                    : null
+                        }
+                    </Box>
+                </Box>
             </Box>
         </Fragment>
     )
