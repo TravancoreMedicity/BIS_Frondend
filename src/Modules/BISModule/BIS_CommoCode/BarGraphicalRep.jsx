@@ -9,16 +9,38 @@ const BarGraphicalRep = ({ salesData, xAxisData }) => {
 
     const data = {
         labels: xAxisData,
+        // datasets: [
+        //     {
+        //         label: 'Sales Graph',
+        //         data: salesData,
+        //         borderColor: 'rgb(208, 219, 227)',
+        //         backgroundColor: 'rgba(155, 173, 178, 0.75)',
+        //         barThickness: 40,
+        //         color: 'rgb(var(--graph-font-clr))'
+        //     },
+        // ],
         datasets: [
             {
-                label: 'Sales Graph',
-                data: salesData,
-                borderColor: 'rgb(208, 219, 227)',
-                backgroundColor: 'rgba(155, 173, 178, 0.75)',
-                barThickness: 40,
-                color: 'rgb(var(--graph-font-clr))'
+                label: 'New Registration',
+                data: [12000, 13500, 11000, 14500, 9000, 13000, 12500],
+                borderColor: 'rgb(54, 162, 235)',
+                backgroundColor: 'rgba(44, 80, 103, 0.5)',
+                barThickness: 30,
             },
-        ],
+            {
+                label: 'Revist',
+                data: [1500, 1200, 1100, 1300, 900, 1100, 950],
+                borderColor: 'rgb(255, 99, 132)',
+                backgroundColor: 'rgba(70, 56, 60, 0.45)',
+                barThickness: 30,
+            },
+            {
+                label: 'OP Patients',
+                data: [10500, 12300, 10200, 13200, 8100, 11900, 11550],
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(74, 95, 95, 0.79)',
+                barThickness: 30,
+            }]
     };
 
     const options = {

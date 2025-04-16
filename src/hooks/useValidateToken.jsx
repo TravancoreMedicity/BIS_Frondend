@@ -11,7 +11,9 @@ const useValidateToken = () => {
         const validateToken = async () => {
             setIsLoading(true);
             try {
-                const res = await axiosApi.get("/validateToken", { signal: controler.signal });
+                const res = await axiosApi.get("/validateAccessToken",
+                    { signal: controler.signal }
+                );
                 if (res.status === 200) {
                     const { isValidToken } = res.data;
                     setIsValid(isValidToken);

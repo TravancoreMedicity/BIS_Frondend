@@ -1,18 +1,18 @@
-import { Box, Button, ButtonGroup, Input, Typography } from '@mui/joy';
+import { Box, Button, ButtonGroup, IconButton, Input, Typography } from '@mui/joy';
 import React, { memo, useCallback, useState, useEffect } from 'react';
 import { addDays, eachDayOfInterval, format, startOfMonth, startOfWeek, subMonths, subWeeks } from "date-fns";
-import { Bar, Line, PolarArea } from 'react-chartjs-2'; // Import Line chart
+import { Bar, Line, PolarArea } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
     CategoryScale,
     LinearScale,
     BarElement,
-    LineElement, // Add LineElement
-    PointElement, // Add PointElement for line chart
+    LineElement,
+    PointElement,
     Title,
     Tooltip,
     Legend,
-    RadialLinearScale, // Add this for polar area chart
+    RadialLinearScale,
     ArcElement
 } from 'chart.js';
 import SelectGraphicalView from '../SelectGraphicalView';
@@ -22,8 +22,8 @@ ChartJS.register(
     CategoryScale,
     LinearScale,
     BarElement,
-    LineElement, // Register LineElement
-    PointElement, // Register PointElement
+    LineElement,
+    PointElement,
     Title,
     Tooltip,
     Legend,
@@ -31,12 +31,12 @@ ChartJS.register(
     ArcElement
 );
 
-const OverallSalesProgress = ({ Graphicaldata, Displaystyle }) => {
+const MainGraph = ({ Graphicaldata, chartItems, Displaystyle, DisplayData }) => {
     const StyleMode = parseInt(Displaystyle);
     const [dayCount, setDayCount] = useState(1);
     const [fromDate, setFromDate] = useState('');
     const [toDate, setToDate] = useState('');
-    const [chartData, setChartData] = useState(Graphicaldata);
+    const [chartData, setChartData] = useState(DisplayData);
     const [Chartlayout, seChartlayout] = useState(StyleMode);
 
     const Todays = format(new Date(), 'yyyy-MM-dd');
@@ -44,6 +44,7 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle }) => {
     const startOfThisWeek = startOfWeek(new Date(), { weekStartsOn: 1 });
     const startOfLastWeek = subWeeks(startOfThisWeek, 1);
     const endOfLastWeek = addDays(startOfLastWeek, 6);
+
 
     // Function to filter data based on selected date range
     const filterDataByDateRange = (labels, data, dateRange) => {
@@ -61,7 +62,6 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle }) => {
     };
     const handlePeriodChange = useCallback((period) => {
         setDayCount(period);
-        // console.log(period);
 
         const now = new Date();
 
@@ -85,20 +85,14 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle }) => {
                     .map(month => format(month, 'yyyy-MM-dd'));
             }
         };
-
-
         const dateRange = periodHandlers[period]?.() || [];
-
         const filteredData = filterDataByDateRange(
-            Graphicaldata.labels,
-            Graphicaldata,
+            DisplayData.labels,
+            DisplayData,
             dateRange
         );
-
         setChartData(filteredData);
-    }, [Todays, startOfLastWeek, endOfLastWeek, StartOfcurrentMonth, Graphicaldata]);
-
-    // console.log("chartData", chartData);
+    }, [Todays, startOfLastWeek, endOfLastWeek, StartOfcurrentMonth, Graphicaldata, DisplayData]);
 
     useEffect(() => {
         if (fromDate && toDate) {
@@ -110,13 +104,13 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle }) => {
             }).map(date => format(date, 'yyyy-MM-dd'));
 
             const filteredData = filterDataByDateRange(
-                Graphicaldata.labels,
-                Graphicaldata,
+                DisplayData.labels,
+                DisplayData,
                 customDateRange
             );
             setChartData(filteredData);
         }
-    }, [fromDate, toDate, Graphicaldata]);
+    }, [fromDate, toDate, Graphicaldata, DisplayData]);
 
     // Bar chart options
     const barOptions = {
@@ -129,9 +123,7 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle }) => {
         plugins: {
             legend: { position: 'top' },
             title: { display: true, text: 'Out Patient Statistics' },
-
         },
-
     };
 
     // Line chart options
@@ -156,37 +148,15 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle }) => {
                 borderColor: dataset.borderColor,
                 backgroundColor: dataset.backgroundColor.replace('0.5', '0.2'), // Make more transparent for line
                 borderWidth: 2,
-                tension: 0.4, // Add curve to the line
-                fill: false, // Don't fill under the line
-                pointRadius: 4, // Make points visible
+                tension: 0.4,
+                fill: false,
+                pointRadius: 4,
                 pointBackgroundColor: dataset.borderColor
             }))
         };
     };
 
-
     //Polar Area Functions
-    // const polarOptions = {
-    //     responsive: true,
-    //     plugins: {
-    //         legend: {
-    //             position: 'top',
-    //         },
-    //         title: {
-    //             display: false,
-    //             text: 'Patient Details',
-    //         },
-    //     },
-    //     scales: {
-    //         r: {
-    //             angleLines: {
-    //                 display: true
-    //             },
-    //             suggestedMin: 0
-    //         }
-    //     }
-    // };
-
     const polarOptions = {
         responsive: true,
         plugins: {
@@ -200,7 +170,7 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle }) => {
                 enabled: true, // Enable tooltips for values on hover
             },
             title: {
-                display: false,
+                display: true,
                 text: 'Patient Details',
             },
         },
@@ -220,8 +190,6 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle }) => {
         },
     };
 
-
-
     // Transform data for polar area chart
     const transformToPolarData = (data) => {
         const labels = data.datasets?.map((val) => val.label);
@@ -232,7 +200,7 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle }) => {
             labels,
             datasets: [
                 {
-                    // label: 'Total Patients',
+                    // label: 'cout',
                     data: summedData,
                     backgroundColor: [
                         'rgba(255, 99, 132, 0.5)',
@@ -247,13 +215,94 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle }) => {
             ],
         };
     };
+    const CenteredChart = ({ children }) => (
+        <Box
+            sx={{
+                width: "100%",
+                height: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center"
+            }}
+        >
+            {children}
+        </Box>
+    );
+
+    //Section wise chart
+    const DisplayDatas = {
+        labels: ['2025-04-01', '2025-04-02', '2025-04-03'],
+        datasets: [
+            {
+                label: 'MRI - IP',
+                data: [10, 12, 8],
+                backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+            },
+            {
+                label: 'MRI - OP',
+                data: [20, 25, 23],
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+            },
+            {
+                label: 'MRI - Billing',
+                data: [20, 25, 23],
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+            },
+            {
+                label: 'MRI - Return',
+                data: [18, 10, 40],
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+            },
+            {
+                label: 'CT Scan - IP',
+                data: [15, 13, 17],
+                backgroundColor: 'rgba(255, 206, 86, 0.5)',
+                borderColor: 'rgba(255, 206, 86, 1)',
+            },
+            {
+                label: 'CT Scan - OP',
+                data: [22, 20, 25],
+                backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+            },
+            {
+                label: 'CT - Billing',
+                data: [24, 35, 12],
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+            },
+            {
+                label: 'CT - Return',
+                data: [19, 40, 25],
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+            },]
+    };
+
+
+    const GetChart = useCallback((item) => {
+        const filtered = {
+            labels: DisplayDatas.labels,
+            datasets: DisplayDatas.datasets.filter(ds => ds.label.startsWith(item.label))
+        };
+        console.log("filtered", filtered);
+
+        setChartData(filtered);
+    }, [DisplayData]);
+    // console.log(DisplayData);
+
+
     return (
         <Box sx={{
             width: '100%',
-            overflow: "auto"
+            overflow: "auto",
         }}>
             {/* Date Range Selector */}
-            <Box sx={{ flexWrap: "wrap", mt: 0.5, flex: 1, }}>
+            <Box sx={{ flexWrap: "wrap", mt: 0.5, flex: 1, display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
                 <ButtonGroup aria-label="date range selector" sx={{ '--ButtonGroup-radius': '30px', display: "flex", flexWrap: { sm: "wrap", xl: 'nowrap' }, p: 0, size: "sm" }}>
                     {['Today', 'Last Week', 'This Month', 'Last 6 months', 'This Year', 'Custom'].map((label, index) => (
                         <Button key={label} onClick={() => handlePeriodChange(index + 1)}>
@@ -288,67 +337,51 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle }) => {
                         </Button>
                     ))}
                 </ButtonGroup>
-            </Box>
-
-            <Box sx={{ width: "100%", display: "flex", justifyContent: "flex-end", textAlign: "right" }}>
-                <Box sx={{ mt: 2, }}>
-                    <SelectGraphicalView Chartlayout={Chartlayout} seChartlayout={seChartlayout} />
+                <Box sx={{}}>
+                    <Box sx={{ mt: { xl: 0, sm: 2 } }}>
+                        <SelectGraphicalView Chartlayout={Chartlayout} seChartlayout={seChartlayout} />
+                    </Box>
                 </Box>
             </Box>
 
             {/* Chart Display */}
-            <Box sx={{ mt: 2, width: '100%', height: 350, overflow: "auto" }}>
-                {parseInt(Chartlayout) === 1 ? (
-                    // <Box sx={{
-                    //     width: "100%",
-                    //     height: "100%",
-                    //     display: "flex",
-                    //     alignItems: "center", justifyContent: "center"
-                    // }}>
-
-                    //     <Bar data={chartData} options={barOptions} style={{ width: '100%' }} />
-                    // </Box>
-                    <Box sx={{
-                        minWidth: `${chartData.labels.length * 60}px`,
-                        width: "100%",
-                        height: "100%",
-                        display: "flex",
-                        alignItems: "center", justifyContent: "center"
-                    }}>
-                        <Bar data={chartData} options={barOptions} style={{ width: '100%' }} />
+            <Box sx={{ display: "flex", flexDirection: "row", gap: 2, flexWrap: { sm: "wrap", xl: "nowrap" } }}>
+                {/* Radio Group */}
+                <Box sx={{ mt: 2, minWidth: 250, height: { xl: 350, sm: 180 }, overflow: "auto", px: 2 }}>
+                    <Box sx={{ border: 1, p: 1, borderColor: 'rgba(128, 121, 121, 0.5)', borderRadius: 5 }}>
+                        {chartItems?.map((item, index) => (
+                            <Box key={index} sx={{ display: "flex", flexDirection: "row", gap: 1 }}>
+                                <IconButton>
+                                    {item?.icon}
+                                </IconButton>
+                                <Typography
+                                    sx={{ mt: 1, color: item.color, fontWeight: "bold", cursor: "pointer" }}
+                                    onClick={() => GetChart(item)}
+                                >
+                                    {item?.label}
+                                </Typography>
+                            </Box>
+                        ))}
                     </Box>
-                ) : parseInt(Chartlayout) === 2 ? (
-
-                    <Box sx={{
-                        width: "100%",
-                        height: "100%",
-                        display: "flex",
-                        alignItems: "center", justifyContent: "center"
-                    }}>
-                        <Line
-                            data={transformToLineChartData(chartData)}
-                            options={lineOptions} style={{ width: '50%' }}
-                        />
-                    </Box>
-                ) : parseInt(Chartlayout) === 3 ? (
-                    <Box sx={{
-                        width: "100%",
-                        height: "100%",
-                        display: "flex",
-                        alignItems: "center", justifyContent: "center"
-                    }}>
-                        <PolarArea
-                            data={transformToPolarData(chartData)}
-                            options={polarOptions} style={{ width: '50%' }}
-                        />
-                    </Box>
-
-                ) : null}
+                </Box>
+                {/* Chart Area */}
+                <Box sx={{ mt: 1, width: '100%', height: 350, overflow: "auto", }}>
+                    {parseInt(Chartlayout) === 1 ? (
+                        <CenteredChart>
+                            <Bar data={chartData} options={barOptions} style={{ width: '100%' }} />
+                        </CenteredChart>
+                    ) : parseInt(Chartlayout) === 2 ? (
+                        <CenteredChart>
+                            <Line data={transformToLineChartData(chartData)} options={lineOptions} style={{ width: '50%' }} />
+                        </CenteredChart>
+                    ) : parseInt(Chartlayout) === 3 ? (
+                        <CenteredChart>
+                            <PolarArea data={transformToPolarData(chartData)} options={polarOptions} style={{ width: '50%' }} />
+                        </CenteredChart>
+                    ) : null}
+                </Box>
             </Box>
-        </Box>
+        </Box >
     );
 };
-
-export default memo(OverallSalesProgress);
-
-
+export default memo(MainGraph) 

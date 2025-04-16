@@ -128,7 +128,7 @@ const RoootLayouts = () => {
               authType: btoa(login_type),
               authTimeStamp: getTime(new Date(tokenValidity)),
             };
-            console.log(authData, 'ygvgyv');
+            // console.log(authData, 'ygvgyv');
 
             setAuth((prev) => {
               return {

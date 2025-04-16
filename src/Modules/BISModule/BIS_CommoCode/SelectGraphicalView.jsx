@@ -8,12 +8,20 @@ const SelectGraphicalView = ({ Chartlayout, seChartlayout }) => {
                 size="small"
                 select
                 sx={{
-                    minWidth: 150,
+                    width: 70,
                     '& .MuiInputBase-root': {
                         color: 'rgb(var(--graph-font-clr))',
+                        fontSize: '12px', // <-- Adjust this value to decrease font size
                     },
                     '& .MuiInputLabel-root': {
                         color: 'rgb(var(--graph-font-clr))',
+                        fontSize: '12px', // <-- Label font size
+                    },
+                    '& .MuiSelect-select': {
+                        fontSize: '12px', // <-- This targets the select's displayed value
+                    },
+                    '& .MuiMenuItem-root': {
+                        fontSize: '12px', // <-- This would affect dropdown items (may need MenuProps)
                     },
                     '&:hover': {
                         backgroundColor: 'rgba(0, 0, 0, 0.1)',
@@ -25,22 +33,22 @@ const SelectGraphicalView = ({ Chartlayout, seChartlayout }) => {
                     '@media (max-width:400px)': {
                         minWidth: '100px',
                     },
+                    textAlign: "center",
                 }}
-                label="Graphical view"
                 value={Chartlayout}
                 onChange={(event) => seChartlayout(event.target.value)}
-                style={{
-                    borderColor: 'red',
-                }}
             >
+
                 <MenuItem
                     value="1"
                     sx={{
+                        fontSize: '12px',
                         color: 'rgb(var(--graph-font-clr))',
                         backgroundColor: 'rgba(var(--graph-bg-color))',
                         '&.Mui-selected': {
                             backgroundColor: 'rgba(0, 0, 0, 0.1)',
                             color: 'black',
+                            fontSize: '12px'
                         },
                         '&:hover': {
                             backgroundColor: 'rgba(0, 0, 0, 0.1)',
@@ -48,33 +56,37 @@ const SelectGraphicalView = ({ Chartlayout, seChartlayout }) => {
                         },
                     }}
                 >
-                    Bar Chart
+                    Bar
                 </MenuItem>
                 <MenuItem
                     value="2"
                     sx={{
+                        fontSize: '12px',
                         color: 'rgb(var(--graph-font-clr))',
                         backgroundColor: 'rgba(var(--graph-bg-color))',
                         '&.Mui-selected': {
                             backgroundColor: 'rgba(0, 0, 0, 0.1)',
                             color: 'black',
+                            fontSize: '12px'
                         },
                     }}
                 >
-                    Line Chart
+                    Line
                 </MenuItem>
                 <MenuItem
                     value="3"
                     sx={{
+                        fontSize: '12px',
                         color: 'rgb(var(--graph-font-clr))',
                         backgroundColor: 'rgba(var(--graph-bg-color))',
                         '&.Mui-selected': {
                             backgroundColor: 'rgba(0, 0, 0, 0.1)',
                             color: 'black',
+                            fontSize: '12px'
                         },
                     }}
                 >
-                    Pie Chart
+                    Pie
                 </MenuItem>
             </TextField>
         </div>

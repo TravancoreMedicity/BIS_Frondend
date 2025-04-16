@@ -12,6 +12,7 @@ import ErrorElement from "./Pages/ErrorElement";
 import ModuleGroupMaster from "./Modules/Settings/ModuleGroupMaster/ModuleGroupMaster.jsx";
 import TmchGraphicalView from "./Modules/BISModule/TMCH/TmchGraphicalView.jsx";
 import KmchGraphicalView from "./Modules/BISModule/KMCH/KmchGraphicalView.jsx";
+import { ToastContainer } from "react-toastify";
 
 // Main Modules
 const Dashboard = lazy(() => import("./Modules/Dashboard/Dashboard.jsx"));
@@ -135,6 +136,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
+        <ToastContainer />
         <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />}>
           <RouterProvider router={routes} />
         </Suspense>
