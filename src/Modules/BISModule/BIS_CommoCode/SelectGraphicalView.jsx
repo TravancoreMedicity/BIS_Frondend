@@ -7,8 +7,9 @@ const SelectGraphicalView = ({ Chartlayout, seChartlayout }) => {
             <TextField
                 size="small"
                 select
+
                 sx={{
-                    width: 70,
+                    width: 75,
                     '& .MuiInputBase-root': {
                         color: 'rgb(var(--graph-font-clr))',
                         fontSize: '12px', // <-- Adjust this value to decrease font size
@@ -34,6 +35,9 @@ const SelectGraphicalView = ({ Chartlayout, seChartlayout }) => {
                         minWidth: '100px',
                     },
                     textAlign: "center",
+                    border: 0.1,
+                    borderRadius: 1,
+                    borderColor: 'rgba(var(--font-light))',
                 }}
                 value={Chartlayout}
                 onChange={(event) => seChartlayout(event.target.value)}

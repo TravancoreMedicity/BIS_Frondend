@@ -1,18 +1,29 @@
 import { Box, Button, ButtonGroup, Input, Typography } from '@mui/joy';
 import React, { memo, useCallback, useState, useEffect } from 'react';
-import { addDays, eachDayOfInterval, format, startOfMonth, startOfWeek, subMonths, subWeeks } from "date-fns";
-import { Bar, Line, PolarArea } from 'react-chartjs-2'; // Import Line chart
+import {
+    addDays,
+    eachDayOfInterval,
+    eachMonthOfInterval,
+    endOfMonth,
+    format,
+    isWithinInterval,
+    startOfMonth,
+    startOfWeek,
+    subMonths,
+    subWeeks
+} from "date-fns";
+import { Bar, Line, PolarArea } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
     CategoryScale,
     LinearScale,
     BarElement,
-    LineElement, // Add LineElement
-    PointElement, // Add PointElement for line chart
+    LineElement,
+    PointElement,
     Title,
     Tooltip,
     Legend,
-    RadialLinearScale, // Add this for polar area chart
+    RadialLinearScale,
     ArcElement
 } from 'chart.js';
 import SelectGraphicalView from '../SelectGraphicalView';
@@ -22,8 +33,8 @@ ChartJS.register(
     CategoryScale,
     LinearScale,
     BarElement,
-    LineElement, // Register LineElement
-    PointElement, // Register PointElement
+    LineElement,
+    PointElement,
     Title,
     Tooltip,
     Legend,
@@ -33,6 +44,7 @@ ChartJS.register(
 
 const OverallSalesProgress = ({ Graphicaldata, Displaystyle }) => {
     const StyleMode = parseInt(Displaystyle);
+
     const [dayCount, setDayCount] = useState(1);
     const [fromDate, setFromDate] = useState('');
     const [toDate, setToDate] = useState('');
@@ -46,68 +58,118 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle }) => {
     const endOfLastWeek = addDays(startOfLastWeek, 6);
 
     // Function to filter data based on selected date range
-    const filterDataByDateRange = (labels, data, dateRange) => {
+    const filterDataByDateRange = useCallback((labels, data, dateRange) => {
+        if (dateRange.isRange) {
+            const { rangeStart, rangeEnd } = dateRange;
+
+            // For monthly ranges (Last 6 months or This Year)
+            if (dayCount === 4 || dayCount === 5) {
+                const months = eachMonthOfInterval({ start: rangeStart, end: rangeEnd });
+                const monthLabels = months.map(month => format(month, 'MMM yyyy'));
+
+                const monthlySums = data.datasets.map(dataset => {
+                    return months.map(month => {
+                        const monthStart = startOfMonth(month);
+                        const monthEnd = endOfMonth(month);
+
+                        return labels.reduce((sum, label, index) => {
+                            const labelDate = new Date(label);
+                            if (isWithinInterval(labelDate, { start: monthStart, end: monthEnd })) {
+                                return sum + (dataset.data[index] || 0);
+                            }
+                            return sum;
+                        }, 0);
+                    });
+                });
+
+                return {
+                    labels: monthLabels,
+                    datasets: data.datasets.map((dataset, i) => ({
+                        ...dataset,
+                        data: monthlySums[i]
+                    }))
+                };
+            }
+
+            // For other ranges, filter daily data within the range
+            const filteredIndices = labels.map((label, index) => {
+                const labelDate = new Date(label);
+                return (labelDate >= rangeStart && labelDate <= rangeEnd) ? index : null;
+            }).filter(index => index !== null);
+
+            return {
+                labels: labels.filter((_, index) => filteredIndices.includes(index)),
+                datasets: data.datasets.map(dataset => ({
+                    ...dataset,
+                    data: filteredIndices.map(index => dataset.data[index]),
+                }))
+            };
+        }
+
+        // Handle exact date matches (Today, Last Week, This Month)
         const filteredIndices = labels.map((label, index) =>
             dateRange.includes(label) ? index : null
         ).filter(index => index !== null);
 
         return {
-            labels: labels.filter(label => dateRange.includes(label)),
+            labels: labels.filter((_, index) => filteredIndices.includes(index)),
             datasets: data.datasets.map(dataset => ({
                 ...dataset,
                 data: filteredIndices.map(index => dataset.data[index])
             }))
         };
-    };
+    }, [dayCount]);
+
     const handlePeriodChange = useCallback((period) => {
         setDayCount(period);
-        // console.log(period);
-
         const now = new Date();
-
         const periodHandlers = {
-            1: () => [Todays],
-            2: () => eachDayOfInterval({
+            1: () => [Todays], // Today
+            2: () => eachDayOfInterval({ // Last Week
                 start: startOfLastWeek,
                 end: endOfLastWeek
             }).map(date => format(date, 'yyyy-MM-dd')),
-            3: () => eachDayOfInterval({
+            3: () => eachDayOfInterval({ // This Month
                 start: new Date(StartOfcurrentMonth),
                 end: now
             }).map(date => format(date, 'yyyy-MM-dd')),
-            4: () => Array.from({ length: 6 }, (_, i) =>
-                format(subMonths(now, 5 - i), 'yyyy-MM-dd')),
-            5: () => {
-                const monthsInYear = Array.from({ length: 12 }, (_, i) =>
-                    new Date(now.getFullYear(), i, 1));
-                return monthsInYear
-                    .filter(month => month <= now)
-                    .map(month => format(month, 'yyyy-MM-dd'));
+            4: () => { // Last 6 Months
+                const sixMonthsAgo = subMonths(now, 5);
+                const startDate = startOfMonth(sixMonthsAgo);
+                return {
+                    rangeStart: startDate,
+                    rangeEnd: now,
+                    isRange: true
+                };
+            },
+            5: () => { // This Year
+                const yearStart = new Date(now.getFullYear(), 0, 1);
+                return {
+                    rangeStart: yearStart,
+                    rangeEnd: now,
+                    isRange: true
+                };
             }
         };
 
-
         const dateRange = periodHandlers[period]?.() || [];
-
         const filteredData = filterDataByDateRange(
             Graphicaldata.labels,
             Graphicaldata,
             dateRange
         );
-
         setChartData(filteredData);
-    }, [Todays, startOfLastWeek, endOfLastWeek, StartOfcurrentMonth, Graphicaldata]);
-
-    // console.log("chartData", chartData);
+    }, [Todays, startOfLastWeek, endOfLastWeek, StartOfcurrentMonth, Graphicaldata, filterDataByDateRange]);
 
     useEffect(() => {
         if (fromDate && toDate) {
             const startDate = new Date(fromDate);
             const endDate = new Date(toDate);
-            const customDateRange = eachDayOfInterval({
-                start: startDate,
-                end: endDate
-            }).map(date => format(date, 'yyyy-MM-dd'));
+            const customDateRange = {
+                rangeStart: startDate,
+                rangeEnd: endDate,
+                isRange: true
+            };
 
             const filteredData = filterDataByDateRange(
                 Graphicaldata.labels,
@@ -116,88 +178,21 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle }) => {
             );
             setChartData(filteredData);
         }
-    }, [fromDate, toDate, Graphicaldata]);
+    }, [fromDate, toDate, Graphicaldata, filterDataByDateRange]);
 
-    // Bar chart options
-    const barOptions = {
-        responsive: true,
-        indexAxis: 'x',
-        scales: {
-            x: { beginAtZero: true },
-            y: { beginAtZero: true },
-        },
-        plugins: {
-            legend: { position: 'top' },
-            title: { display: true, text: 'Out Patient Statistics' },
-
-        },
-
-    };
-
-    // Line chart options
-    const lineOptions = {
-        responsive: true,
-        scales: {
-            x: { beginAtZero: true },
-            y: { beginAtZero: true },
-        },
-        plugins: {
-            legend: { position: 'top' },
-            title: { display: true, text: 'Out Patient Trends' },
-        },
-    };
-
-    // Transform Graphicaldata for line chart
-    const transformToLineChartData = (data) => {
-        return {
-            labels: data.labels,
-            datasets: data.datasets.map(dataset => ({
-                ...dataset,
-                borderColor: dataset.borderColor,
-                backgroundColor: dataset.backgroundColor.replace('0.5', '0.2'), // Make more transparent for line
-                borderWidth: 2,
-                tension: 0.4, // Add curve to the line
-                fill: false, // Don't fill under the line
-                pointRadius: 4, // Make points visible
-                pointBackgroundColor: dataset.borderColor
-            }))
-        };
-    };
-
-
-    //Polar Area Functions
-    // const polarOptions = {
-    //     responsive: true,
-    //     plugins: {
-    //         legend: {
-    //             position: 'top',
-    //         },
-    //         title: {
-    //             display: false,
-    //             text: 'Patient Details',
-    //         },
-    //     },
-    //     scales: {
-    //         r: {
-    //             angleLines: {
-    //                 display: true
-    //             },
-    //             suggestedMin: 0
-    //         }
-    //     }
-    // };
-
+    // ... (keep all the chart options and transform functions the same)
     const polarOptions = {
         responsive: true,
         plugins: {
             legend: {
-                position: 'top', // Position of the legend
+                position: 'top',
             },
             datalabels: {
-                display: true, // Show the data labels on the chart
+                display: true,
+                color: 'rgba(var(--font-light))',
             },
             tooltip: {
-                enabled: true, // Enable tooltips for values on hover
+                enabled: true,
             },
             title: {
                 display: false,
@@ -207,20 +202,173 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle }) => {
         scales: {
             r: {
                 angleLines: {
-                    display: true, // Keep the angle lines (axes) visible
+                    display: true,
                 },
                 ticks: {
-                    display: false, // Hide the ticks (numbers/counts) on the radial axis
+                    display: false,
                 },
                 grid: {
-                    display: true, // Optionally, hide the gridlines if you don't want them
+                    display: true,
                 },
-                suggestedMin: 0, // Minimum value for the radial scale
+                suggestedMin: 0,
             },
         },
     };
 
+    const options = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'top',
+                labels: {
+                    boxWidth: 15,
+                    color: 'rgb(var(--color-white))',
 
+                    font: {
+                        size: 12, // Added consistent font size for legend
+                    },
+                    padding: 20, // Added padding for better spacing
+                    usePointStyle: true, // Optional: for circular color indicators
+                },
+            },
+            tooltip: {
+                enabled: true,
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                titleColor: '#fff',
+                bodyColor: '#fff',
+                borderColor: 'rgba(255, 255, 255, 0.1)',
+                borderWidth: 1,
+                padding: 12,
+                callbacks: {
+                    label: (context) => {
+                        return `${context.dataset.label}: ${context.raw}`;
+                    }
+                }
+            },
+            datalabels: {
+                // anchor: 'end', // You can also try 'center', 'start'
+                align: 'top', // Try 'start', 'end', or 'center'
+                color: 'rgba(var(--font-light))',
+                font: {
+                    size: 10,
+                    family: "'Roboto', sans-serif"
+                },
+                rotation: -90, // 🔄 This rotates the label
+                formatter: (value) => {
+                    return value; // Customize label display if needed
+                }
+            }
+        },
+        scales: {
+            x: {
+                barThickness: 50,
+
+                grid: {
+                    display: false,
+                    drawBorder: true,
+                    borderColor: 'rgba(var(--font-light), 0.2)',
+                },
+                ticks: {
+
+                    color: 'rgba(var(--font-light))',
+                    autoSkip: false,
+                    font: {
+                        size: 10,
+                        family: "'Roboto', sans-serif", // Specify font family
+                    },
+                    align: 'center',
+                    padding: 5, // Added padding for better tick spacing
+                },
+            },
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    color: 'rgba(var(--font-light))',
+
+                    font: {
+                        size: 10,
+                        family: "'Roboto', sans-serif", // Consistent font family
+                    },
+                    padding: 5,
+                    callback: (value) => {
+                        // Optional: Format tick values if needed
+                        return value;
+                    }
+                },
+
+            },
+        },
+        interaction: {
+            intersect: false,
+            mode: 'index',
+        },
+        animation: {
+            duration: 1000, // Smooth animations
+        },
+        elements: {
+            bar: {
+                borderRadius: 1,
+                borderSkipped: false,
+                // You can also control appearance here
+                backgroundColor: (ctx) => {
+                    // Example of varying color based on value
+                    return ctx.raw > 50 ? 'rgba(75, 192, 192, 0.6)' : 'rgba(255, 99, 132, 0.6)';
+                },
+                borderWidth: (ctx) => {
+                    // Example of varying border width
+                    return ctx.raw > 50 ? 2 : 1;
+                }
+            }
+        }
+    };
+
+    // Line chart options
+    const lineOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            x: {
+                grid: {
+                    display: false
+                },
+                ticks: {
+                    autoSkip: false,
+                }
+            },
+            y: {
+                beginAtZero: true,
+                grid: {
+                    display: true
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                position: 'top',
+                labels: {
+                    boxWidth: 12
+                }
+            },
+        }
+    };
+    // Transform Graphicaldata for line chart
+    const transformToLineChartData = (data) => {
+        return {
+            labels: data.labels,
+            datasets: data.datasets.map(dataset => ({
+                ...dataset,
+                borderColor: dataset.borderColor,
+                backgroundColor: dataset.backgroundColor.replace('0.5', '0.2'), // Make more transparent for line
+                borderWidth: 2,
+                tension: 0.4,
+                fill: false,
+                pointRadius: 4,
+                pointBackgroundColor: dataset.borderColor,
+
+            }))
+        };
+    };
 
     // Transform data for polar area chart
     const transformToPolarData = (data) => {
@@ -232,7 +380,6 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle }) => {
             labels,
             datasets: [
                 {
-                    // label: 'Total Patients',
                     data: summedData,
                     backgroundColor: [
                         'rgba(255, 99, 132, 0.5)',
@@ -249,12 +396,15 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle }) => {
     };
     return (
         <Box sx={{
-            width: '100%',
+            width: { xs: '100%', sm: '100%', md: 700, lg: "100%" },
             overflow: "auto"
         }}>
             {/* Date Range Selector */}
             <Box sx={{ flexWrap: "wrap", mt: 0.5, flex: 1, }}>
-                <ButtonGroup aria-label="date range selector" sx={{ '--ButtonGroup-radius': '30px', display: "flex", flexWrap: { sm: "wrap", xl: 'nowrap' }, p: 0, size: "sm" }}>
+                <ButtonGroup aria-label="date range selector" sx={{
+                    '--ButtonGroup-radius': '30px', display: "flex",
+                    flexWrap: { sm: "wrap", xl: 'nowrap' }, p: 0, size: "sm"
+                }}>
                     {['Today', 'Last Week', 'This Month', 'Last 6 months', 'This Year', 'Custom'].map((label, index) => (
                         <Button key={label} onClick={() => handlePeriodChange(index + 1)}>
                             {index === 5 ? (
@@ -264,14 +414,14 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle }) => {
                                         value={fromDate}
                                         onChange={(e) => setFromDate(e.target.value)}
                                         size='xs'
-                                        sx={{ p: 0.5, backgroundColor: "rgba(175, 193, 210, 0.35)" }}
+                                        sx={{ p: 0.5, backgroundColor: "rgba(175, 193, 210, 0.35)", color: 'rgba(var(--font-light))', }}
                                     />
                                     <Input
                                         type="date"
                                         value={toDate}
                                         onChange={(e) => setToDate(e.target.value)}
                                         size='xs'
-                                        sx={{ p: 0.5, backgroundColor: "rgba(175, 193, 210, 0.35)" }}
+                                        sx={{ p: 0.5, backgroundColor: "rgba(175, 193, 210, 0.35)", color: 'rgba(var(--font-light))', }}
                                         slotProps={{ input: { min: fromDate } }}
                                     />
                                 </Box>
@@ -297,37 +447,74 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle }) => {
             </Box>
 
             {/* Chart Display */}
-            <Box sx={{ mt: 2, width: '100%', height: 350, overflow: "auto" }}>
+            <Box sx={{
+                mt: 2,
+                width: '100%',
+                height: 350,
+            }}>
                 {parseInt(Chartlayout) === 1 ? (
-                    // <Box sx={{
-                    //     width: "100%",
-                    //     height: "100%",
-                    //     display: "flex",
-                    //     alignItems: "center", justifyContent: "center"
-                    // }}>
-
-                    //     <Bar data={chartData} options={barOptions} style={{ width: '100%' }} />
-                    // </Box>
                     <Box sx={{
-                        minWidth: `${chartData.labels.length * 60}px`,
                         width: "100%",
                         height: "100%",
-                        display: "flex",
-                        alignItems: "center", justifyContent: "center"
+                        overflow: "auto",
+                        '&::-webkit-scrollbar': {
+                            height: 5
+                        },
+                        gap: 2,
+                        cursor: "pointer",
+                        color: 'rgba(var(--font-light))',
                     }}>
-                        <Bar data={chartData} options={barOptions} style={{ width: '100%' }} />
-                    </Box>
-                ) : parseInt(Chartlayout) === 2 ? (
+                        <Bar
+                            data={{
+                                labels: chartData.labels,
+                                datasets: chartData.datasets.map((dataset, index) => ({
+                                    label: dataset.label,
+                                    data: dataset.data,
+                                    backgroundColor: [
+                                        'rgba(96, 94, 163, 0.50)',
+                                        'rgba(12, 132, 162, 0.50)',
+                                        'rgba(184, 62, 143, 0.48)'
+                                    ][index % 3], // Cycle through colors if more than 3 datasets
+                                    borderColor: [
+                                        'rgba(96, 94, 163, 1)',
+                                        'rgba(12, 132, 162, 1)',
+                                        'rgba(184, 62, 143, 1)'
+                                    ][index % 3],
+                                    borderWidth: 1,
 
+                                    barPercentage: 0.9, // Equivalent to barPercentage in MUI
+                                    categoryPercentage: 0.8, // Equivalent to categoryPercentage in MUI
+                                }))
+                            }}
+                            options={options}
+
+                            height={350}
+
+
+                        />
+                    </Box>
+
+                ) : parseInt(Chartlayout) === 2 ? (
                     <Box sx={{
                         width: "100%",
                         height: "100%",
-                        display: "flex",
-                        alignItems: "center", justifyContent: "center"
+                        overflowX: "auto",
+                        overflowY: "hidden",
+                        minWidth: `${Math.max(
+                            chartData?.labels?.length * 60,
+                            800
+                        )}px`,
+                        '&::-webkit-scrollbar': {
+                            height: '6px',
+                        }
                     }}>
                         <Line
                             data={transformToLineChartData(chartData)}
-                            options={lineOptions} style={{ width: '50%' }}
+                            options={{
+                                ...lineOptions,
+                                maintainAspectRatio: false
+                            }}
+                            height={350}
                         />
                     </Box>
                 ) : parseInt(Chartlayout) === 3 ? (
@@ -335,14 +522,16 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle }) => {
                         width: "100%",
                         height: "100%",
                         display: "flex",
-                        alignItems: "center", justifyContent: "center"
+                        justifyContent: "center",
+                        alignItems: "center"
                     }}>
                         <PolarArea
                             data={transformToPolarData(chartData)}
-                            options={polarOptions} style={{ width: '50%' }}
+                            options={polarOptions}
+                            height={300}
+                            width={300}
                         />
                     </Box>
-
                 ) : null}
             </Box>
         </Box>
@@ -350,5 +539,3 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle }) => {
 };
 
 export default memo(OverallSalesProgress);
-
-

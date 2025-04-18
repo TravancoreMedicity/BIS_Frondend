@@ -28,6 +28,7 @@ const DrawerPage = ({ drawerWidth, handleDrawerClose }) => {
     }, [navigate]);
 
     const TMCH = useMemo(() => [
+        { slno: 4, menu: "Dashboard", text: "/Home/Dashboard", icon: <PharmacyCrossCircle height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> },
         { slno: 1, menu: "Pharmacy sales", text: "/Home/TmchGraphicalView", icon: <PharmacyCrossCircle height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> },
         { slno: 2, menu: "Pharmacy Purchase", text: "/Home/Settings", icon: <PharmacyCrossTag height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> },
         { slno: 3, menu: "Settings", text: "/Home/Settings", icon: <Settings height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> }

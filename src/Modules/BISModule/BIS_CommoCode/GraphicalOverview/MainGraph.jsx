@@ -1,6 +1,6 @@
-import { Box, Button, ButtonGroup, IconButton, Input, Typography } from '@mui/joy';
+import { Box, Button, ButtonGroup, Input, Typography } from '@mui/joy';
 import React, { memo, useCallback, useState, useEffect } from 'react';
-import { addDays, eachDayOfInterval, format, startOfMonth, startOfWeek, subMonths, subWeeks } from "date-fns";
+import { addDays, eachDayOfInterval, eachMonthOfInterval, endOfMonth, format, isWithinInterval, startOfMonth, startOfWeek, subMonths, subWeeks } from "date-fns";
 import { Bar, Line, PolarArea } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
@@ -31,12 +31,12 @@ ChartJS.register(
     ArcElement
 );
 
-const MainGraph = ({ Graphicaldata, chartItems, Displaystyle, DisplayData }) => {
+const MainGraph = ({ Graphicaldata, Displaystyle }) => {
     const StyleMode = parseInt(Displaystyle);
     const [dayCount, setDayCount] = useState(1);
     const [fromDate, setFromDate] = useState('');
     const [toDate, setToDate] = useState('');
-    const [chartData, setChartData] = useState(DisplayData);
+    const [chartData, setChartData] = useState(Graphicaldata);
     const [Chartlayout, seChartlayout] = useState(StyleMode);
 
     const Todays = format(new Date(), 'yyyy-MM-dd');
@@ -47,98 +47,299 @@ const MainGraph = ({ Graphicaldata, chartItems, Displaystyle, DisplayData }) => 
 
 
     // Function to filter data based on selected date range
-    const filterDataByDateRange = (labels, data, dateRange) => {
+    const filterDataByDateRange = useCallback((labels, data, dateRange) => {
+        if (dateRange.isRange) {
+            const { rangeStart, rangeEnd } = dateRange;
+
+            // For monthly ranges (Last 6 months or This Year)
+            if (dayCount === 4 || dayCount === 5) {
+                const months = eachMonthOfInterval({ start: rangeStart, end: rangeEnd });
+                const monthLabels = months.map(month => format(month, 'MMM yyyy'));
+
+                const monthlySums = data.datasets.map(dataset => {
+                    return months.map(month => {
+                        const monthStart = startOfMonth(month);
+                        const monthEnd = endOfMonth(month);
+
+                        return labels.reduce((sum, label, index) => {
+                            const labelDate = new Date(label);
+                            if (isWithinInterval(labelDate, { start: monthStart, end: monthEnd })) {
+                                return sum + (dataset.data[index] || 0);
+                            }
+                            return sum;
+                        }, 0);
+                    });
+                });
+
+                return {
+                    labels: monthLabels,
+                    datasets: data.datasets.map((dataset, i) => ({
+                        ...dataset,
+                        data: monthlySums[i]
+                    }))
+                };
+            }
+
+            // For other ranges, filter daily data within the range
+            const filteredIndices = labels.map((label, index) => {
+                const labelDate = new Date(label);
+                return (labelDate >= rangeStart && labelDate <= rangeEnd) ? index : null;
+            }).filter(index => index !== null);
+
+            return {
+                labels: labels.filter((_, index) => filteredIndices.includes(index)),
+                datasets: data.datasets.map(dataset => ({
+                    ...dataset,
+                    data: filteredIndices.map(index => dataset.data[index]),
+                }))
+            };
+        }
+
+        // Handle exact date matches (Today, Last Week, This Month)
         const filteredIndices = labels.map((label, index) =>
             dateRange.includes(label) ? index : null
         ).filter(index => index !== null);
 
         return {
-            labels: labels.filter(label => dateRange.includes(label)),
+            labels: labels.filter((_, index) => filteredIndices.includes(index)),
             datasets: data.datasets.map(dataset => ({
                 ...dataset,
                 data: filteredIndices.map(index => dataset.data[index])
             }))
         };
-    };
+    }, [dayCount]);
+
     const handlePeriodChange = useCallback((period) => {
         setDayCount(period);
-
         const now = new Date();
-
         const periodHandlers = {
-            1: () => [Todays],
-            2: () => eachDayOfInterval({
+            1: () => [Todays], // Today
+            2: () => eachDayOfInterval({ // Last Week
                 start: startOfLastWeek,
                 end: endOfLastWeek
             }).map(date => format(date, 'yyyy-MM-dd')),
-            3: () => eachDayOfInterval({
+            3: () => eachDayOfInterval({ // This Month
                 start: new Date(StartOfcurrentMonth),
                 end: now
             }).map(date => format(date, 'yyyy-MM-dd')),
-            4: () => Array.from({ length: 6 }, (_, i) =>
-                format(subMonths(now, 5 - i), 'yyyy-MM-dd')),
-            5: () => {
-                const monthsInYear = Array.from({ length: 12 }, (_, i) =>
-                    new Date(now.getFullYear(), i, 1));
-                return monthsInYear
-                    .filter(month => month <= now)
-                    .map(month => format(month, 'yyyy-MM-dd'));
+            4: () => { // Last 6 Months
+                const sixMonthsAgo = subMonths(now, 5);
+                const startDate = startOfMonth(sixMonthsAgo);
+                return {
+                    rangeStart: startDate,
+                    rangeEnd: now,
+                    isRange: true
+                };
+            },
+            5: () => { // This Year
+                const yearStart = new Date(now.getFullYear(), 0, 1);
+                return {
+                    rangeStart: yearStart,
+                    rangeEnd: now,
+                    isRange: true
+                };
             }
         };
+
         const dateRange = periodHandlers[period]?.() || [];
         const filteredData = filterDataByDateRange(
-            DisplayData.labels,
-            DisplayData,
+            Graphicaldata.labels,
+            Graphicaldata,
             dateRange
         );
         setChartData(filteredData);
-    }, [Todays, startOfLastWeek, endOfLastWeek, StartOfcurrentMonth, Graphicaldata, DisplayData]);
+    }, [Todays, startOfLastWeek, endOfLastWeek, StartOfcurrentMonth, Graphicaldata, filterDataByDateRange]);
 
     useEffect(() => {
         if (fromDate && toDate) {
             const startDate = new Date(fromDate);
             const endDate = new Date(toDate);
-            const customDateRange = eachDayOfInterval({
-                start: startDate,
-                end: endDate
-            }).map(date => format(date, 'yyyy-MM-dd'));
+            const customDateRange = {
+                rangeStart: startDate,
+                rangeEnd: endDate,
+                isRange: true
+            };
 
             const filteredData = filterDataByDateRange(
-                DisplayData.labels,
-                DisplayData,
+                Graphicaldata.labels,
+                Graphicaldata,
                 customDateRange
             );
             setChartData(filteredData);
         }
-    }, [fromDate, toDate, Graphicaldata, DisplayData]);
+    }, [fromDate, toDate, Graphicaldata, filterDataByDateRange]);
 
-    // Bar chart options
-    const barOptions = {
+    // ... (keep all the chart options and transform functions the same)
+    const polarOptions = {
         responsive: true,
-        indexAxis: 'x',
-        scales: {
-            x: { beginAtZero: true },
-            y: { beginAtZero: true },
-        },
         plugins: {
-            legend: { position: 'top' },
-            title: { display: true, text: 'Out Patient Statistics' },
+            legend: {
+                position: 'top',
+            },
+            datalabels: {
+                display: true,
+                color: 'rgba(var(--font-light))',
+            },
+            tooltip: {
+                enabled: true,
+            },
+            title: {
+                display: false,
+                text: 'Patient Details',
+            },
         },
+        scales: {
+            r: {
+                angleLines: {
+                    display: true,
+                },
+                ticks: {
+                    display: false,
+                },
+                grid: {
+                    display: true,
+                },
+                suggestedMin: 0,
+            },
+        },
+    };
+
+    const options = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'top',
+                labels: {
+                    boxWidth: 15,
+                    color: 'rgb(var(--color-white))',
+
+                    font: {
+                        size: 12, // Added consistent font size for legend
+                    },
+                    padding: 20, // Added padding for better spacing
+                    usePointStyle: true, // Optional: for circular color indicators
+                },
+            },
+            tooltip: {
+                enabled: true,
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                titleColor: '#fff',
+                bodyColor: '#fff',
+                borderColor: 'rgba(255, 255, 255, 0.1)',
+                borderWidth: 1,
+                padding: 12,
+                callbacks: {
+                    label: (context) => {
+                        return `${context.dataset.label}: ${context.raw}`;
+                    }
+                }
+            },
+            datalabels: {
+                align: 'top', // Try 'start', 'end', or 'center'
+                color: 'rgba(var(--font-light))',
+                font: {
+                    size: 10,
+                    family: "'Roboto', sans-serif"
+                },
+                rotation: -90, // 🔄 This rotates the label
+                formatter: (value) => {
+                    return value; // Customize label display if needed
+                }
+            }
+        },
+        scales: {
+            x: {
+                barThickness: 50,
+
+                grid: {
+                    display: false,
+                    drawBorder: true,
+                    borderColor: 'rgba(var(--font-light), 0.2)',
+                },
+                ticks: {
+
+                    color: 'rgba(var(--font-light))',
+                    autoSkip: false,
+                    font: {
+                        size: 10,
+                        family: "'Roboto', sans-serif", // Specify font family
+                    },
+                    align: 'center',
+                    padding: 5, // Added padding for better tick spacing
+                },
+            },
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    color: 'rgba(var(--font-light))',
+
+                    font: {
+                        size: 10,
+                        family: "'Roboto', sans-serif", // Consistent font family
+                    },
+                    padding: 5,
+                    callback: (value) => {
+                        // Optional: Format tick values if needed
+                        return value;
+                    }
+                },
+
+            },
+        },
+        interaction: {
+            intersect: false,
+            mode: 'index',
+        },
+        animation: {
+            duration: 1000, // Smooth animations
+        },
+        elements: {
+            bar: {
+                borderRadius: 1,
+                borderSkipped: false,
+                // You can also control appearance here
+                backgroundColor: (ctx) => {
+                    // Example of varying color based on value
+                    return ctx.raw > 50 ? 'rgba(75, 192, 192, 0.6)' : 'rgba(255, 99, 132, 0.6)';
+                },
+                borderWidth: (ctx) => {
+                    // Example of varying border width
+                    return ctx.raw > 50 ? 2 : 1;
+                }
+            }
+        }
     };
 
     // Line chart options
     const lineOptions = {
         responsive: true,
+        maintainAspectRatio: false,
         scales: {
-            x: { beginAtZero: true },
-            y: { beginAtZero: true },
+            x: {
+                grid: {
+                    display: false
+                },
+                ticks: {
+                    autoSkip: false,
+                }
+            },
+            y: {
+                beginAtZero: true,
+                grid: {
+                    display: true
+                }
+            }
         },
         plugins: {
-            legend: { position: 'top' },
-            title: { display: true, text: 'Out Patient Trends' },
-        },
+            legend: {
+                position: 'top',
+                labels: {
+                    boxWidth: 12
+                }
+            },
+        }
     };
-
     // Transform Graphicaldata for line chart
     const transformToLineChartData = (data) => {
         return {
@@ -151,43 +352,10 @@ const MainGraph = ({ Graphicaldata, chartItems, Displaystyle, DisplayData }) => 
                 tension: 0.4,
                 fill: false,
                 pointRadius: 4,
-                pointBackgroundColor: dataset.borderColor
+                pointBackgroundColor: dataset.borderColor,
+
             }))
         };
-    };
-
-    //Polar Area Functions
-    const polarOptions = {
-        responsive: true,
-        plugins: {
-            legend: {
-                position: 'top', // Position of the legend
-            },
-            datalabels: {
-                display: true, // Show the data labels on the chart
-            },
-            tooltip: {
-                enabled: true, // Enable tooltips for values on hover
-            },
-            title: {
-                display: true,
-                text: 'Patient Details',
-            },
-        },
-        scales: {
-            r: {
-                angleLines: {
-                    display: true, // Keep the angle lines (axes) visible
-                },
-                ticks: {
-                    display: false, // Hide the ticks (numbers/counts) on the radial axis
-                },
-                grid: {
-                    display: true, // Optionally, hide the gridlines if you don't want them
-                },
-                suggestedMin: 0, // Minimum value for the radial scale
-            },
-        },
     };
 
     // Transform data for polar area chart
@@ -200,7 +368,6 @@ const MainGraph = ({ Graphicaldata, chartItems, Displaystyle, DisplayData }) => 
             labels,
             datasets: [
                 {
-                    // label: 'cout',
                     data: summedData,
                     backgroundColor: [
                         'rgba(255, 99, 132, 0.5)',
@@ -215,94 +382,14 @@ const MainGraph = ({ Graphicaldata, chartItems, Displaystyle, DisplayData }) => 
             ],
         };
     };
-    const CenteredChart = ({ children }) => (
-        <Box
-            sx={{
-                width: "100%",
-                height: "100%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center"
-            }}
-        >
-            {children}
-        </Box>
-    );
-
-    //Section wise chart
-    const DisplayDatas = {
-        labels: ['2025-04-01', '2025-04-02', '2025-04-03'],
-        datasets: [
-            {
-                label: 'MRI - IP',
-                data: [10, 12, 8],
-                backgroundColor: 'rgba(255, 99, 132, 0.5)',
-                borderColor: 'rgba(255, 99, 132, 1)',
-            },
-            {
-                label: 'MRI - OP',
-                data: [20, 25, 23],
-                backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-            },
-            {
-                label: 'MRI - Billing',
-                data: [20, 25, 23],
-                backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-            },
-            {
-                label: 'MRI - Return',
-                data: [18, 10, 40],
-                backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-            },
-            {
-                label: 'CT Scan - IP',
-                data: [15, 13, 17],
-                backgroundColor: 'rgba(255, 206, 86, 0.5)',
-                borderColor: 'rgba(255, 206, 86, 1)',
-            },
-            {
-                label: 'CT Scan - OP',
-                data: [22, 20, 25],
-                backgroundColor: 'rgba(75, 192, 192, 0.5)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-            },
-            {
-                label: 'CT - Billing',
-                data: [24, 35, 12],
-                backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-            },
-            {
-                label: 'CT - Return',
-                data: [19, 40, 25],
-                backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-            },]
-    };
-
-
-    const GetChart = useCallback((item) => {
-        const filtered = {
-            labels: DisplayDatas.labels,
-            datasets: DisplayDatas.datasets.filter(ds => ds.label.startsWith(item.label))
-        };
-        console.log("filtered", filtered);
-
-        setChartData(filtered);
-    }, [DisplayData]);
-    // console.log(DisplayData);
-
 
     return (
         <Box sx={{
-            width: '100%',
-            overflow: "auto",
+            width: { xs: '100%', sm: '100%', md: 700, lg: "100%" },
+            overflow: "auto"
         }}>
             {/* Date Range Selector */}
-            <Box sx={{ flexWrap: "wrap", mt: 0.5, flex: 1, display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
+            <Box sx={{ flexWrap: "wrap", mt: 0.5, flex: 1, }}>
                 <ButtonGroup aria-label="date range selector" sx={{ '--ButtonGroup-radius': '30px', display: "flex", flexWrap: { sm: "wrap", xl: 'nowrap' }, p: 0, size: "sm" }}>
                     {['Today', 'Last Week', 'This Month', 'Last 6 months', 'This Year', 'Custom'].map((label, index) => (
                         <Button key={label} onClick={() => handlePeriodChange(index + 1)}>
@@ -313,14 +400,14 @@ const MainGraph = ({ Graphicaldata, chartItems, Displaystyle, DisplayData }) => 
                                         value={fromDate}
                                         onChange={(e) => setFromDate(e.target.value)}
                                         size='xs'
-                                        sx={{ p: 0.5, backgroundColor: "rgba(175, 193, 210, 0.35)" }}
+                                        sx={{ p: 0.5, backgroundColor: "rgba(175, 193, 210, 0.35)", color: 'rgba(var(--font-light))', }}
                                     />
                                     <Input
                                         type="date"
                                         value={toDate}
                                         onChange={(e) => setToDate(e.target.value)}
                                         size='xs'
-                                        sx={{ p: 0.5, backgroundColor: "rgba(175, 193, 210, 0.35)" }}
+                                        sx={{ p: 0.5, backgroundColor: "rgba(175, 193, 210, 0.35)", color: 'rgba(var(--font-light))', }}
                                         slotProps={{ input: { min: fromDate } }}
                                     />
                                 </Box>
@@ -337,51 +424,103 @@ const MainGraph = ({ Graphicaldata, chartItems, Displaystyle, DisplayData }) => 
                         </Button>
                     ))}
                 </ButtonGroup>
-                <Box sx={{}}>
-                    <Box sx={{ mt: { xl: 0, sm: 2 } }}>
-                        <SelectGraphicalView Chartlayout={Chartlayout} seChartlayout={seChartlayout} />
-                    </Box>
+            </Box>
+
+            <Box sx={{ width: "100%", display: "flex", justifyContent: "flex-end", textAlign: "right" }}>
+                <Box sx={{ mt: 2, }}>
+                    <SelectGraphicalView Chartlayout={Chartlayout} seChartlayout={seChartlayout} />
                 </Box>
             </Box>
 
             {/* Chart Display */}
-            <Box sx={{ display: "flex", flexDirection: "row", gap: 2, flexWrap: { sm: "wrap", xl: "nowrap" } }}>
-                {/* Radio Group */}
-                <Box sx={{ mt: 2, minWidth: 250, height: { xl: 350, sm: 180 }, overflow: "auto", px: 2 }}>
-                    <Box sx={{ border: 1, p: 1, borderColor: 'rgba(128, 121, 121, 0.5)', borderRadius: 5 }}>
-                        {chartItems?.map((item, index) => (
-                            <Box key={index} sx={{ display: "flex", flexDirection: "row", gap: 1 }}>
-                                <IconButton>
-                                    {item?.icon}
-                                </IconButton>
-                                <Typography
-                                    sx={{ mt: 1, color: item.color, fontWeight: "bold", cursor: "pointer" }}
-                                    onClick={() => GetChart(item)}
-                                >
-                                    {item?.label}
-                                </Typography>
-                            </Box>
-                        ))}
+            <Box sx={{
+                mt: 2,
+                width: '100%',
+                height: 350,
+            }}>
+                {parseInt(Chartlayout) === 1 ? (
+                    <Box sx={{
+                        width: "100%",
+                        height: "100%",
+                        overflow: "auto",
+                        '&::-webkit-scrollbar': {
+                            height: 5
+                        },
+                        gap: 2,
+                        cursor: "pointer",
+                        color: 'rgba(var(--font-light))',
+                    }}>
+                        <Bar
+                            data={{
+                                labels: chartData.labels,
+                                datasets: chartData.datasets.map((dataset, index) => ({
+                                    label: dataset.label,
+                                    data: dataset.data,
+                                    backgroundColor: [
+                                        'rgba(96, 94, 163, 0.50)',
+                                        'rgba(12, 132, 162, 0.50)',
+                                        'rgba(184, 62, 143, 0.48)'
+                                    ][index % 3], // Cycle through colors if more than 3 datasets
+                                    borderColor: [
+                                        'rgba(96, 94, 163, 1)',
+                                        'rgba(12, 132, 162, 1)',
+                                        'rgba(184, 62, 143, 1)'
+                                    ][index % 3],
+                                    borderWidth: 1,
+
+                                    barPercentage: 0.9, // Equivalent to barPercentage in MUI
+                                    categoryPercentage: 0.8, // Equivalent to categoryPercentage in MUI
+                                }))
+                            }}
+                            options={options}
+
+                            height={350}
+
+
+                        />
                     </Box>
-                </Box>
-                {/* Chart Area */}
-                <Box sx={{ mt: 1, width: '100%', height: 350, overflow: "auto", }}>
-                    {parseInt(Chartlayout) === 1 ? (
-                        <CenteredChart>
-                            <Bar data={chartData} options={barOptions} style={{ width: '100%' }} />
-                        </CenteredChart>
-                    ) : parseInt(Chartlayout) === 2 ? (
-                        <CenteredChart>
-                            <Line data={transformToLineChartData(chartData)} options={lineOptions} style={{ width: '50%' }} />
-                        </CenteredChart>
-                    ) : parseInt(Chartlayout) === 3 ? (
-                        <CenteredChart>
-                            <PolarArea data={transformToPolarData(chartData)} options={polarOptions} style={{ width: '50%' }} />
-                        </CenteredChart>
-                    ) : null}
-                </Box>
+
+                ) : parseInt(Chartlayout) === 2 ? (
+                    <Box sx={{
+                        width: "100%",
+                        height: "100%",
+                        overflowX: "auto",
+                        overflowY: "hidden",
+                        minWidth: `${Math.max(
+                            chartData?.labels?.length * 60,
+                            800
+                        )}px`,
+                        '&::-webkit-scrollbar': {
+                            height: '6px',
+                        }
+                    }}>
+                        <Line
+                            data={transformToLineChartData(chartData)}
+                            options={{
+                                ...lineOptions,
+                                maintainAspectRatio: false
+                            }}
+                            height={350}
+                        />
+                    </Box>
+                ) : parseInt(Chartlayout) === 3 ? (
+                    <Box sx={{
+                        width: "100%",
+                        height: "100%",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center"
+                    }}>
+                        <PolarArea
+                            data={transformToPolarData(chartData)}
+                            options={polarOptions}
+                            height={300}
+                            width={300}
+                        />
+                    </Box>
+                ) : null}
             </Box>
-        </Box >
+        </Box>
     );
 };
 export default memo(MainGraph) 
