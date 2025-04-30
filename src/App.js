@@ -28,6 +28,7 @@ const UserTypeMaster = lazy(() => import("./Modules/Settings/UserTypeMaster/User
 const ModuleNameMaster = lazy(() => import("./Modules/Settings/ModuleNameMaster/ModuleNameMaster.jsx"))
 const MenuNameMaster = lazy(() => import("./Modules/Settings/MenuNameMaster/MenuNameMaster.jsx"))
 const UserGroupRights = lazy(() => import("./Modules/Settings/UserGroupRights/UserGroupRights.jsx"))
+const LoadData = lazy(() => import("./Modules/BISModule/BIS_CommoCode/LoadData.jsx"))
 
 const routes = createBrowserRouter([
   {
@@ -81,6 +82,13 @@ const routes = createBrowserRouter([
                 {/* <FileApprovals /> */}
               </Suspense>, errorElement: <ErrorElement />
           },
+          {
+            path: "LoadData", element:
+              <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+                <LoadData />
+              </Suspense>, errorElement: <ErrorElement />
+          },
+
           { path: "UserManagement", element: <UserManagement />, errorElement: <ErrorElement /> },
           { path: "UserTypeMaster", element: <UserTypeMaster />, errorElement: <ErrorElement /> },
           { path: "ModuleNameMaster", element: <ModuleNameMaster />, errorElement: <ErrorElement /> },

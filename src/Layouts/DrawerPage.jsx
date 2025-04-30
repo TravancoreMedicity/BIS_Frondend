@@ -29,15 +29,16 @@ const DrawerPage = ({ drawerWidth, handleDrawerClose }) => {
 
     const TMCH = useMemo(() => [
         { slno: 4, menu: "Dashboard", text: "/Home/Dashboard", icon: <PharmacyCrossCircle height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> },
-        { slno: 1, menu: "Pharmacy sales", text: "/Home/TmchGraphicalView", icon: <PharmacyCrossCircle height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> },
-        { slno: 2, menu: "Pharmacy Purchase", text: "/Home/Settings", icon: <PharmacyCrossTag height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> },
-        { slno: 3, menu: "Settings", text: "/Home/Settings", icon: <Settings height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> }
+        // { slno: 1, menu: "Pharmacy sales", text: "/Home/TmchGraphicalView", icon: <PharmacyCrossCircle height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> },
+        // { slno: 2, menu: "Pharmacy Purchase", text: "/Home/Settings", icon: <PharmacyCrossTag height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> },
+        { slno: 3, menu: "Settings", text: "/Home/Settings", icon: <Settings height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> },
+        { slno: 5, menu: "Data Push", text: "/Home/LoadData", icon: <PharmacyCrossCircle height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> }
     ], []);
 
     const KMCH = useMemo(() => [
-        { slno: 4, menu: "Pharmacy sales", text: "/Home/KmchGraphicalView", icon: <PharmacyCrossCircle height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> },
-        { slno: 5, menu: "Pharmacy Purchase", text: "/Home/Settings", icon: <PharmacyCrossTag height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> },
-        { slno: 6, menu: "Settings", text: "/Home/Settings", icon: <Settings height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> }
+        { slno: 4, menu: "Dashboard", text: "/Home/Dashboard", icon: <PharmacyCrossCircle height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> },
+        { slno: 3, menu: "Settings", text: "/Home/Settings", icon: <Settings height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> },
+        { slno: 5, menu: "Data Push", text: "/Home/LoadData", icon: <PharmacyCrossCircle height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> }
     ], []);
 
     const renderDrawerSection = (sectionTitle, menuItems, section) => (

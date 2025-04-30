@@ -542,3 +542,85 @@ export const SubCategoryById = async (catSlno) => {
     }
   });
 };
+
+export const getOpPatientDetails = async () => {
+  return await axiosApi.get("/bisDataPush/getOpDatas").then((res) => {
+    const { success, data } = res.data;
+    if (success === 2) {
+      return data ? data : [];
+    }
+  });
+};
+
+export const getOpModuleDetails = async () => {
+  return await axiosApi.get("/bisDataPush/getOpModuleData").then((res) => {
+    const { success, data } = res.data;
+    if (success === 2) {
+      return data ? data[0] : [];
+    }
+  });
+};
+
+export const getOpDetails = async (payloadDatas) => {
+  return await axiosApi.post("/bisOpModule/opDetails", payloadDatas).then((res) => {
+    const { success, data } = res.data;
+    if (success === 1) {
+      return data ?? [];
+    } else {
+      return [];
+    }
+  });
+};
+export const getIpDetails = async (PayloadDatas) => {
+  return await axiosApi.post("/bisIpModule/ipDetails", PayloadDatas).then((res) => {
+    const { success, data } = res.data;
+    if (success === 1) {
+      return data ?? [];
+    } else {
+      return [];
+    }
+  });
+};
+
+export const getpharmacyDetails = async (PayloadDatas) => {
+  return await axiosApi.post("/bisPharmacy/pharmacyDetails", PayloadDatas).then((res) => {
+    const { success, data } = res.data;
+    if (success === 1) {
+      return data ?? [];
+    } else {
+      return [];
+    }
+  });
+};
+
+export const getdischargeDetails = async (PayloadDatas) => {
+  return await axiosApi.post("/bisDischarge/dischargeDetails", PayloadDatas).then((res) => {
+    const { success, data } = res.data;
+    if (success === 1) {
+      return data ?? [];
+    } else {
+      return [];
+    }
+  });
+};
+
+export const getlabDetails = async (PayloadDatas) => {
+  return await axiosApi.post("/labDetails/getlabDetails", PayloadDatas).then((res) => {
+    const { success, data } = res.data;
+    if (success === 1) {
+      return data ?? [];
+    } else {
+      return [];
+    }
+  });
+};
+
+export const getradiologyDetails = async (PayloadDatas) => {
+  const res = await axiosApi.post("/radiologyDetails/getDetails", PayloadDatas);
+  const { success, data } = res.data;
+  if (success === 1) {
+    return data ?? [];
+  } else {
+    return [];
+  }
+};

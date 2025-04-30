@@ -1,17 +1,6 @@
 import { Box, Button, ButtonGroup, Input, Typography } from '@mui/joy';
 import React, { memo, useCallback, useState, useEffect } from 'react';
-import {
-    addDays,
-    eachDayOfInterval,
-    eachMonthOfInterval,
-    endOfMonth,
-    format,
-    isWithinInterval,
-    startOfMonth,
-    startOfWeek,
-    subMonths,
-    subWeeks
-} from "date-fns";
+import { addDays, eachDayOfInterval, eachMonthOfInterval, endOfMonth, format, isWithinInterval, startOfMonth, startOfWeek, subMonths, subWeeks } from "date-fns";
 import { Bar, Line, PolarArea } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
@@ -26,7 +15,7 @@ import {
     RadialLinearScale,
     ArcElement
 } from 'chart.js';
-import SelectGraphicalView from '../SelectGraphicalView';
+import SelectGraphicalView from './SelectGraphicalView';
 
 // Register ChartJS components
 ChartJS.register(
@@ -42,12 +31,11 @@ ChartJS.register(
     ArcElement
 );
 
-const OverallSalesProgress = ({ Graphicaldata, Displaystyle, fromDate, setFromDate, toDate, setToDate }) => {
+const RadiologyGraphicalRep = ({ Graphicaldata, Displaystyle }) => {
     const StyleMode = parseInt(Displaystyle);
-
     const [dayCount, setDayCount] = useState(1);
-    // const [fromDate, setFromDate] = useState('');
-    // const [toDate, setToDate] = useState('');
+    const [fromDate, setFromDate] = useState('');
+    const [toDate, setToDate] = useState('');
     const [chartData, setChartData] = useState(Graphicaldata);
     const [Chartlayout, seChartlayout] = useState(StyleMode);
 
@@ -120,92 +108,35 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle, fromDate, setFromDa
         };
     }, [dayCount]);
 
-    // const handlePeriodChange = useCallback((period) => {
-    //     setDayCount(period);
-    //     const now = new Date();
-    //     const periodHandlers = {
-    //         1: () => [Todays], // Today
-    //         2: () => eachDayOfInterval({ // Last Week
-    //             start: startOfLastWeek,
-    //             end: endOfLastWeek
-    //         }).map(date => format(date, 'yyyy-MM-dd')),
-    //         3: () => eachDayOfInterval({ // This Month
-    //             start: new Date(StartOfcurrentMonth),
-    //             end: now
-    //         }).map(date => format(date, 'yyyy-MM-dd')),
-    //         4: () => { // Last 6 Months
-    //             const sixMonthsAgo = subMonths(now, 5);
-    //             const startDate = startOfMonth(sixMonthsAgo);
-    //             return {
-    //                 rangeStart: startDate,
-    //                 rangeEnd: now,
-    //                 isRange: true
-    //             };
-    //         },
-    //         5: () => { // This Year
-    //             const yearStart = new Date(now.getFullYear(), 0, 1);
-    //             return {
-    //                 rangeStart: yearStart,
-    //                 rangeEnd: now,
-    //                 isRange: true
-    //             };
-    //         }
-    //     };
-
-    //     const dateRange = periodHandlers[period]?.() || [];
-    //     const filteredData = filterDataByDateRange(
-    //         Graphicaldata.labels,
-    //         Graphicaldata,
-    //         dateRange
-    //     );
-    //     setChartData(filteredData);
-    // }, [Todays, startOfLastWeek, endOfLastWeek, StartOfcurrentMonth, Graphicaldata, filterDataByDateRange]);
     const handlePeriodChange = useCallback((period) => {
         setDayCount(period);
         const now = new Date();
-
         const periodHandlers = {
-            1: () => {
-                setFromDate(format(now, 'yyyy-MM-dd'));
-                setToDate(format(now, 'yyyy-MM-dd'));
-                return [Todays]; // Today
-            },
-            2: () => {
-                setFromDate(format(startOfLastWeek, 'yyyy-MM-dd'));
-                setToDate(format(endOfLastWeek, 'yyyy-MM-dd'));
-                return eachDayOfInterval({
-                    start: startOfLastWeek,
-                    end: endOfLastWeek
-                }).map(date => format(date, 'yyyy-MM-dd')); // Last Week
-            },
-            3: () => {
-                setFromDate(format(startOfMonth(now), 'yyyy-MM-dd'));
-                setToDate(format(now, 'yyyy-MM-dd'));
-                return eachDayOfInterval({
-                    start: startOfMonth(now),
-                    end: now
-                }).map(date => format(date, 'yyyy-MM-dd')); // This Month
-            },
-            4: () => {
+            1: () => [Todays], // Today
+            2: () => eachDayOfInterval({ // Last Week
+                start: startOfLastWeek,
+                end: endOfLastWeek
+            }).map(date => format(date, 'yyyy-MM-dd')),
+            3: () => eachDayOfInterval({ // This Month
+                start: new Date(StartOfcurrentMonth),
+                end: now
+            }).map(date => format(date, 'yyyy-MM-dd')),
+            4: () => { // Last 6 Months
                 const sixMonthsAgo = subMonths(now, 5);
                 const startDate = startOfMonth(sixMonthsAgo);
-                setFromDate(format(startDate, 'yyyy-MM-dd'));
-                setToDate(format(now, 'yyyy-MM-dd'));
                 return {
                     rangeStart: startDate,
                     rangeEnd: now,
                     isRange: true
-                }; // Last 6 Months
+                };
             },
-            5: () => {
+            5: () => { // This Year
                 const yearStart = new Date(now.getFullYear(), 0, 1);
-                setFromDate(format(yearStart, 'yyyy-MM-dd'));
-                setToDate(format(now, 'yyyy-MM-dd'));
                 return {
                     rangeStart: yearStart,
                     rangeEnd: now,
                     isRange: true
-                }; // This Year
+                };
             }
         };
 
@@ -216,8 +147,7 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle, fromDate, setFromDa
             dateRange
         );
         setChartData(filteredData);
-    }, [Todays, startOfLastWeek, endOfLastWeek, Graphicaldata, filterDataByDateRange, setFromDate, setToDate]);
-
+    }, [Todays, startOfLastWeek, endOfLastWeek, StartOfcurrentMonth, Graphicaldata, filterDataByDateRange]);
 
     useEffect(() => {
         if (fromDate && toDate) {
@@ -305,7 +235,6 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle, fromDate, setFromDa
                 }
             },
             datalabels: {
-                // anchor: 'end', // You can also try 'center', 'start'
                 align: 'top', // Try 'start', 'end', or 'center'
                 color: 'rgba(var(--font-light))',
                 font: {
@@ -452,6 +381,52 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle, fromDate, setFromDa
             ],
         };
     };
+
+
+
+    const balanceSheet = [
+        { year: '2020', currAss: 100, nCurrAss: 150, curLia: 80, nCurLia: 60, capStock: 70, retEarn: 90, treas: 20 },
+    ];
+    const data = {
+        labels: Graphicaldata?.labels?.map(item => item),
+        datasets: [
+            {
+                label: 'Ip Patients',
+                data: balanceSheet.map(item => item.currAss),
+                backgroundColor: 'rgba(12, 132, 162, 0.50)',
+                stack: 'assets',
+            },
+            {
+                label: 'Op Patients',
+                data: balanceSheet.map(item => item.nCurrAss),
+                backgroundColor: 'rgba(96, 94, 163, 0.50)',
+                stack: 'assets',
+            },
+        ],
+    };
+
+
+    const optionss = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false, // Hide legend like `hideLegend: true`
+            },
+        },
+        scales: {
+            x: {
+                stacked: true,
+            },
+            y: {
+                stacked: true,
+                ticks: {
+                    stepSize: 20,
+                },
+            },
+        },
+    };
+
     return (
         <Box sx={{
             width: { xs: '100%', sm: '100%', md: 700, lg: "100%" },
@@ -459,10 +434,7 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle, fromDate, setFromDa
         }}>
             {/* Date Range Selector */}
             <Box sx={{ flexWrap: "wrap", mt: 0.5, flex: 1, }}>
-                <ButtonGroup aria-label="date range selector" sx={{
-                    '--ButtonGroup-radius': '30px', display: "flex",
-                    flexWrap: { sm: "wrap", xl: 'nowrap' }, p: 0, size: "sm"
-                }}>
+                <ButtonGroup aria-label="date range selector" sx={{ '--ButtonGroup-radius': '30px', display: "flex", flexWrap: { sm: "wrap", xl: 'nowrap' }, p: 0, size: "sm" }}>
                     {['Today', 'Last Week', 'This Month', 'Last 6 months', 'This Year', 'Custom'].map((label, index) => (
                         <Button key={label} onClick={() => handlePeriodChange(index + 1)}>
                             {index === 5 ? (
@@ -522,7 +494,7 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle, fromDate, setFromDa
                         cursor: "pointer",
                         color: 'rgba(var(--font-light))',
                     }}>
-                        <Bar
+                        {/* <Bar
                             data={{
                                 labels: chartData.labels,
                                 datasets: chartData.datasets.map((dataset, index) => ({
@@ -545,11 +517,10 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle, fromDate, setFromDa
                                 }))
                             }}
                             options={options}
-
-                            height={350}
-
-
-                        />
+                            height={350}/> */}
+                        <div style={{ height: 350 }}>
+                            <Bar data={data} options={optionss} />
+                        </div>
                     </Box>
 
                 ) : parseInt(Chartlayout) === 2 ? (
@@ -595,5 +566,5 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle, fromDate, setFromDa
         </Box>
     );
 };
+export default memo(RadiologyGraphicalRep)
 
-export default memo(OverallSalesProgress);
