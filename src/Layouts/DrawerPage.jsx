@@ -8,7 +8,7 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { ListSubheader } from "@mui/material";
-import { Settings, NavArrowRight, PharmacyCrossCircle, PharmacyCrossTag } from 'iconoir-react';
+import { Settings, NavArrowRight, PharmacyCrossCircle } from 'iconoir-react';
 import { useNavigate } from 'react-router-dom';  // Import useNavigate hook
 
 const DrawerPage = ({ drawerWidth, handleDrawerClose }) => {
@@ -36,9 +36,9 @@ const DrawerPage = ({ drawerWidth, handleDrawerClose }) => {
     ], []);
 
     const KMCH = useMemo(() => [
-        { slno: 4, menu: "Dashboard", text: "/Home/Dashboard", icon: <PharmacyCrossCircle height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> },
-        { slno: 3, menu: "Settings", text: "/Home/Settings", icon: <Settings height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> },
-        { slno: 5, menu: "Data Push", text: "/Home/LoadData", icon: <PharmacyCrossCircle height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> }
+        { slno: 6, menu: "Dashboard", text: "/Home/KMCDashboard", icon: <PharmacyCrossCircle height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> },
+        { slno: 7, menu: "Settings", text: "/Home/KMCSettings", icon: <Settings height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> },
+        { slno: 8, menu: "Data Push", text: "/Home/KmchLoadDatas", icon: <PharmacyCrossCircle height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> }
     ], []);
 
     const renderDrawerSection = (sectionTitle, menuItems, section) => (

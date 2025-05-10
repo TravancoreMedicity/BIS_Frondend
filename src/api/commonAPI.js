@@ -555,8 +555,16 @@ export const getOpPatientDetails = async () => {
 export const getOpModuleDetails = async () => {
   return await axiosApi.get("/bisDataPush/getOpModuleData").then((res) => {
     const { success, data } = res.data;
-    if (success === 2) {
-      return data ? data[0] : [];
+    if (success === 2 && Array.isArray(data)) {
+      return data?.map((item, index) => ({
+        opslno: item?.op_module_slno ?? index + 1,
+        name: item?.label_name,
+        date: item?.last_update_date,
+        status: index === 0 ? 1 : 0,
+      }));
+    }
+    else {
+      return [];
     }
   });
 };

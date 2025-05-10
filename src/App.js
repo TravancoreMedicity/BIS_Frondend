@@ -13,6 +13,9 @@ import ModuleGroupMaster from "./Modules/Settings/ModuleGroupMaster/ModuleGroupM
 import TmchGraphicalView from "./Modules/BISModule/TMCH/TmchGraphicalView.jsx";
 import KmchGraphicalView from "./Modules/BISModule/KMCH/KmchGraphicalView.jsx";
 import { ToastContainer } from "react-toastify";
+import KmcDashboard from "./Modules/BISModule/KMCH/KmcDashboard.jsx";
+import KMCSettings from "./Modules/BISModule/KMCH/KMCSettings.jsx";
+import KmchLoadDatas from "./Modules/BISModule/KMCH/KmchLoadDatas.jsx";
 
 // Main Modules
 const Dashboard = lazy(() => import("./Modules/Dashboard/Dashboard.jsx"));
@@ -28,7 +31,8 @@ const UserTypeMaster = lazy(() => import("./Modules/Settings/UserTypeMaster/User
 const ModuleNameMaster = lazy(() => import("./Modules/Settings/ModuleNameMaster/ModuleNameMaster.jsx"))
 const MenuNameMaster = lazy(() => import("./Modules/Settings/MenuNameMaster/MenuNameMaster.jsx"))
 const UserGroupRights = lazy(() => import("./Modules/Settings/UserGroupRights/UserGroupRights.jsx"))
-const LoadData = lazy(() => import("./Modules/BISModule/BIS_CommoCode/LoadData.jsx"))
+// const LoadData = lazy(() => import("./Modules/BISModule/BIS_CommoCode/LoadData.jsx"))
+const LoadData = lazy(() => import("./Modules/BISModule/BIS_CommoCode/DataPush.jsx"))
 
 const routes = createBrowserRouter([
   {
@@ -86,6 +90,24 @@ const routes = createBrowserRouter([
             path: "LoadData", element:
               <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
                 <LoadData />
+              </Suspense>, errorElement: <ErrorElement />
+          },
+          {
+            path: "KMCDashboard", element:
+              <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+                <KmcDashboard />
+              </Suspense>, errorElement: <ErrorElement />
+          },
+          {
+            path: "KMCSettings", element:
+              <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+                <KMCSettings />
+              </Suspense>, errorElement: <ErrorElement />
+          },
+          {
+            path: "KmchLoadDatas", element:
+              <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+                <KmchLoadDatas />
               </Suspense>, errorElement: <ErrorElement />
           },
 

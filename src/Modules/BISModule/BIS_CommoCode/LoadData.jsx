@@ -1,187 +1,108 @@
-import { Box, Input } from '@mui/joy';
-import { Typography } from '@mui/material';
-import React, { useCallback, useMemo, useState } from 'react';
+import { Box } from '@mui/joy';
+// import React, { useCallback, useMemo, useState } from 'react';
 import { memo } from 'react';
-import UnarchiveIcon from '@mui/icons-material/Unarchive';
-import { getOpModuleDetails, getOpPatientDetails } from '../../../api/commonAPI';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { addDays, format, subDays } from 'date-fns';
-import axiosApi from '../../../Axios/Axios';
+// import UnarchiveIcon from '@mui/icons-material/Unarchive';
+// import { getOpModuleDetails, getOpPatientDetails } from '../../../api/commonAPI';
+// import { useQuery, useQueryClient } from '@tanstack/react-query';
+// import { addDays, endOfDay, format, startOfDay, subDays } from 'date-fns';
+// import axiosApi, { axiosellider } from '../../../Axios/Axios';
+// import { ToastContainer } from 'react-toastify';
 
 const LoadData = () => {
 
-    const queryClient = useQueryClient()
+    // const queryClient = useQueryClient()
 
-    const [updateDate, setUpdateDate] = useState({});
-    const [lastUpdateDate, setLastUpdateDate] = useState(new Date());
+    // const [updateDate, setUpdateDate] = useState({});
+    // const [firstUpdate_ststus, setFirstUpdate_ststus] = useState(0);
 
-    //getOpPatientDetails
-    const { data: OpDatas } = useQuery({
-        queryKey: ["opDetails"],
-        queryFn: () => getOpPatientDetails(),
-    })
-    // console.log("OpDatas", OpDatas);
+    // const { data: OpDatas } = useQuery({
+    //     queryKey: ["opDetails"],
+    //     queryFn: () => getOpPatientDetails(),
+    // })
 
-    //op_mosule_details
-    const { data: OpModuleDatas } = useQuery({
-        queryKey: ["opModuleDetails"],
-        queryFn: () => getOpModuleDetails(),
-    })
+    // const { data: OpModuleDatas } = useQuery({
+    //     queryKey: ["opModuleDetails"],
+    //     queryFn: () => getOpModuleDetails(),
+    // })
 
-    const mapArr = useMemo(() => {
-        if (!OpModuleDatas) return [];
-        return [
-            {
-                title: "Out Patient Module",
-                rows: [
-                    { opslno: 1, name: OpModuleDatas?.total_op, date: OpModuleDatas?.last_total_op_update_date },
-                    { opslno: 2, name: OpModuleDatas?.op_new_reg, date: OpModuleDatas?.last_new_reg_update_date },
-                    { opslno: 3, name: OpModuleDatas?.op_visit, date: OpModuleDatas?.last_visit_update_date },
-                    { opslno: 4, name: OpModuleDatas?.op_registration_fee, date: OpModuleDatas?.last_reg_fee_update_date },
-                    { opslno: 5, name: OpModuleDatas?.op_visit_fee, date: OpModuleDatas?.last_visit_fee_update_date },
-                    { opslno: 6, name: OpModuleDatas?.op_collection_total, date: OpModuleDatas?.last_collection_total_update_date },
-                    { opslno: 7, name: OpModuleDatas?.op_canel_count, date: OpModuleDatas?.last_canel_count_update_date },
-                    { opslno: 8, name: OpModuleDatas?.op_canel_amount, date: OpModuleDatas?.last_canel_amount_update_date },
-                ]
-            }
-        ];
-    }, [OpModuleDatas]);
+    // const mapArr = useMemo(() => {
+    //     if (!OpModuleDatas) return [];
+    //     const moduleArray = Object.values(OpModuleDatas);
+    //     return [
+    //         {
+    //             title: "bis_outpatient_visit",
+    //             rows: moduleArray?.map((item) => ({
+    //                 opslno: item?.opslno,
+    //                 name: item?.name,
+    //                 date: item?.date,
+    //                 status: item?.status
+    //             })),
+    //         },
+    //     ];
+    // }, [OpModuleDatas]);
 
-    const mapArr1 = useMemo(() => {
-        if (!OpModuleDatas) return [];
-        return [
-            {
-                title: "In Patient Module",
-                rows: [
-                    { opslno: 1, name: OpModuleDatas.total_op, date: OpModuleDatas.last_total_op_update_date },
-                    { opslno: 2, name: OpModuleDatas.op_new_reg, date: OpModuleDatas.last_new_reg_update_date },
-                    { opslno: 3, name: OpModuleDatas.op_visit, date: OpModuleDatas.last_visit_update_date },
-                    { opslno: 4, name: OpModuleDatas.op_registration_fee, date: OpModuleDatas.last_reg_fee_update_date }
-                ]
-            }
-        ];
-    }, [OpModuleDatas]);
-
-    const mapArr2 = useMemo(() => {
-        if (!OpModuleDatas) return [];
-        return [
-            {
-                title: "Pharmacy Sales Module",
-                rows: [
-                    { opslno: 1, name: OpModuleDatas?.total_op, date: OpModuleDatas.last_total_op_update_date },
-                    { opslno: 2, name: OpModuleDatas?.op_new_reg, date: OpModuleDatas.last_new_reg_update_date },
-                    { opslno: 3, name: OpModuleDatas?.op_visit, date: OpModuleDatas.last_visit_update_date },
-                    { opslno: 4, name: OpModuleDatas?.op_registration_fee, date: OpModuleDatas.last_reg_fee_update_date },
-                    { opslno: 7, name: OpModuleDatas?.op_canel_count, date: OpModuleDatas.last_canel_count_update_date },
-                    { opslno: 8, name: OpModuleDatas?.op_canel_amount, date: OpModuleDatas.last_canel_amount_update_date },
-                ]
-            }
-        ];
-    }, [OpModuleDatas]);
-
-
-    // console.log("mapArr", mapArr);
-
-
-    // const modules = [
-    //     {
-    //         title: "Out Patient Module",
-    //         rows: [
-    //             { slno: 1, label: "Total OP" },
-    //             { slno: 2, label: "New Registration" },
-    //             { slno: 3, label: "Visit" },
-    //             { slno: 4, label: "Total Op Collection" },
-    //             { slno: 5, label: "Op Registration Fee" },
-    //             { slno: 6, label: "Op Visit Fee" },
-    //             { slno: 7, label: "Op cancel Count" },
-    //             { slno: 8, label: "Op Cancel Amount" },
-    //         ],
-    //     },
-    //     {
-    //         title: "In Patient Module",
-    //         rows: [
-    //             { slno: 4, label: "Total Admission" },
-    //             { slno: 5, label: "Discharge" },
-    //             { slno: 6, label: "Dama" },
-    //         ],
-    //     },
-    //     {
-    //         title: "Pharmacy Sales Module",
-    //         rows: [
-    //             { slno: 7, label: "Total Sales" },
-    //             { slno: 8, label: "Return" },
-    //             { slno: 9, label: "Net Sales" },
-    //         ],
-    //     },
-    // ];
-
-    // const uploadData = useCallback(
-    // (slno) => {
-    //     if (!OpDatas || !updateDate[slno]) return;
-
-    //     const selectedDate = updateDate[slno];
-    //     const matchedRecord = OpDatas.find(item => item.op_visit_date === selectedDate);
-
-    //     const fieldMap = {
-    //         1: "op_total_op",
-    //         2: "op_new_reg",
-    //         3: "op_visit",
-    //         4: "op_collection_total",
-    //         5: "op_registration_fee",
-    //         6: "op_visit_fee",
-    //         7: "op_canel_count",
-    //         8: "op_canel_amount"
+    // const uploadData = useCallback(async (name, todate, fromdate, status, opslno) => {
+    //     console.log("FirstUpload");
+    //     const formattedFromDate = format(startOfDay(addDays(fromdate, 1)), 'dd-MMM-yyyy HH:mm:ss');
+    //     const formattedToDate = format(endOfDay(todate), 'dd-MMM-yyyy HH:mm:ss');
+    //     const tDate = format(todate, 'yyyy-MM-dd');
+    //     const payload = {
+    //         fromdate: formattedFromDate,
+    //         todate: formattedToDate,
     //     };
+    //     const getOracleData = await axiosellider.post("/bisElliderData/opcount", payload)
+    //     const { data, success } = getOracleData.data;
 
-    //     const fieldName = fieldMap[slno];
-    //     const count = matchedRecord?.[fieldName] ?? 0;
+    //     if (status === 1 && success === 2 && data.length !== 0) {
 
-    //     const postData = {
-    //         slno,
-    //         updateDate: selectedDate,
-    //         count,
-    //     };
-    //     // console.log("postData", postData);
-    // },
-    // [updateDate, OpDatas]
-    // );
+    //         const enrichedData = data?.map(item => ({
+    //             ...item,
+    //             tDate
+    //         }));
+    //         // console.log("enrichedData", enrichedData);
 
-    const uploadData = useCallback(async (name, date, last_date) => {
-        // console.log("name, date, last_date", name, date, last_date);
+    //         const insertData = await axiosApi.post("/bisDataPush/insertOpcount", enrichedData);
+    //         const { success: insertSuccess, message } = insertData.data;
 
-        // const payload = {
-        //     name,
-        //     updateDate: format(new Date, "yyyy-MM-dd HH:mm:ss"),
-        //     fromdate: format(addDays(new Date(last_date), 1), "yyyy-MM-dd"),
-        //     todate: date
-        // };
-        // // console.log("payload", payload);
-        // const getOracleData = await axiosApi.post("/bisDataPush/getOpOracleData", payload)
-        // const { data, success } = getOracleData.data;
-        // if (success === 1) {
-        //     //insertdata to OP Table
-        //     const insertData = await axiosApi.post("/bisDataPush/insertOpcount", payload)
-        //     const { data, success } = insertData.data;
-        //     if (success === 1) {
+    //         if (insertSuccess === 1) {
+    //             setFirstUpdate_ststus(1)
+    //             queryClient.invalidateQueries('opModuleDetails')
 
-        //     }
-        //     else {
-        //         //else part
-        //     }
-        // }
-        // else {
+    //             console.log("Data successfully inserted:", message);
+    //         } else {
+    //             console.log("Data not successfully inserted:", message);
+    //         }
+    //     }
+    //     else if (status === 0 && success === 2) {
+    //         //     //update to OP Table
+    //         //     const insertData = await axiosApi.post("/bisDataPush/updatOpCount", payload)
+    //         //     const { data, success,message } = insertData.data;
+    //         //     if (success === 1) {
+    //         //     }
+    //         //     else {
+    //         //         //else part
+    //         //     }
+    //     }
+    //     else {
+    //     }
+    // }, [updateDate, queryClient])
 
-        // }
-    }, [])
+    // const today = useMemo(() => new Date().toISOString().split("T")[0], []);
 
-    // console.log("uploadDate", uploadDate);
-    const today = useMemo(() => new Date().toISOString().split("T")[0], []);
+    // const lastDate = format(subDays(new Date(), 1), "yyyy-MM-dd")
 
-    const lastDate = format(subDays(new Date(), 1), "yyyy-MM-dd")
-    // console.log("lastDate", lastDate);
+
+    // console.log("updateDate", updateDate);
+    // console.log("ladtdate", lastDate);
+
+
+    // const SecondUpload = useCallback(() => {
+
+    // }, [])
 
     return (
         <Box sx={{ width: "100%", height: { xl: 900, sm: 1060 } }}>
+            {/* <ToastContainer />
             <Box
                 sx={{
                     display: "flex",
@@ -192,11 +113,10 @@ const LoadData = () => {
             >
 
                 {mapArr?.map((module, modIndex) => (
-                    <Box key={modIndex} sx={{ mt: 1, flex: 1, p: 1 }}>
+                    <Box key={modIndex} sx={{ mt: 1, flex: 1, p: 1, border: 1, borderColor: "#EBD3F8" }}>
                         <Typography sx={{ textAlign: "center", color: 'rgba(var(--font-light))', fontSize: 15 }}>
                             {module?.title}
                         </Typography>
-
                         {module?.rows?.map((row, rowIndex) => (
                             <Box
                                 key={rowIndex}
@@ -226,7 +146,7 @@ const LoadData = () => {
                                 <Box sx={{ width: "30%", display: "flex", alignItems: "center", justifyContent: "center", p: 0.2 }}>
                                     <Input
                                         type="date"
-                                        value={updateDate[row?.name] || ''}
+                                        value={updateDate[row?.name] || lastDate}
                                         onChange={(e) =>
                                             setUpdateDate(() => ({
                                                 [row?.name]: e.target.value,
@@ -234,8 +154,8 @@ const LoadData = () => {
                                         }
                                         slotProps={{
                                             input: {
-                                                min: format(new Date(row?.date), "yyyy-MM-dd"),
-                                                max: lastDate,
+                                                min: addDays(new Date(row?.date), 1),
+                                                max: format(subDays(new Date(), 1), "yyyy-MM-dd"),
                                             },
                                         }}
                                         size="sm"
@@ -248,9 +168,12 @@ const LoadData = () => {
                                         }}
                                     />
                                 </Box>
-                                <Box
-                                    onClick={() => uploadData(row?.name, updateDate[row.name], row?.date)}
 
+                                <Box
+                                    onClick={() =>
+                                        firstUpdate_ststus === 0 && row?.status !== 0 ? uploadData(row?.name, updateDate[row?.name], row?.date, row?.status)
+                                            : firstUpdate_ststus === 1 && row?.status === 0 ? SecondUpload(row?.name, updateDate[row?.name], row?.date, row?.status) : null
+                                    }
                                     sx={{
                                         width: "30%",
                                         display: "flex",
@@ -258,267 +181,86 @@ const LoadData = () => {
                                         justifyContent: "center",
                                         gap: 1,
                                         border: 1,
+                                        // backgroundColor: row?.status === 0 ? "green" : "pink",
+                                        // backgroundColor: updateDate[row?.name] === row?.date ? "green" : "pink",
+
                                         borderColor: 'rgba(43, 142, 159, 0.66)',
                                         borderRadius: 10,
                                         cursor: "pointer",
+                                        opacity: 1,
+
+
+                                        borderColor:
+                                            row?.status === 0 ? 'rgba(194, 182, 182, 0.57)' // disabled color
+                                                : 'rgba(43, 142, 159, 0.66)',
+                                        borderRadius: 10,
+                                        cursor: row?.status === 0 ? "not-allowed" : "pointer",
+                                        opacity: row?.status === 0 ? 0.5 : 1,
+                                        pointerEvents: row?.status === 0 ? "none" : "auto", // disables click
                                     }}
                                 >
-                                    <UnarchiveIcon sx={{ color: 'rgba(43, 142, 159, 0.66)' }} />
-                                    <Typography sx={{ color: 'rgba(var(--font-light))', fontSize: 13 }}>Upload</Typography>
+                                    {
+                                        row?.status === 1 ?
+                                            <UnarchiveIcon
+                                                sx={{
+                                                    // color: firstUpdate_ststus === 0
+                                                    // ? 'rgba(194, 182, 182, 0.57)' // greyed out icon
+                                                    // : 'rgba(43, 142, 159, 0.66)',
+                                                    color: 'rgba(43, 142, 159, 0.66)',
+                                                }}
+                                            />
+                                            :
+                                            <UnarchiveIcon
+                                                sx={{
+                                                    // color: firstUpdate_ststus === 0
+                                                    //     ? 'rgba(194, 182, 182, 0.57)' // greyed out icon
+                                                    //     : 'rgba(43, 142, 159, 0.66)',
+                                                    color: 'rgba(194, 182, 182, 0.57)',
+                                                }}
+                                            />
+                                    }
+
+
+                                    <Typography
+                                        sx={{
+                                            color: 'rgba(var(--font-light))',
+                                            fontSize: 13,
+                                        }}
+                                    >
+                                        Upload
+                                    </Typography>
                                 </Box>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             </Box>
                         ))}
                     </Box>
                 ))}
 
+                <Box sx={{ mt: 1, flex: 1, p: 1, border: 1, borderColor: "#EBD3F8" }}>
+                    <Typography sx={{ textAlign: "center", color: 'rgba(var(--font-light))', fontSize: 15 }}>
+                        Inpatient
+                    </Typography>
+                </Box>
 
-
-
-
-                {mapArr1?.map((module, modIndex) => (
-                    <Box key={modIndex} sx={{ mt: 1, flex: 1, p: 1 }}>
-                        <Typography sx={{ textAlign: "center", color: 'rgba(var(--font-light))', fontSize: 15 }}>
-                            {module?.title}
-                        </Typography>
-
-                        {module?.rows?.map((row, rowIndex) => (
-                            <Box
-                                key={rowIndex}
-                                sx={{
-                                    mt: 0.5,
-                                    display: "flex",
-                                    flexDirection: "row",
-                                    justifyContent: "space-between",
-                                    border: 1,
-                                    borderRadius: 5,
-                                    p: 0.5,
-                                    borderColor: 'rgba(194, 182, 182, 0.57)',
-                                }}
-                            >
-                                <Box sx={{ width: "30%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                    <Typography sx={{ color: 'rgba(var(--font-light))', fontSize: 13 }}>
-                                        {row?.name}
-                                    </Typography>
-                                </Box>
-
-                                <Box sx={{ width: "24%", display: "flex", alignItems: "center", justifyContent: "center", p: 0.2, flexDirection: "column" }}>
-                                    <Typography sx={{ fontSize: 9, color: 'rgba(var(--font-light))', }}>Last Update Date</Typography>
-                                    <Typography sx={{ fontSize: 11, mt: 0.5, color: "rosybrown", }}>
-                                        {row?.date}
-                                    </Typography>
-                                </Box>
-                                <Box sx={{ width: "30%", display: "flex", alignItems: "center", justifyContent: "center", p: 0.2 }}>
-                                    <Input
-                                        type="date"
-                                        value={updateDate[row?.opslno] || ''}
-                                        onChange={(e) =>
-                                            setUpdateDate(() => ({
-                                                [row?.opslno]: e.target.value,
-                                            }))
-                                        }
-                                        slotProps={{
-                                            input: {
-                                                // min: minDate,
-                                                max: today,
-                                            },
-                                        }}
-                                        size="sm"
-                                        sx={{
-                                            color: 'rgba(var(--font-light))',
-                                            width: "100%",
-                                            p: 0.2,
-                                            px: 1,
-                                            fontSize: 13,
-                                        }}
-                                    />
-                                </Box>
-                                <Box
-                                    onClick={() => uploadData(row?.opslno)}
-                                    sx={{
-                                        width: "30%",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        gap: 1,
-                                        border: 1,
-                                        borderColor: 'rgba(43, 142, 159, 0.66)',
-                                        borderRadius: 10,
-                                        cursor: "pointer",
-                                    }}
-                                >
-                                    <UnarchiveIcon sx={{ color: 'rgba(43, 142, 159, 0.66)' }} />
-                                    <Typography sx={{ color: 'rgba(var(--font-light))', fontSize: 13 }}>Upload</Typography>
-                                </Box>
-                            </Box>
-                        ))}
-                    </Box>
-                ))}
-
-
-
-                {mapArr2?.map((module, modIndex) => (
-                    <Box key={modIndex} sx={{ mt: 1, flex: 1, p: 1 }}>
-                        <Typography sx={{ textAlign: "center", color: 'rgba(var(--font-light))', fontSize: 15 }}>
-                            {module?.title}
-                        </Typography>
-
-                        {module?.rows?.map((row, rowIndex) => (
-                            <Box
-                                key={rowIndex}
-                                sx={{
-                                    mt: 0.5,
-                                    display: "flex",
-                                    flexDirection: "row",
-                                    justifyContent: "space-between",
-                                    border: 1,
-                                    borderRadius: 5,
-                                    p: 0.5,
-                                    borderColor: 'rgba(194, 182, 182, 0.57)',
-                                }}
-                            >
-                                <Box sx={{ width: "30%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                    <Typography sx={{ color: 'rgba(var(--font-light))', fontSize: 13 }}>
-                                        {row?.name}
-                                    </Typography>
-                                </Box>
-
-                                <Box sx={{ width: "24%", display: "flex", alignItems: "center", justifyContent: "center", p: 0.2, flexDirection: "column" }}>
-                                    <Typography sx={{ fontSize: 9, color: 'rgba(var(--font-light))', }}>Last Update Date</Typography>
-                                    <Typography sx={{ fontSize: 11, mt: 0.5, color: "rosybrown", }}>
-                                        {row?.date}
-                                    </Typography>
-                                </Box>
-                                <Box sx={{ width: "30%", display: "flex", alignItems: "center", justifyContent: "center", p: 0.2 }}>
-                                    <Input
-                                        type="date"
-                                        value={updateDate[row?.opslno] || ''}
-                                        onChange={(e) =>
-                                            setUpdateDate(() => ({
-                                                [row?.opslno]: e.target.value,
-                                            }))
-                                        }
-                                        slotProps={{
-                                            input: {
-                                                // min: minDate,
-                                                max: today,
-                                            },
-                                        }}
-                                        size="sm"
-                                        sx={{
-                                            color: 'rgba(var(--font-light))',
-                                            width: "100%",
-                                            p: 0.2,
-                                            px: 1,
-                                            fontSize: 13,
-                                        }}
-                                    />
-                                </Box>
-                                <Box
-                                    onClick={() => uploadData(row?.opslno)}
-                                    sx={{
-                                        width: "30%",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        gap: 1,
-                                        border: 1,
-                                        borderColor: 'rgba(43, 142, 159, 0.66)',
-                                        borderRadius: 10,
-                                        cursor: "pointer",
-                                    }}
-                                >
-                                    <UnarchiveIcon sx={{ color: 'rgba(43, 142, 159, 0.66)' }} />
-                                    <Typography sx={{ color: 'rgba(var(--font-light))', fontSize: 13 }}>Upload</Typography>
-                                </Box>
-                            </Box>
-                        ))}
-                    </Box>
-                ))}
-
-
-
-
-
-
-                {/* {modules?.map((module, modIndex) => (
-                    <Box key={modIndex} sx={{ mt: 1, flex: 1, p: 1 }}>
-                        <Typography sx={{ textAlign: "center", color: 'rgba(var(--font-light))', fontSize: 15 }}>
-                            {module?.title}
-                        </Typography>
-
-                        {module?.rows?.map((row, rowIndex) => (
-                            <Box
-                                key={rowIndex}
-                                sx={{
-                                    mt: 0.5,
-                                    display: "flex",
-                                    flexDirection: "row",
-                                    justifyContent: "space-between",
-                                    border: 1,
-                                    borderRadius: 5,
-                                    p: 0.5,
-                                    borderColor: 'rgba(194, 182, 182, 0.57)',
-                                }}
-                            >
-                                <Box sx={{ width: "30%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                    <Typography sx={{ color: 'rgba(var(--font-light))', fontSize: 13 }}>
-                                        {row?.label}
-                                    </Typography>
-                                </Box>
-
-                                <Box sx={{ width: "24%", display: "flex", alignItems: "center", justifyContent: "center", p: 0.2, flexDirection: "column" }}>
-                                    <Typography sx={{ fontSize: 9, color: 'rgba(var(--font-light))', }}>Last Update Date</Typography>
-                                    <Typography sx={{ fontSize: 11, mt: 0.5, color: "rosybrown", }}>
-                                        2025-04-23
-                                    </Typography>
-                                </Box>
-                                <Box sx={{ width: "30%", display: "flex", alignItems: "center", justifyContent: "center", p: 0.2 }}>
-                                    <Input
-                                        type="date"
-                                        value={updateDate[row.slno] || ''}
-                                        onChange={(e) =>
-                                            setUpdateDate(() => ({
-                                                [row.slno]: e.target.value,
-                                            }))
-                                        }
-                                        slotProps={{
-                                            input: {
-                                                // min: minDate,
-                                                max: today,
-                                            },
-                                        }}
-                                        size="sm"
-                                        sx={{
-                                            color: 'rgba(var(--font-light))',
-                                            width: "100%",
-                                            p: 0.2,
-                                            px: 1,
-                                            fontSize: 13,
-                                        }}
-                                    />
-                                </Box>
-                                <Box
-                                    onClick={() => uploadData(row.slno)}
-                                    sx={{
-                                        width: "30%",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        gap: 1,
-                                        border: 1,
-                                        borderColor: 'rgba(43, 142, 159, 0.66)',
-                                        borderRadius: 10,
-                                        cursor: "pointer",
-                                    }}
-                                >
-                                    <UnarchiveIcon sx={{ color: 'rgba(43, 142, 159, 0.66)' }} />
-                                    <Typography sx={{ color: 'rgba(var(--font-light))', fontSize: 13 }}>Upload</Typography>
-                                </Box>
-                            </Box>
-                        ))}
-                    </Box>
-                ))} */}
-            </Box>
+                <Box sx={{ mt: 1, flex: 1, p: 1, border: 1, borderColor: "#EBD3F8" }}>
+                    <Typography sx={{ textAlign: "center", color: 'rgba(var(--font-light))', fontSize: 15 }}>
+                        Pharmacy Sales
+                    </Typography>
+                </Box>
+            </Box> */}
         </Box>
     );
 };
