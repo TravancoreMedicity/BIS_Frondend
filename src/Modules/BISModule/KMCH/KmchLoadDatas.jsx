@@ -61,7 +61,7 @@ const KmchLoadDatas = () => {
                 const enrichedData = data?.map(item => ({
                     ...item,
                     tDate,
-                    c_name: 1
+                    c_name: 2
                 }));
 
                 const insertData = await axiosApi.post("/bisDataPush/insertOpcount", enrichedData);
