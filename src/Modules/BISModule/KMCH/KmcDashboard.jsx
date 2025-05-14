@@ -3,8 +3,8 @@ import { Box, Typography } from "@mui/joy";
 import { useQuery } from '@tanstack/react-query';
 import { format } from "date-fns";
 import OverallSalesProgress from "../BIS_CommoCode/SalesProgress/OverallSalesProgress";
-import { getIpDetails, getOpDetails, getpharmacyDetails, getdischargeDetails, getlabDetails, getradiologyDetails } from "../../../api/commonAPI";
 import KMCHeader from "../BIS_CommoCode/KMCHeader";
+import { getKmcdischargeDetails, getKmcIpDetails, getKmclabDetails, getkmcOpDetails, getKmcpharmacyDetails, getKmcradiologyDetails } from "../../../api/commonAPI";
 
 const KmcDashboard = () => {
 
@@ -75,63 +75,63 @@ const KmcDashboard = () => {
     //usequery
     const { data: OpDetails } = useQuery({
         queryKey: ['opDataDetails', payloadDatas], // include payload in queryKey to cache per payload
-        queryFn: () => getOpDetails(payloadDatas),
+        queryFn: () => getkmcOpDetails(payloadDatas),
         enabled: !!payloadDatas, // ensures payload exists before running
     })
 
     //inpatient Details
     const { data: IpDetails } = useQuery({
         queryKey: ['ipDataDetails', ipPayloadDatas],
-        queryFn: () => getIpDetails(ipPayloadDatas),
+        queryFn: () => getKmcIpDetails(ipPayloadDatas),
         enabled: !!ipPayloadDatas,
     })
 
     const { data: PharmacyDetails } = useQuery({
         queryKey: ['pharmacyDataDetails', phPayloadDatas],
-        queryFn: () => getpharmacyDetails(phPayloadDatas),
+        queryFn: () => getKmcpharmacyDetails(phPayloadDatas),
         enabled: !!phPayloadDatas,
     })
 
     const { data: DischargeDetails } = useQuery({
         queryKey: ['dischargeDataDetails', dcPayloadDatas],
-        queryFn: () => getdischargeDetails(dcPayloadDatas),
+        queryFn: () => getKmcdischargeDetails(dcPayloadDatas),
         enabled: !!dcPayloadDatas,
     })
 
     const { data: labDetails } = useQuery({
         queryKey: ['labDataDetails', labPayloadDatas],
-        queryFn: () => getlabDetails(labPayloadDatas),
+        queryFn: () => getKmclabDetails(labPayloadDatas),
         enabled: !!labPayloadDatas,
     })
 
     const { data: radiologyDetails } = useQuery({
         queryKey: ['radiologyDataDetails', radPayloadDatas],
-        queryFn: () => getradiologyDetails(radPayloadDatas),
+        queryFn: () => getKmcradiologyDetails(radPayloadDatas),
         enabled: !!radPayloadDatas,
     })
     // op_visit_date
     const data = {
-        labels: OpDetails?.map(val => val.op_visit_date) || [],
+        labels: OpDetails?.map(val => val.kmc_op_visit_date) || [],
 
         datasets: OpDetails
             ? [
                 {
                     label: 'Total Outpatients',
-                    data: OpDetails?.map(val => val.op_total_op) || [],
+                    data: OpDetails?.map(val => val.kmc_op_total_op) || [],
                     borderColor: 'rgb(75, 192, 192)',
                     backgroundColor: 'rgba(96, 94, 163, 0.50)',
                     barThickness: 50,
                 },
                 {
                     label: 'New Patients',
-                    data: OpDetails?.map(val => val.op_new_reg) || [],
+                    data: OpDetails?.map(val => val.kmc_op_new_reg) || [],
                     borderColor: 'rgba(44, 80, 103, 0.95)',
                     backgroundColor: 'rgba(12, 132, 162, 0.50)',
                     barThickness: 50,
                 },
                 {
                     label: 'Visit',
-                    data: OpDetails?.map(val => val.op_visit) || [],
+                    data: OpDetails?.map(val => val.kmc_op_visit) || [],
                     borderColor: 'rgb(255, 99, 132)',
                     backgroundColor: 'rgba(184, 62, 143, 0.48)',
                     barThickness: 50,
@@ -140,28 +140,28 @@ const KmcDashboard = () => {
             : [],
     };
     const InpatientData = {
-        labels: IpDetails?.map(val => val.ip_date) || [],
+        labels: IpDetails?.map(val => val.kmc_ip_date) || [],
 
         datasets: IpDetails
             ?
             [
                 {
                     label: 'Total Admission',
-                    data: IpDetails?.map(val => val.ip_total_admission) || [],
+                    data: IpDetails?.map(val => val.kmc_ip_total_admission) || [],
                     borderColor: 'rgb(75, 192, 192)',
                     backgroundColor: 'rgba(96, 94, 163, 0.50)',
                     barThickness: 50,
                 },
                 {
                     label: 'Total Discharge',
-                    data: IpDetails?.map(val => val.ip_total_discharge) || [],
+                    data: IpDetails?.map(val => val.kmc_ip_total_discharge) || [],
                     borderColor: 'rgba(44, 80, 103, 0.95)',
                     backgroundColor: 'rgba(12, 132, 162, 0.50)',
                     barThickness: 50,
                 },
                 {
                     label: 'Dama',
-                    data: IpDetails?.map(val => val.ip_dama) || [],
+                    data: IpDetails?.map(val => val.kmc_ip_dama) || [],
                     borderColor: 'rgb(255, 99, 132)',
                     backgroundColor: 'rgba(184, 62, 143, 0.48)',
                     barThickness: 50,
@@ -171,27 +171,27 @@ const KmcDashboard = () => {
     };
 
     const pharmacySales = {
-        labels: PharmacyDetails?.map(val => val.ph_transaction_date) || [],
+        labels: PharmacyDetails?.map(val => val.kmc_ph_transaction_date) || [],
 
         datasets: PharmacyDetails
             ? [
                 {
                     label: 'Total Bill',
-                    data: PharmacyDetails?.map(val => val.ph_total_bill_count) || [],
+                    data: PharmacyDetails?.map(val => val.kmc_ph_total_bill_count) || [],
                     borderColor: 'rgb(75, 192, 192)',
                     backgroundColor: 'rgba(96, 94, 163, 0.50)',
                     barThickness: 50,
                 },
                 {
                     label: 'Return ',
-                    data: PharmacyDetails?.map(val => val.ph_total_return_count) || [],
+                    data: PharmacyDetails?.map(val => val.kmc_ph_total_return_count) || [],
                     borderColor: 'rgba(44, 80, 103, 0.95)',
                     backgroundColor: 'rgba(12, 132, 162, 0.50)',
                     barThickness: 50,
                 },
                 {
                     label: 'Net Amount',
-                    data: PharmacyDetails?.map(val => val.ph_total_gross) || [],
+                    data: PharmacyDetails?.map(val => val.kmc_ph_total_gross) || [],
                     borderColor: 'rgb(255, 99, 132)',
                     backgroundColor: 'rgba(184, 62, 143, 0.48)',
                     barThickness: 50,
@@ -201,27 +201,27 @@ const KmcDashboard = () => {
     };
 
     const dischargeDatas = {
-        labels: DischargeDetails?.map(val => val.dc_date) || [],
+        labels: DischargeDetails?.map(val => val.kmc_dc_date) || [],
 
         datasets: DischargeDetails
             ? [
                 {
                     label: 'Total Bill Amount',
-                    data: DischargeDetails?.map(val => val.dc_total_bill_amount) || [],
+                    data: DischargeDetails?.map(val => val.kmc_dc_total_bill_amount) || [],
                     borderColor: 'rgb(75, 192, 192)',
                     backgroundColor: 'rgba(96, 94, 163, 0.50)',
                     barThickness: 50,
                 },
                 {
                     label: 'Receipt',
-                    data: DischargeDetails?.map(val => val.dc_receipt_count) || [],
+                    data: DischargeDetails?.map(val => val.kmc_dc_receipt_count) || [],
                     borderColor: 'rgba(44, 80, 103, 0.95)',
                     backgroundColor: 'rgba(12, 132, 162, 0.50)',
                     barThickness: 50,
                 },
                 {
                     label: 'Advance',
-                    data: DischargeDetails?.map(val => val.dc_advance_amount) || [],
+                    data: DischargeDetails?.map(val => val.kmc_dc_advance_amount) || [],
                     borderColor: 'rgb(255, 99, 132)',
                     backgroundColor: 'rgba(184, 62, 143, 0.48)',
                     barThickness: 50,
@@ -231,34 +231,34 @@ const KmcDashboard = () => {
     };
 
     const labDatas = {
-        labels: labDetails?.map(val => val.lab_date) || [],
+        labels: labDetails?.map(val => val.kmc_lab_date) || [],
 
         datasets: labDetails
             ? [
                 {
                     label: 'Total Billing',
-                    data: labDetails?.map(val => val.lab_total_count) || [],
+                    data: labDetails?.map(val => val.kmc_lab_total_count) || [],
                     borderColor: 'rgb(75, 192, 192)',
                     backgroundColor: 'rgba(96, 94, 163, 0.50)',
                     barThickness: 50,
                 },
                 {
                     label: 'Ip Billing',
-                    data: labDetails?.map(val => val.lab_ip_total_count) || [],
+                    data: labDetails?.map(val => val.kmc_lab_ip_total_count) || [],
                     borderColor: 'rgba(44, 80, 103, 0.95)',
                     backgroundColor: 'rgba(12, 132, 162, 0.50)',
                     barThickness: 50,
                 },
                 {
                     label: 'Op Billing',
-                    data: labDetails?.map(val => val.lab_op_total_count) || [],
+                    data: labDetails?.map(val => val.kmc_lab_op_total_count) || [],
                     borderColor: 'rgb(255, 99, 132)',
                     backgroundColor: 'rgba(184, 62, 143, 0.48)',
                     barThickness: 50,
                 },
                 {
                     label: 'Return',
-                    data: labDetails?.map(val => val.lab_refund_count) || [],
+                    data: labDetails?.map(val => val.kmc_lab_refund_count) || [],
                     borderColor: 'rgb(255, 99, 132)',
                     backgroundColor: 'rgba(184, 62, 143, 0.48)',
                     barThickness: 50,
@@ -267,34 +267,34 @@ const KmcDashboard = () => {
             : [], // if no OpDetails, show empty chart
     };
     const radiologyDatas = {
-        labels: radiologyDetails?.map(val => val.rad_date) || [],
+        labels: radiologyDetails?.map(val => val.kmc_rad_date) || [],
 
         datasets: radiologyDetails
             ? [
                 {
                     label: 'Total Billing',
-                    data: radiologyDetails?.map(val => val.rad_total_count) || [],
+                    data: radiologyDetails?.map(val => val.kmc_rad_total_count) || [],
                     borderColor: 'rgb(75, 192, 192)',
                     backgroundColor: 'rgba(96, 94, 163, 0.50)',
                     barThickness: 50,
                 },
                 {
                     label: 'Ip Billing',
-                    data: radiologyDetails?.map(val => val.rad_ip_total_count) || [],
+                    data: radiologyDetails?.map(val => val.kmc_rad_ip_total_count) || [],
                     borderColor: 'rgba(44, 80, 103, 0.95)',
                     backgroundColor: 'rgba(12, 132, 162, 0.50)',
                     barThickness: 50,
                 },
                 {
                     label: 'Op Billing',
-                    data: radiologyDetails?.map(val => val.rad_op_total_count) || [],
+                    data: radiologyDetails?.map(val => val.kmc_rad_op_total_count) || [],
                     borderColor: 'rgb(255, 99, 132)',
                     backgroundColor: 'rgba(184, 62, 143, 0.48)',
                     barThickness: 50,
                 },
                 {
                     label: 'Return',
-                    data: radiologyDetails?.map(val => val.rad_refund_count) || [],
+                    data: radiologyDetails?.map(val => val.kmc_rad_refund_count) || [],
                     borderColor: 'rgb(255, 99, 132)',
                     backgroundColor: 'rgba(184, 62, 143, 0.48)',
                     barThickness: 50,

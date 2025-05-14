@@ -557,9 +557,9 @@ export const getOpModuleDetails = async () => {
     const { success, data } = res.data;
     if (success === 2 && Array.isArray(data)) {
       return data?.map((item, index) => ({
-        opslno: item?.op_module_slno ?? index + 1,
-        name: item?.label_name,
-        date: item?.last_update_date,
+        opslno: item?.tmc_op_module_slno ?? index + 1,
+        name: item?.tmc_label_name,
+        date: item?.tmc_last_update_date,
         status: index === 0 ? 1 : 0,
       }));
     }
@@ -625,6 +625,99 @@ export const getlabDetails = async (PayloadDatas) => {
 
 export const getradiologyDetails = async (PayloadDatas) => {
   const res = await axiosApi.post("/radiologyDetails/getDetails", PayloadDatas);
+  const { success, data } = res.data;
+  if (success === 1) {
+    return data ?? [];
+  } else {
+    return [];
+  }
+};
+
+
+//for get kmc datas
+
+export const getkmcOpPatientDetails = async () => {
+  return await axiosApi.get("/bisKmcDataPush/getOpDatas").then((res) => {
+    const { success, data } = res.data;
+    if (success === 2) {
+      return data ? data : [];
+    }
+  });
+};
+
+export const getkmcOpModuleDetails = async () => {
+  return await axiosApi.get("/bisKmcDataPush/getOpModuleData").then((res) => {
+    const { success, data } = res.data;
+    if (success === 2 && Array.isArray(data)) {
+      return data?.map((item, index) => ({
+        opslno: item?.kmc_op_module_slno ?? index + 1,
+        name: item?.kmc_label_name,
+        date: item?.kmc_last_update_date,
+        status: index === 0 ? 1 : 0,
+      }));
+    }
+    else {
+      return [];
+    }
+  });
+};
+
+export const getkmcOpDetails = async (payloadDatas) => {
+  return await axiosApi.post("/bisKmcOpModule/opDetails", payloadDatas).then((res) => {
+    const { success, data } = res.data;
+    if (success === 1) {
+      return data ?? [];
+    } else {
+      return [];
+    }
+  });
+};
+export const getKmcIpDetails = async (PayloadDatas) => {
+  return await axiosApi.post("/bisKmcIpModule/ipDetails", PayloadDatas).then((res) => {
+    const { success, data } = res.data;
+    if (success === 1) {
+      return data ?? [];
+    } else {
+      return [];
+    }
+  });
+};
+
+export const getKmcpharmacyDetails = async (PayloadDatas) => {
+  return await axiosApi.post("/bisKmcPharmacy/pharmacyDetails", PayloadDatas).then((res) => {
+    const { success, data } = res.data;
+    if (success === 1) {
+      return data ?? [];
+    } else {
+      return [];
+    }
+  });
+};
+
+export const getKmcdischargeDetails = async (PayloadDatas) => {
+  return await axiosApi.post("/bisKmcDischarge/dischargeDetails", PayloadDatas).then((res) => {
+    const { success, data } = res.data;
+    if (success === 1) {
+      return data ?? [];
+    } else {
+      return [];
+    }
+  });
+};
+
+export const getKmclabDetails = async (PayloadDatas) => {
+  return await axiosApi.post("/bisKmclabDetails/getlabDetails", PayloadDatas).then((res) => {
+    const { success, data } = res.data;
+    if (success === 1) {
+      return data ?? [];
+    } else {
+      return [];
+    }
+  });
+};
+
+export const getKmcradiologyDetails = async (PayloadDatas) => {
+  const res = await axiosApi.post("/bisKmcradiologyDetails/getDetails", PayloadDatas);
   const { success, data } = res.data;
   if (success === 1) {
     return data ?? [];

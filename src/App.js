@@ -31,7 +31,6 @@ const UserTypeMaster = lazy(() => import("./Modules/Settings/UserTypeMaster/User
 const ModuleNameMaster = lazy(() => import("./Modules/Settings/ModuleNameMaster/ModuleNameMaster.jsx"))
 const MenuNameMaster = lazy(() => import("./Modules/Settings/MenuNameMaster/MenuNameMaster.jsx"))
 const UserGroupRights = lazy(() => import("./Modules/Settings/UserGroupRights/UserGroupRights.jsx"))
-// const LoadData = lazy(() => import("./Modules/BISModule/BIS_CommoCode/LoadData.jsx"))
 const LoadData = lazy(() => import("./Modules/BISModule/BIS_CommoCode/DataPush.jsx"))
 
 const routes = createBrowserRouter([

@@ -1,6 +1,6 @@
 // @ts-nocheck
 import Axios from "axios";
-import { API_URL, RETURN_URL, ELLIDER_API_URL } from "../Constant/Static";
+import { API_URL, RETURN_URL, ELLIDER_TMC_API_URL, ELLIDER_KMC_API_URL } from "../Constant/Static";
 import { toast } from "react-toastify";
 
 const axiosApi = Axios.create({
@@ -23,8 +23,17 @@ axiosApi.interceptors.request.use(
 
 
 
-export const axiosellider = Axios.create({
-    baseURL: ELLIDER_API_URL,
+export const axiosellider_tmc = Axios.create({
+    baseURL: ELLIDER_TMC_API_URL,
+    headers: {
+        "Content-Type": 'application/json',
+        "Accept": 'application/json',
+        "Accept-Language": "en-GB,en"
+    }
+});
+
+export const axiosellider_kmc = Axios.create({
+    baseURL: ELLIDER_KMC_API_URL,
     headers: {
         "Content-Type": 'application/json',
         "Accept": 'application/json',
@@ -33,10 +42,7 @@ export const axiosellider = Axios.create({
 });
 
 
-
-
-
-axiosellider.interceptors.request.use(function (config) {
+axiosellider_tmc.interceptors.request.use(function (config) {
     const userinfo = sessionStorage.getItem('userDetl');
     const accessToken = userinfo ? JSON.parse(sessionStorage.getItem('userDetl')).token : 0;
     config.headers.Authorization = `Bearer ${accessToken}`;
@@ -45,7 +51,7 @@ axiosellider.interceptors.request.use(function (config) {
     console.log(err);
 })
 
-axiosellider.interceptors.request.use(function (config) {
+axiosellider_kmc.interceptors.request.use(function (config) {
     const userinfo = sessionStorage.getItem('userDetl');
     const accessToken = userinfo ? JSON.parse(sessionStorage.getItem('userDetl')).token : 0;
     config.headers.Authorization = `Bearer ${accessToken}`;

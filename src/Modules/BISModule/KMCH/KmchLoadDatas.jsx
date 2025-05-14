@@ -3,12 +3,12 @@ import { Typography } from '@mui/material';
 import React, { useCallback, useState } from 'react';
 import { memo } from 'react';
 import UnarchiveIcon from '@mui/icons-material/Unarchive';
-import { getOpModuleDetails } from '../../../api/commonAPI';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { addDays, endOfDay, format, startOfDay, subDays } from 'date-fns';
-import axiosApi, { axiosellider } from '../../../Axios/Axios';
+import axiosApi, { axiosellider_kmc } from '../../../Axios/Axios';
 import { ToastContainer } from 'react-toastify';
 import { succesNofity, warningNofity } from '../../../Constant/Constant';
+import { getkmcOpModuleDetails } from '../../../api/commonAPI';
 
 const KmchLoadDatas = () => {
 
@@ -17,36 +17,12 @@ const KmchLoadDatas = () => {
     const [updateDate, setUpdateDate] = useState({});
     const [firstUpdate_ststus, setFirstUpdate_ststus] = useState(0);
 
-    // const { data: OpDatas } = useQuery({
-    //     queryKey: ["opDetails"],
-    //     queryFn: () => getOpPatientDetails(),
-    // })
-
     const { data: OpModuleDatas } = useQuery({
         queryKey: ["opModuleDetails"],
-        queryFn: () => getOpModuleDetails(),
+        queryFn: () => getkmcOpModuleDetails(),
     })
 
-
-    // const mapArr = useMemo(() => {
-    //     if (!OpModuleDatas) return [];
-    //     const moduleArray = Object.values(OpModuleDatas);
-    //     return [
-    //         {
-    //             title: "bis_outpatient_visit",
-    //             rows: moduleArray?.map((item) => ({
-    //                 opslno: item?.opslno,
-    //                 name: item?.name,
-    //                 date: item?.date,
-    //                 status: item?.status
-    //             })),
-    //         },
-    //     ];
-    // }, [OpModuleDatas]);
-
-
     const uploadData = useCallback(async (fromdate, todate, opslno) => {
-
         if (todate) {
             const formattedFromDate = format(startOfDay(addDays(fromdate, 1)), 'dd-MMM-yyyy HH:mm:ss');
             const formattedToDate = format(endOfDay(todate), 'dd-MMM-yyyy HH:mm:ss');
@@ -55,7 +31,7 @@ const KmchLoadDatas = () => {
                 fromdate: formattedFromDate,
                 todate: formattedToDate,
             };
-            const getOracleData = await axiosellider.post("/bisElliderData/opcount", payload)
+            const getOracleData = await axiosellider_kmc.post("/bisElliderData/opcount", payload)
             const { data, success } = getOracleData.data;
             if (opslno === 1 && success === 2 && data.length !== 0) {
                 const enrichedData = data?.map(item => ({
@@ -64,7 +40,7 @@ const KmchLoadDatas = () => {
                     c_name: 2
                 }));
 
-                const insertData = await axiosApi.post("/bisDataPush/insertOpcount", enrichedData);
+                const insertData = await axiosApi.post("/bisKmcDataPush/insertOpcount", enrichedData);
                 const { success: insertSuccess, message } = insertData.data;
                 if (insertSuccess === 1) {
                     setFirstUpdate_ststus(1)
@@ -81,16 +57,40 @@ const KmchLoadDatas = () => {
                     tDate
                 }));
                 //update to OP Table
-                const UpdateData = await axiosApi.post("/bisDataPush/updatOpCount", updateData)
+                const UpdateData = await axiosApi.post("/bisKmcDataPush/updatOpCount", updateData)
                 const { success, message } = UpdateData.data;
                 if (success === 1) {
+                    queryClient.invalidateQueries('opModuleDetails')
                     succesNofity(message)
                 }
                 else {
                     warningNofity(message)
                 }
             }
+            else if (opslno === 4) {
+                const getCashcredit = await axiosellider_kmc.post("/bisElliderData/cashcredit", payload)
+                const { data, success } = getCashcredit.data;
+
+                if (success === 2 && data.length !== 0) {
+                    const enrichedData = data?.map(item => ({
+                        ...item,
+                        tDate,
+                        c_name: 2
+                    }));
+
+                    const insertData = await axiosApi.patch("/bisKmcDataPush/updateCashcredit", enrichedData);
+                    const { success: insertSuccess, message } = insertData.data;
+                    if (insertSuccess === 1) {
+                        setUpdateDate({})
+                        queryClient.invalidateQueries('opModuleDetails')
+                        succesNofity(message)
+                    } else {
+                        warningNofity(message)
+                    }
+                }
+            }
             else {
+                warningNofity("No Data")
             }
         }
         else {
@@ -108,7 +108,6 @@ const KmchLoadDatas = () => {
         { opslno: 7, label: "Op cancel Count" },
         { opslno: 8, label: "Op Cancel Amount" }
     ]
-
 
     const handleDateChange = (opslno, newDate) => {
         setUpdateDate(prev => ({
@@ -128,9 +127,6 @@ const KmchLoadDatas = () => {
                     flexWrap: { xl: "nowrap", sm: "wrap" },
                 }}
             >
-
-
-
                 <Box sx={{ mt: 1, flex: 1, p: 1, border: 1, borderColor: "#EBD3F8" }}>
                     <Typography sx={{ textAlign: "center", color: 'rgba(var(--font-light))', fontSize: 15 }}>
                         bis_outpatient_visit
@@ -138,6 +134,9 @@ const KmchLoadDatas = () => {
                     {
                         mapArrs?.map((item, index) => {
                             const matchData = OpModuleDatas?.find(val => val?.opslno === item?.opslno);
+
+                            const lastday = format(subDays(new Date(), 1), "yyyy-MM-dd");
+                            const firstOpsDate = OpModuleDatas?.find(d => d?.opslno === 1)?.date || lastday;
                             return (
                                 <Box
                                     key={index}
@@ -152,7 +151,6 @@ const KmchLoadDatas = () => {
                                         borderColor: 'rgba(194, 182, 182, 0.57)',
                                     }}
                                 >
-
                                     <Box sx={{ width: "30%", display: "flex", alignItems: "center", justifyContent: "center" }}>
                                         <Typography sx={{ color: 'rgba(var(--font-light))', fontSize: 13 }}>
                                             {item?.label}
@@ -165,8 +163,6 @@ const KmchLoadDatas = () => {
                                             {matchData?.date}
                                         </Typography>
                                     </Box>
-
-
                                     <Box sx={{ width: "30%", display: "flex", alignItems: "center", justifyContent: "center", p: 0.2 }}>
                                         <Input
                                             type="date"
@@ -175,11 +171,13 @@ const KmchLoadDatas = () => {
                                             onChange={(e) => handleDateChange(item?.opslno, e.target.value)}
                                             slotProps={{
                                                 input: {
+                                                    min: matchData?.date,
                                                     max:
-                                                        matchData?.opslno !== 1 && firstUpdate_ststus === 1
-                                                            ? format(new Date(matchData?.date), "yyyy-MM-dd")
-                                                            : format(subDays(new Date(), 1), "yyyy-MM-dd")
-                                                }
+                                                        // matchData?.opslno !== 1 && firstUpdate_ststus === 1
+                                                        matchData?.opslno !== 1
+                                                            ? firstOpsDate
+                                                            : lastday,
+                                                },
                                             }}
                                             size="sm"
                                             sx={{
@@ -190,9 +188,7 @@ const KmchLoadDatas = () => {
                                                 fontSize: 13,
                                             }}
                                         />
-
                                     </Box>
-
                                     <Box
                                         onClick={() => uploadData(matchData?.date, updateDate[item?.opslno], item?.opslno)
                                         }
@@ -203,15 +199,11 @@ const KmchLoadDatas = () => {
                                             justifyContent: "center",
                                             gap: 1,
                                             border: 1,
-                                            // borderColor: 'rgba(43, 142, 159, 0.66)',
                                             borderRadius: 10,
-                                            // cursor: "pointer",
-                                            // opacity: 1,
                                             borderColor: matchData?.opslno === 1 || firstUpdate_ststus === 1 ? 'rgba(43, 142, 159, 0.66)' : 'rgba(43, 142, 159, 0.66)',
+                                            cursor: "pointer",
+                                            opacity: lastday === firstOpsDate || lastday > firstOpsDate ? 1 : 0.5,
 
-                                            pointerEvents: "auto", // disables click
-                                            cursor: matchData?.opslno === 1 || firstUpdate_ststus === 1 ? "pointer" : "not-allowed",
-                                            opacity: matchData?.opslno === 1 || firstUpdate_ststus === 1 ? 1 : 0.5,
                                         }}
                                     >
                                         <UnarchiveIcon
@@ -233,7 +225,7 @@ const KmchLoadDatas = () => {
 
                 <Box sx={{ mt: 1, flex: 1, p: 1, border: 1, borderColor: "#EBD3F8" }}>
                     <Typography sx={{ textAlign: "center", color: 'rgba(var(--font-light))', fontSize: 15 }}>
-                        Inpatient
+                        bis_Inpatient
                     </Typography>
                 </Box>
 
@@ -248,6 +240,8 @@ const KmchLoadDatas = () => {
 };
 
 export default memo(KmchLoadDatas);
+
+
 
 
 
