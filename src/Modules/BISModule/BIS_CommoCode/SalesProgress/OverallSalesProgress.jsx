@@ -26,7 +26,8 @@ import {
     RadialLinearScale,
     ArcElement
 } from 'chart.js';
-import SelectGraphicalView from '../SelectGraphicalView';
+// import SelectGraphicalView from '../SelectGraphicalView';
+import GraphicalRep from '../GraphicalRep';
 
 // Register ChartJS components
 ChartJS.register(
@@ -45,30 +46,93 @@ ChartJS.register(
 const OverallSalesProgress = ({ Graphicaldata, Displaystyle, fromDate, setFromDate, toDate, setToDate }) => {
     const StyleMode = parseInt(Displaystyle);
 
-    const [dayCount, setDayCount] = useState(1);
+    const [dayCount, setDayCount] = useState(2);
     // const [fromDate, setFromDate] = useState('');
     // const [toDate, setToDate] = useState('');
     const [chartData, setChartData] = useState(Graphicaldata);
     const [Chartlayout, seChartlayout] = useState(StyleMode);
 
     const Todays = format(new Date(), 'yyyy-MM-dd');
-    const StartOfcurrentMonth = format(startOfMonth(new Date()), "yyyy-MM-dd");
     const startOfThisWeek = startOfWeek(new Date(), { weekStartsOn: 1 });
     const startOfLastWeek = subWeeks(startOfThisWeek, 1);
     const endOfLastWeek = addDays(startOfLastWeek, 6);
 
     // Function to filter data based on selected date range
+    // const filterDataByDateRange = useCallback((labels, data, dateRange) => {
+    //     if (dateRange.isRange) {
+    //         const { rangeStart, rangeEnd } = dateRange;
+
+    //         // For monthly ranges (Last 6 months or This Year)
+    //         if (dayCount === 4 || dayCount === 5) {
+    //             const months = eachMonthOfInterval({ start: rangeStart, end: rangeEnd });
+    //             const monthLabels = months.map(month => format(month, 'MMM yyyy'));
+
+    //             const monthlySums = data?.datasets?.map(dataset => {
+    //                 return months?.map(month => {
+    //                     const monthStart = startOfMonth(month);
+    //                     const monthEnd = endOfMonth(month);
+
+    //                     return labels.reduce((sum, label, index) => {
+    //                         const labelDate = new Date(label);
+    //                         if (isWithinInterval(labelDate, { start: monthStart, end: monthEnd })) {
+    //                             return sum + (dataset.data[index] || 0);
+    //                         }
+    //                         return sum;
+    //                     }, 0);
+    //                 });
+    //             });
+
+    //             return {
+    //                 labels: monthLabels,
+    //                 datasets: data?.datasets?.map((dataset, i) => ({
+    //                     ...dataset,
+    //                     data: monthlySums[i]
+    //                 }))
+    //             };
+    //         }
+
+    //         // For other ranges, filter daily data within the range
+    //         const filteredIndices = labels?.map((label, index) => {
+    //             const labelDate = new Date(label);
+    //             return (labelDate >= rangeStart && labelDate <= rangeEnd) ? index : null;
+    //         }).filter(index => index !== null);
+
+    //         return {
+    //             labels: labels.filter((_, index) => filteredIndices.includes(index)),
+    //             datasets: data.datasets.map(dataset => ({
+    //                 ...dataset,
+    //                 data: filteredIndices.map(index => dataset.data[index]),
+    //             }))
+    //         };
+    //     }
+
+    //     // Handle exact date matches (Today, Last Week, This Month)
+    //     const filteredIndices = labels?.map((label, index) =>
+    //         dateRange.includes(label) ? index : null
+    //     ).filter(index => index !== null);
+
+    //     return {
+    //         labels: labels.filter((_, index) => filteredIndices.includes(index)),
+    //         datasets: data.datasets.map(dataset => ({
+    //             ...dataset,
+    //             data: filteredIndices.map(index => dataset.data[index])
+    //         }))
+    //     };
+    // }, [dayCount]);
+
+    // import { format, eachMonthOfInterval, startOfMonth, endOfMonth, isWithinInterval } from 'date-fns';
+
     const filterDataByDateRange = useCallback((labels, data, dateRange) => {
         if (dateRange.isRange) {
             const { rangeStart, rangeEnd } = dateRange;
 
-            // For monthly ranges (Last 6 months or This Year)
+            // Monthly ranges (Last 6 Months or This Year)
             if (dayCount === 4 || dayCount === 5) {
                 const months = eachMonthOfInterval({ start: rangeStart, end: rangeEnd });
                 const monthLabels = months.map(month => format(month, 'MMM yyyy'));
 
                 const monthlySums = data?.datasets?.map(dataset => {
-                    return months?.map(month => {
+                    return months.map(month => {
                         const monthStart = startOfMonth(month);
                         const monthEnd = endOfMonth(month);
 
@@ -84,35 +148,43 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle, fromDate, setFromDa
 
                 return {
                     labels: monthLabels,
-                    datasets: data?.datasets?.map((dataset, i) => ({
+                    datasets: data.datasets.map((dataset, i) => ({
                         ...dataset,
                         data: monthlySums[i]
                     }))
                 };
             }
 
-            // For other ranges, filter daily data within the range
+            // Daily data within other ranges
             const filteredIndices = labels?.map((label, index) => {
                 const labelDate = new Date(label);
                 return (labelDate >= rangeStart && labelDate <= rangeEnd) ? index : null;
             }).filter(index => index !== null);
 
             return {
-                labels: labels.filter((_, index) => filteredIndices.includes(index)),
+                labels: filteredIndices.map(index => {
+                    const date = new Date(labels[index]);
+                    return format(date, 'dd EEE');
+                }),
                 datasets: data.datasets.map(dataset => ({
                     ...dataset,
-                    data: filteredIndices.map(index => dataset.data[index]),
+                    data: filteredIndices.map(index => dataset.data[index])
                 }))
             };
         }
 
-        // Handle exact date matches (Today, Last Week, This Month)
+        // Exact date match (Today, Last Week, This Month)
         const filteredIndices = labels?.map((label, index) =>
             dateRange.includes(label) ? index : null
         ).filter(index => index !== null);
 
+        const filteredLabels = filteredIndices.map(index => {
+            const date = new Date(labels[index]);
+            return format(date, 'dd EEE');
+        });
+
         return {
-            labels: labels.filter((_, index) => filteredIndices.includes(index)),
+            labels: filteredLabels,
             datasets: data.datasets.map(dataset => ({
                 ...dataset,
                 data: filteredIndices.map(index => dataset.data[index])
@@ -121,16 +193,27 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle, fromDate, setFromDa
     }, [dayCount]);
 
 
+
+
     const handlePeriodChange = useCallback((period) => {
         setDayCount(period);
         const now = new Date();
 
+        // const getOrdinalSuffix = (day) => {
+        //     if (day > 3 && day < 21) return 'th';
+        //     switch (day % 10) {
+        //         case 1: return 'st';
+        //         case 2: return 'nd';
+        //         case 3: return 'rd';
+        //         default: return 'th';
+        //     }
+        // };
         const periodHandlers = {
-            1: () => {
-                setFromDate(format(now, 'yyyy-MM-dd'));
-                setToDate(format(now, 'yyyy-MM-dd'));
-                return [Todays]; // Today
-            },
+            // 1: () => {
+            //     setFromDate(format(now, 'yyyy-MM-dd'));
+            //     setToDate(format(now, 'yyyy-MM-dd'));
+            //     return [Todays]; // Today
+            // },
             2: () => {
                 setFromDate(format(startOfLastWeek, 'yyyy-MM-dd'));
                 setToDate(format(endOfLastWeek, 'yyyy-MM-dd'));
@@ -139,6 +222,14 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle, fromDate, setFromDa
                     end: endOfLastWeek
                 }).map(date => format(date, 'yyyy-MM-dd')); // Last Week
             },
+            // 3: () => {
+            //     setFromDate(format(startOfMonth(now), 'yyyy-MM-dd'));
+            //     setToDate(format(now, 'yyyy-MM-dd'));
+            //     return eachDayOfInterval({
+            //         start: startOfMonth(now),
+            //         end: now
+            //     }).map(date => format(date, 'yyyy-MM-dd')); // This Month
+            // },
             3: () => {
                 setFromDate(format(startOfMonth(now), 'yyyy-MM-dd'));
                 setToDate(format(now, 'yyyy-MM-dd'));
@@ -147,6 +238,35 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle, fromDate, setFromDa
                     end: now
                 }).map(date => format(date, 'yyyy-MM-dd')); // This Month
             },
+            // 3: () => {
+            //     const start = startOfMonth(now);
+            //     const end = now;
+
+            //     setFromDate(format(start, 'yyyy-MM-dd'));
+            //     setToDate(format(end, 'yyyy-MM-dd'));
+
+            //     return eachDayOfInterval({ start, end }).map(date =>
+            //         `${String(date.getDate()).padStart(2, '0')} ${format(date, 'EEE')}`
+            //     );
+            // },
+            // 3: () => {
+            //     const start = startOfMonth(now); // Get the first day of the current month
+            //     const end = now;                 // Get today's date
+
+            //     // Set the selected date range for outside use (e.g., filters)
+            //     setFromDate(format(start, 'yyyy-MM-dd'));
+            //     setToDate(format(end, 'yyyy-MM-dd'));
+
+            //     // Generate each day in the interval and return as 'DD DDD' (e.g., '01 Mon')
+            //     return eachDayOfInterval({ start, end }).map(date => {
+            //         const day = date.getDate();
+            //         const dayName = format(date, 'EEE'); // Get short weekday name: Mon, Tue, etc.
+            //         const formatted = `${String(day).padStart(2, '0')} ${dayName}`;
+            //         console.log(formatted); // Optional: For debugging
+            //         return formatted;
+            //     });
+            // }
+            // ,
             4: () => {
                 const sixMonthsAgo = subMonths(now, 5);
                 const startDate = startOfMonth(sixMonthsAgo);
@@ -179,8 +299,8 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle, fromDate, setFromDa
         setChartData(filteredData);
     }, [Todays, startOfLastWeek, endOfLastWeek, Graphicaldata, filterDataByDateRange, setFromDate, setToDate]);
 
-
     useEffect(() => {
+
         if (fromDate && toDate) {
             const startDate = new Date(fromDate);
             const endDate = new Date(toDate);
@@ -243,7 +363,6 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle, fromDate, setFromDa
                 labels: {
                     boxWidth: 15,
                     color: 'rgb(var(--color-white))',
-
                     font: {
                         size: 12, // Added consistent font size for legend
                     },
@@ -311,6 +430,8 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle, fromDate, setFromDa
                     },
                     padding: 5,
                     callback: (value) => {
+                        // console.log("valueeee", value);
+
                         // Optional: Format tick values if needed
                         return value;
                     }
@@ -424,23 +545,30 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle, fromDate, setFromDa
                     '--ButtonGroup-radius': '30px', display: "flex",
                     flexWrap: { sm: "wrap", xl: 'nowrap' }, p: 0, size: "sm"
                 }}>
-                    {['Today', 'Last Week', 'This Month', 'Last 6 months', 'This Year', 'Custom'].map((label, index) => (
-                        <Button key={label} onClick={() => handlePeriodChange(index + 1)}>
-                            {index === 5 ? (
+                    {/* {['Today', 'Last Week', 'This Month', 'Last 6 months', 'This Year', 'Custom'].map((label, index) => ( */}
+                    {['Last Week', 'This Month', 'Last 6 months', 'This Year', 'Custom'].map((label, index) => (
+
+                        <Button key={label} onClick={() => handlePeriodChange(index + 2)}>
+
+                            {index === 4 ? (
                                 <Box sx={{ display: "flex", flexDirection: "row", gap: 1 }}>
                                     <Input
                                         type="date"
                                         value={fromDate}
                                         onChange={(e) => setFromDate(e.target.value)}
                                         size='xs'
-                                        sx={{ p: 0.5, backgroundColor: "rgba(175, 193, 210, 0.35)", color: 'rgba(var(--font-light))', }}
+                                        sx={{ p: 0.5, color: 'grey', }}
                                     />
                                     <Input
                                         type="date"
                                         value={toDate}
                                         onChange={(e) => setToDate(e.target.value)}
                                         size='xs'
-                                        sx={{ p: 0.5, backgroundColor: "rgba(175, 193, 210, 0.35)", color: 'rgba(var(--font-light))', }}
+                                        sx={{
+                                            p: 0.5,
+                                            // backgroundColor: "rgba(175, 193, 210, 0.35)",
+                                            color: 'grey',
+                                        }}
                                         slotProps={{ input: { min: fromDate } }}
                                     />
                                 </Box>
@@ -461,7 +589,8 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle, fromDate, setFromDa
 
             <Box sx={{ width: "100%", display: "flex", justifyContent: "flex-end", textAlign: "right" }}>
                 <Box sx={{ mt: 2, }}>
-                    <SelectGraphicalView Chartlayout={Chartlayout} seChartlayout={seChartlayout} />
+                    {/* <SelectGraphicalView Chartlayout={Chartlayout} seChartlayout={seChartlayout} /> */}
+                    <GraphicalRep Chartlayout={Chartlayout} seChartlayout={seChartlayout} />
                 </Box>
             </Box>
 
@@ -508,8 +637,6 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle, fromDate, setFromDa
                             options={options}
 
                             height={350}
-
-
                         />
                     </Box>
 
@@ -558,3 +685,6 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle, fromDate, setFromDa
 };
 
 export default memo(OverallSalesProgress);
+
+
+

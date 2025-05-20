@@ -302,12 +302,12 @@ const RoootLayouts = () => {
                   containerStyle="flex items-center justify-center gap-2 "
                   inputStyle={{
                     marginRight: 0,
-                    padding: '0.9rem',
-                    width: '2.9rem',
+                    padding: '0.5rem',
+                    width: '2.3rem',
                     borderRadius: '0.5rem',
                     outline: '1px solid #53b6e7',
                     border: '1px solid #53b6e7',
-                    backgroundColor: '#e6f7ff', // light blue background
+                    // backgroundColor: '#e6f7ff', // light blue background
                     color: '#001C30',
                     fontSize: '1.25rem',
                   }}

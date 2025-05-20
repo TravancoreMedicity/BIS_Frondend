@@ -9,7 +9,10 @@ import { addDays, endOfDay, format, startOfDay, subDays } from 'date-fns';
 import axiosApi, { axiosellider_tmc } from '../../../Axios/Axios';
 import { ToastContainer } from 'react-toastify';
 import { succesNofity, warningNofity } from '../../../Constant/Constant';
-import { DatePicker } from '@mui/x-date-pickers';
+import CustomBackDrop from '../../../Components/CustomBackDrop';
+// import { DatePicker } from '@mui/x-date-pickers';
+// import CustomBackDrop from "../Components/CustomBackDrop";
+
 
 const DataPush = () => {
 
@@ -17,6 +20,7 @@ const DataPush = () => {
 
     const [updateDate, setUpdateDate] = useState({});
     const [firstUpdate_ststus, setFirstUpdate_ststus] = useState(0);
+    const [open, setOpen] = useState(false);
 
     const { data: OpModuleDatas } = useQuery({
         queryKey: ["opModuleDetails"],
@@ -119,6 +123,7 @@ const DataPush = () => {
     return (
         <Box sx={{ width: "100%", height: { xl: 900, sm: 1060 } }}>
             <ToastContainer />
+            <CustomBackDrop setOpen={setOpen} open={open} />
             <Box
                 sx={{
                     display: "flex",
@@ -138,8 +143,8 @@ const DataPush = () => {
                             const lastday = format(subDays(new Date(), 1), "yyyy-MM-dd");
                             const firstOpsDate = OpModuleDatas?.find(d => d?.opslno === 1)?.date || lastday;
 
-                            const firstOpsDatee = OpModuleDatas?.find(d => d?.opslno === 1)?.date;
-                            // console.log("firstOpsDate", firstOpsDatee);
+                            // const firstOpsDatee = OpModuleDatas?.find(d => d?.opslno === 1)?.date;
+                            // // console.log("firstOpsDate", firstOpsDatee);
 
                             return (
                                 <Box
@@ -260,6 +265,130 @@ const DataPush = () => {
                     <Typography sx={{ textAlign: "center", color: 'rgba(var(--font-light))', fontSize: 15 }}>
                         bis_Inpatient
                     </Typography>
+
+                    {
+                        mapArrs?.map((item, index) => {
+                            const matchData = OpModuleDatas?.find(val => val?.opslno === item?.opslno);
+
+                            const lastday = format(subDays(new Date(), 1), "yyyy-MM-dd");
+                            const firstOpsDate = OpModuleDatas?.find(d => d?.opslno === 1)?.date || lastday;
+
+                            // const firstOpsDatee = OpModuleDatas?.find(d => d?.opslno === 1)?.date;
+                            // // console.log("firstOpsDate", firstOpsDatee);
+
+                            return (
+                                <Box
+                                    key={index}
+                                    sx={{
+                                        mt: 0.5,
+                                        display: "flex",
+                                        flexDirection: "row",
+                                        justifyContent: "space-between",
+                                        border: 1,
+                                        borderRadius: 5,
+                                        p: 0.5,
+                                        borderColor: 'rgba(194, 182, 182, 0.57)',
+                                    }}
+                                >
+                                    <Box sx={{ width: "30%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                        <Typography sx={{ color: 'rgba(var(--font-light))', fontSize: 13 }}>
+                                            {item?.label}
+                                        </Typography>
+                                    </Box>
+
+                                    <Box sx={{ width: "24%", display: "flex", alignItems: "center", justifyContent: "center", p: 0.2, flexDirection: "column" }}>
+                                        <Typography sx={{ fontSize: 9, color: 'rgba(var(--font-light))', }}>Last Update Date</Typography>
+                                        <Typography sx={{ fontSize: 11, mt: 0.5, color: "rosybrown", }}>
+                                            {matchData?.date}
+                                        </Typography>
+                                    </Box>
+                                    <Box sx={{ width: "30%", display: "flex", alignItems: "center", justifyContent: "center", p: 0.2 }}>
+                                        <Input
+                                            type="date"
+                                            disabled={matchData?.date === format(subDays(new Date(), 1), "yyyy-MM-dd")}
+                                            value={updateDate[item?.opslno] || ''}
+                                            onChange={(e) => handleDateChange(item?.opslno, e.target.value)}
+                                            slotProps={{
+                                                input: {
+                                                    min: matchData?.date,
+                                                    max:
+                                                        // matchData?.opslno !== 1 && firstUpdate_ststus === 1
+                                                        matchData?.opslno !== 1
+                                                            ? firstOpsDate
+                                                            : lastday,
+                                                },
+                                            }}
+                                            size="sm"
+                                            sx={{
+                                                color: 'rgba(var(--font-light))',
+                                                width: "100%",
+                                                p: 0.2,
+                                                px: 1,
+                                                fontSize: 13,
+                                            }}
+                                        />
+
+                                        {/* <DatePicker
+                                            readOnly={readOnly}
+                                            value={value}
+                                            onChange={(newValue) => setValue(newValue)}
+                                            minDate={minDate}
+                                            maxDate={maxDate}
+                                            slotProps={{
+                                                textField: {
+                                                    size: 'small',
+                                                    sx: {
+                                                        width: { xs: '100%', sm: size ? size : 160 },
+                                                        '& .MuiInputBase-input': {
+                                                            color: 'rgba(var(--font-primary-white))',
+                                                        },
+                                                        '& .MuiInputLabel-root': {
+                                                            color: 'rgba(var(--font-primary-white))',
+                                                        },
+                                                        '& .MuiOutlinedInput-notchedOutline': {
+                                                            borderColor: 'rgba(var(--font-primary-white))',
+                                                        },
+                                                        '& .MuiSvgIcon-root': {
+                                                            color: 'rgba(var(--font-primary-white))', // Calendar icon
+                                                        },
+                                                    },
+                                                },
+                                            }}
+                                            format="dd/MM/yyyy"
+                                        /> */}
+                                    </Box>
+                                    <Box
+                                        onClick={() => uploadData(matchData?.date, updateDate[item?.opslno], item?.opslno)
+                                        }
+                                        sx={{
+                                            width: "30%",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            gap: 1,
+                                            border: 1,
+                                            borderRadius: 10,
+                                            borderColor: matchData?.opslno === 1 || firstUpdate_ststus === 1 ? 'rgba(43, 142, 159, 0.66)' : 'rgba(43, 142, 159, 0.66)',
+                                            cursor: "pointer",
+                                            opacity: lastday === firstOpsDate || lastday > firstOpsDate ? 1 : 0.5,
+
+                                        }}
+                                    >
+                                        <UnarchiveIcon
+                                            sx={{
+                                                color: 'rgba(43, 142, 159, 0.66)',
+                                            }}
+                                        />
+                                        <Typography
+                                            sx={{
+                                                color: 'rgba(var(--font-light))',
+                                                fontSize: 13,
+                                            }}>Uploads</Typography>
+                                    </Box>
+                                </Box>
+                            )
+                        })
+                    }
                 </Box>
 
                 <Box sx={{ mt: 1, flex: 1, p: 1, border: 1, borderColor: "#EBD3F8" }}>
@@ -268,6 +397,7 @@ const DataPush = () => {
                     </Typography>
                 </Box>
             </Box>
+            <CustomBackDrop />
         </Box>
     );
 };
