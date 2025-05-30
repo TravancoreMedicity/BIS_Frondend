@@ -60,6 +60,10 @@
   --list-hover-font-color: 78, 78, 78;
 
   --modal-bg-color: 255, 255, 255;
+  --graph-bg-color:246, 245, 245;
+  /* --graph-font-clr:238, 239, 241; */
+  --graph-font-clr:47, 54, 69;
+  --header-Font-Color:117, 134, 148;
 }
 
 .dark {
@@ -124,4 +128,8 @@
   --list-hover-font-color: 78, 78, 78;
 
   --modal-bg-color: 19, 21, 22;
+  --graph-bg-color:57, 62, 70;
+  /* --graph-font-clr:251, 251, 251; */
+  --graph-font-clr:238, 237, 235;
+  --header-Font-Color:166, 174, 191;
 }

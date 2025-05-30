@@ -9,34 +9,29 @@ import CustomBackDropWithOutState from "./Components/CustomBackDropWithOutState"
 import "./App.css";
 import { AuthProvider } from "./Context/AuthProvider";
 import ErrorElement from "./Pages/ErrorElement";
-// import { socket } from "./ws/socket";
-import { warningNofity } from "./Constant/Constant";
-import { toast } from "react-toastify";
+import ModuleGroupMaster from "./Modules/Settings/ModuleGroupMaster/ModuleGroupMaster.jsx";
+import TmchGraphicalView from "./Modules/BISModule/TMCH/TmchGraphicalView.jsx";
+import KmchGraphicalView from "./Modules/BISModule/KMCH/KmchGraphicalView.jsx";
+import { ToastContainer } from "react-toastify";
+import KmcDashboard from "./Modules/BISModule/KMCH/KmcDashboard.jsx";
+import KMCSettings from "./Modules/BISModule/KMCH/KMCSettings.jsx";
+import KmchLoadDatas from "./Modules/BISModule/KMCH/KmchLoadDatas.jsx";
 
 // Main Modules
 const Dashboard = lazy(() => import("./Modules/Dashboard/Dashboard.jsx"));
-// const AdvancedSearch = lazy(() =>
-//   import("./Modules/Search/AdvancedSearch.jsx")
-// );
-// const FileUpload = lazy(() => import("./Modules/FileUpload/FileUpload.jsx"));
-// const Settings = lazy(() => import("./Modules/Settings/Settings.jsx"));
+
+const Settings = lazy(() => import("./Modules/Settings/Settings.jsx"));
 
 // Sub Modules
-// const UserManagement = lazy(() => import("./Modules/Settings/UserMangement/UserCreation.jsx"));
-// const DocTypeMaster = lazy(() => import("./Modules/Settings/DocumentTypeMaster/DoctypeMaster.jsx"));
-// const SubTypeMaster = lazy(() => import("./Modules/Settings/SubTypeMaster/SubTypeMaster.jsx"));
-// const DocCategory = lazy(() => import("./Modules/Settings/DocumentCategory/DocCategoryMaster.jsx"));
-// const DocSubCategory = lazy(() => import("./Modules/Settings/DocumentSubCategory/DocumentSubCategory.jsx"));
-// const DocGroup = lazy(() => import("./Modules/Settings/DocumentGroup/DocumentGroup.jsx"));
-// const InstituteTypeMaster = lazy(() => import("./Modules/Settings/InstituteTypeMaster/InstituteTypeMaster.jsx"));
-// const InstitutionMaster = lazy(() => import("./Modules/Settings/InstitutionMaster/InstitutionMaster.jsx"));
-// const CourseType = lazy(() => import("./Modules/Settings/CourseType/CourseType.jsx"));
-// const CourseMaster = lazy(() => import("./Modules/Settings/CourseMaster/CourseMaster.jsx"));
-// const RackMaster = lazy(() => import("./Modules/Settings/RackMaster/RackMaster.jsx"));
-// const LocationMaster = lazy(() => import("./Modules/Settings/LocationMaster/LocationMaster.jsx"));
-// const CustodianMaster = lazy(() => import("./Modules/Settings/CustomdienMaster/CustodianMaster.jsx"));
-// const CustodianDepartment = lazy(() => import("./Modules/Settings/CustodienDepartment/CustodianDepartment.jsx"));
-// const FileApprovals = lazy(() => import("./Modules/FileApprovals/FileApprovals.jsx"));
+const UserManagement = lazy(() => import("./Modules/Settings/UserManagement/UserCreation.jsx"))
+
+const UserTypeMaster = lazy(() => import("./Modules/Settings/UserTypeMaster/UserTypeMaster.jsx"))
+
+// const UserGroupRights = lazy(() => import("./Modules/Settings/UserGroupRights/UserGroupRights.jsx"))
+const ModuleNameMaster = lazy(() => import("./Modules/Settings/ModuleNameMaster/ModuleNameMaster.jsx"))
+const MenuNameMaster = lazy(() => import("./Modules/Settings/MenuNameMaster/MenuNameMaster.jsx"))
+const UserGroupRights = lazy(() => import("./Modules/Settings/UserGroupRights/UserGroupRights.jsx"))
+const LoadData = lazy(() => import("./Modules/BISModule/BIS_CommoCode/DataPush.jsx"))
 
 const routes = createBrowserRouter([
   {
@@ -53,17 +48,25 @@ const routes = createBrowserRouter([
         element: <Home />,
         children: [
           {
-            path: "Purchase", element:
+            path: "Dashboard", element:
               <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
                 <Dashboard />
               </Suspense>, errorElement: <ErrorElement />
           },
+
           {
-            path: "AdvancedSearch", element:
+            path: "TmchGraphicalView", element:
               <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
-                {/* <AdvancedSearch /> */}
+                <TmchGraphicalView />
               </Suspense>, errorElement: <ErrorElement />
           },
+          {
+            path: "KmchGraphicalView", element:
+              <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+                <KmchGraphicalView />
+              </Suspense>, errorElement: <ErrorElement />
+          },
+
           {
             path: "FileUpload", element:
               <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
@@ -73,7 +76,7 @@ const routes = createBrowserRouter([
           {
             path: "Settings", element:
               <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
-                {/* <Settings /> */}
+                <Settings />
               </Suspense>, errorElement: <ErrorElement />
           },
           {
@@ -82,21 +85,38 @@ const routes = createBrowserRouter([
                 {/* <FileApprovals /> */}
               </Suspense>, errorElement: <ErrorElement />
           },
-          // { path: "UserManagement", element: <UserManagement />, errorElement: <ErrorElement /> },
-          // { path: "DocTypeMaster", element: <DocTypeMaster />, errorElement: <ErrorElement /> },
-          // { path: "SubTypeMaster", element: <SubTypeMaster />, errorElement: <ErrorElement /> },
-          // { path: "DocCategory", element: <DocCategory />, errorElement: <ErrorElement /> },
-          // { path: "DocSubCategory", element: <DocSubCategory />, errorElement: <ErrorElement /> },
-          // { path: "DocGroup", element: <DocGroup />, errorElement: <ErrorElement /> },
-          // { path: "InstituteTypeMaster", element: <InstituteTypeMaster />, errorElement: <ErrorElement /> },
-          // { path: "InstitutionMaster", element: <InstitutionMaster />, errorElement: <ErrorElement /> },
-          // { path: "CourseType", element: <CourseType />, errorElement: <ErrorElement /> },
-          // { path: "CourseMaster", element: <CourseMaster />, errorElement: <ErrorElement /> },
-          // { path: "RackMaster", element: <RackMaster />, errorElement: <ErrorElement /> },
-          // { path: "LocationMaster", element: <LocationMaster />, errorElement: <ErrorElement /> },
-          // { path: "CustodianMaster", element: <CustodianMaster />, errorElement: <ErrorElement /> },
-          // { path: "CustodianDepartment", element: <CustodianDepartment />, errorElement: <ErrorElement /> },
-          // { path: "Color", element: <Colors />, errorElement: <ErrorElement /> },
+          {
+            path: "LoadData", element:
+              <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+                <LoadData />
+              </Suspense>, errorElement: <ErrorElement />
+          },
+          {
+            path: "KMCDashboard", element:
+              <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+                <KmcDashboard />
+              </Suspense>, errorElement: <ErrorElement />
+          },
+          {
+            path: "KMCSettings", element:
+              <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+                <KMCSettings />
+              </Suspense>, errorElement: <ErrorElement />
+          },
+          {
+            path: "KmchLoadDatas", element:
+              <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+                <KmchLoadDatas />
+              </Suspense>, errorElement: <ErrorElement />
+          },
+
+          { path: "UserManagement", element: <UserManagement />, errorElement: <ErrorElement /> },
+          { path: "UserTypeMaster", element: <UserTypeMaster />, errorElement: <ErrorElement /> },
+          { path: "ModuleNameMaster", element: <ModuleNameMaster />, errorElement: <ErrorElement /> },
+          { path: "MenuNameMaster", element: <MenuNameMaster />, errorElement: <ErrorElement /> },
+          { path: "ModuleGroupMaster", element: <ModuleGroupMaster />, errorElement: <ErrorElement /> },
+          { path: "UserGroupRights", element: <UserGroupRights />, errorElement: <ErrorElement /> },
+
         ],
       },
       { path: "/Color", element: <Colors /> },
@@ -145,6 +165,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
+        <ToastContainer />
         <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />}>
           <RouterProvider router={routes} />
         </Suspense>

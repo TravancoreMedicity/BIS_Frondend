@@ -9,6 +9,7 @@ import "./Style.css";
 import Header from "../Layouts/Header";
 import DrawerWindow from "../Layouts/DrawerWindow";
 import { useCallback } from "react";
+import DrawerPage from "../Layouts/DrawerPage";
 
 function Home() {
 
@@ -61,10 +62,12 @@ function Home() {
 
 
       {/* NAVIGATION BAR LEFT SIDE */}
-      <DrawerWindow
+      {/* <DrawerWindow
         drawerWidth={drawerWidth}
         handleDrawerClose={handleDrawerClose}
-      />
+      /> */}
+      <DrawerPage drawerWidth={drawerWidth}
+        handleDrawerClose={handleDrawerClose} />
 
       {/* MAIN CONTENT START  */}
       <Box
