@@ -34,12 +34,10 @@ const DataPush = () => {
 
     const uploadData = useCallback(async (fromdate, todate, opslno) => {
         if (todate) {
-            // const formattedFromDate = format(startOfDay(addDays(fromdate, 1)), 'dd-MMM-yyyy 00:00:00');
-            // const formattedToDate = format(endOfDay(todate), 'dd-MMM-yyyy 23:59:59');
-            // const tDate = format(todate, 'yyyy-MM-dd');
             const formattedFromDate = format(startOfDay(addDays(fromdate, 1)), 'dd/MM/yyyy 00:00:00');
             const formattedToDate = format(endOfDay(todate), 'dd/MM/yyyy 23:59:59');
             const tDate = format(todate, 'yyyy-MM-dd');
+            
             const payload = {
                 fromdate: formattedFromDate,
                 todate: formattedToDate,
