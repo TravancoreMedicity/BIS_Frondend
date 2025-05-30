@@ -725,3 +725,38 @@ export const getKmcradiologyDetails = async (PayloadDatas) => {
     return [];
   }
 };
+/////////// IP MODULE
+export const getIpModuleDetails = async () => {
+  return await axiosApi.get("/bisDataPush/getIpModuleData").then((res) => {
+    const { success, data } = res.data;
+    if (success === 2 && Array.isArray(data)) {
+      return data?.map((item, index) => ({
+        opslno: item?.tmc_ip_module_slno ?? index + 1,
+        name: item?.tmc_ip_label_name,
+        date: item?.tmc_ip_last_update_date,
+        status: index === 0 ? 1 : 0,
+      }));
+    }
+    else {
+      return [];
+    }
+  });
+};
+
+//for KMC
+export const getKmcIpModuleDetails = async () => {
+  return await axiosApi.get("/bisKmcDataPush/getKmcIpModuleData").then((res) => {
+    const { success, data } = res.data;
+    if (success === 2 && Array.isArray(data)) {
+      return data?.map((item, index) => ({
+        opslno: item?.kmc_ip_module_slno ?? index + 1,
+        name: item?.kmc_ip_label_name,
+        date: item?.kmc_ip_last_update_date,
+        status: index === 0 ? 1 : 0,
+      }));
+    }
+    else {
+      return [];
+    }
+  });
+};
