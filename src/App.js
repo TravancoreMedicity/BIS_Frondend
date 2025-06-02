@@ -32,6 +32,7 @@ const ModuleNameMaster = lazy(() => import("./Modules/Settings/ModuleNameMaster/
 const MenuNameMaster = lazy(() => import("./Modules/Settings/MenuNameMaster/MenuNameMaster.jsx"))
 const UserGroupRights = lazy(() => import("./Modules/Settings/UserGroupRights/UserGroupRights.jsx"))
 const LoadData = lazy(() => import("./Modules/BISModule/BIS_CommoCode/DataPush.jsx"))
+const Quotation = lazy(() => import("./Modules/BISModule/BIS_Quotation/QuotationMainPage.jsx"))
 
 const routes = createBrowserRouter([
   {
@@ -107,6 +108,12 @@ const routes = createBrowserRouter([
             path: "KmchLoadDatas", element:
               <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
                 <KmchLoadDatas />
+              </Suspense>, errorElement: <ErrorElement />
+          },
+          {
+            path: "QuotationMainPage", element:
+              <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+                < Quotation />
               </Suspense>, errorElement: <ErrorElement />
           },
 
