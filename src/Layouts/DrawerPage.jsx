@@ -21,7 +21,7 @@ const DrawerPage = ({ drawerWidth, handleDrawerClose }) => {
     const [selectedIndices, setSelectedIndices] = useState({
         TMCH: null,
         KMCH: null,
-        Quotation: null
+        Settings: null
     });
 
     const navigate = useNavigate();
@@ -162,7 +162,7 @@ const DrawerPage = ({ drawerWidth, handleDrawerClose }) => {
             >
                 {renderDrawerSection("Travancore Medical College", TMCH, "TMCH")}
                 {renderDrawerSection("Kerala Medical College", KMCH, "KMCH")}
-                {renderDrawerSection("Quotation", Quotation, "Quotation")}
+                {renderDrawerSection("Settings", Quotation, "Quotation")}
             </Drawer>
         </Box>
     );
