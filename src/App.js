@@ -33,6 +33,20 @@ const MenuNameMaster = lazy(() => import("./Modules/Settings/MenuNameMaster/Menu
 const UserGroupRights = lazy(() => import("./Modules/Settings/UserGroupRights/UserGroupRights.jsx"))
 const LoadData = lazy(() => import("./Modules/BISModule/BIS_CommoCode/DataPush.jsx"))
 const Quotation = lazy(() => import("./Modules/BISModule/BIS_Quotation/QuotationMainPage.jsx"))
+const QtnActiveitems = lazy(() => import("./Modules/BISModule/BIS_Quotation/OuotationSatistics/Qtn_Active_items.jsx"))
+const QtnlinkedItems = lazy(() => import("./Modules/BISModule/BIS_Quotation/OuotationSatistics/Qtn_linkedItems.jsx"))
+const QtnTotal = lazy(() => import("./Modules/BISModule/BIS_Quotation/OuotationSatistics/Qtn_Total.jsx"))
+const Qtnfinalized = lazy(() => import("./Modules/BISModule/BIS_Quotation/OuotationSatistics/Qrn_Finalized.jsx"))
+const QtnFinaliselinkedItems = lazy(() => import("./Modules/BISModule/BIS_Quotation/OuotationSatistics/Qtn_Finalise_linked_Items.jsx"))
+const NewItems = lazy(() => import("./Modules/BISModule/BIS_Quotation/OuotationSatistics/New_Items.jsx"))
+const QtnStatistics = lazy(() => import("./Modules/BISModule/BIS_Quotation/OuotationSatistics/Qtn_Statistics.jsx"))
+const StoreMaster = lazy(() => import("./Modules/Settings/StoreMaster.jsx"))
+const MedStore = lazy(() => import("./Modules/Settings/MedStore.jsx"))
+const MedDescription = lazy(() => import("./Modules/Settings/MedDescription.jsx"))
+const TmcStoreMaster = lazy(() => import("./Modules/Settings/TmcStoreMaster.jsx"))
+const TmcQuotationMian = lazy(() => import("./Modules/BISModule/BIS_Quotation/TmcQuotationMian.jsx"))
+const Tmc_Quotation_Statics = lazy(() => import("./Modules/BISModule/BIS_Quotation/OuotationSatistics/Tmc_Quotation_Statics.jsx"))
+const KmcSupplierWiseQtn = lazy(() => import("./Modules/BISModule/BIS_Quotation/SupplierWiseQtn/KmcSupplierWiseQtn.jsx"))
 
 const routes = createBrowserRouter([
   {
@@ -116,6 +130,67 @@ const routes = createBrowserRouter([
                 < Quotation />
               </Suspense>, errorElement: <ErrorElement />
           },
+          {
+            path: "QtnActiveitems", element:
+              <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+                < QtnActiveitems />
+              </Suspense>, errorElement: <ErrorElement />
+          },
+          {
+            path: "QtnlinkedItems", element:
+              <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+                < QtnlinkedItems />
+              </Suspense>, errorElement: <ErrorElement />
+          },
+          {
+            path: "QtnTotal", element:
+              <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+                < QtnTotal />
+              </Suspense>, errorElement: <ErrorElement />
+          },
+          {
+            path: "Qtnfinalized", element:
+              <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+                < Qtnfinalized />
+              </Suspense>, errorElement: <ErrorElement />
+          },
+          {
+            path: "QtnFinaliselinkedItems", element:
+              <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+                < QtnFinaliselinkedItems />
+              </Suspense>, errorElement: <ErrorElement />
+          },
+          {
+            path: "NewItems", element:
+              <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+                < NewItems />
+              </Suspense>, errorElement: <ErrorElement />
+          },
+          {
+            path: "QtnStatistics", element:
+              <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+                < QtnStatistics />
+              </Suspense>, errorElement: <ErrorElement />
+          },
+          {
+            path: "TmcQuotationMian", element:
+              <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+                < TmcQuotationMian />
+              </Suspense>, errorElement: <ErrorElement />
+          },
+
+          {
+            path: "Tmc_Quotation_Statics", element:
+              <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+                < Tmc_Quotation_Statics />
+              </Suspense>, errorElement: <ErrorElement />
+          },
+          {
+            path: "KmcSupplierWiseQtn", element:
+              <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+                < KmcSupplierWiseQtn />
+              </Suspense>, errorElement: <ErrorElement />
+          },
 
           { path: "UserManagement", element: <UserManagement />, errorElement: <ErrorElement /> },
           { path: "UserTypeMaster", element: <UserTypeMaster />, errorElement: <ErrorElement /> },
@@ -123,7 +198,10 @@ const routes = createBrowserRouter([
           { path: "MenuNameMaster", element: <MenuNameMaster />, errorElement: <ErrorElement /> },
           { path: "ModuleGroupMaster", element: <ModuleGroupMaster />, errorElement: <ErrorElement /> },
           { path: "UserGroupRights", element: <UserGroupRights />, errorElement: <ErrorElement /> },
-
+          { path: "StoreMaster", element: <StoreMaster />, errorElement: <ErrorElement /> },
+          { path: "MedStore", element: <MedStore />, errorElement: <ErrorElement /> },
+          { path: "MedDescription", element: <MedDescription />, errorElement: <ErrorElement /> },
+          { path: "TmcStoreMaster", element: <TmcStoreMaster />, errorElement: <ErrorElement /> },
         ],
       },
       { path: "/Color", element: <Colors /> },

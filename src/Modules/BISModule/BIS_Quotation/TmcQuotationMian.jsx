@@ -4,9 +4,9 @@ import { format } from 'date-fns';
 import React, { Fragment, memo, useCallback, useState } from 'react';
 import SearchIcon from '@mui/icons-material/Search';
 import { succesNofity, warningNofity } from '../../../Constant/Constant';
-import axiosApi, { axiosellider_kmc } from '../../../Axios/Axios';
+import axiosApi, { axiosellider_tmc } from '../../../Axios/Axios';
 
-const QuotationMainPage = () => {
+const TmcQuotationMian = () => {
     const [qtnNo, setQtnNo] = useState('');
     const [qtnDate, setQtnDate] = useState('');
     const [mastData, setMastData] = useState(null);
@@ -22,9 +22,9 @@ const QuotationMainPage = () => {
                 qtnDate: format(new Date(qtnDate), 'dd-MMM-yyyy')
             };
             try {
-                const { data: mastRes } = await axiosellider_kmc.post("/bisQuotationData/qtnMastDetails", payloadVal);
+                const { data: mastRes } = await axiosellider_tmc.post("/bisQuotationData/qtnMastDetails", payloadVal);
                 setMastData(mastRes.successVal === 2 && mastRes.MastData?.length > 0 ? mastRes.MastData[0] : null);
-                const { data: detailRes } = await axiosellider_kmc.post("/bisQuotationData/qtnDetailDetails", payloadVal);
+                const { data: detailRes } = await axiosellider_tmc.post("/bisQuotationData/qtnDetailDetails", payloadVal);
                 setDetailData(detailRes.success === 2 ? detailRes.DetailData : []);
             } catch (error) {
                 warningNofity("Failed to fetch quotation data. Please try again.");
@@ -37,7 +37,6 @@ const QuotationMainPage = () => {
     }, [qtnNo, qtnDate]);
 
 
-
     const InsertData = useCallback(async () => {
         if (validity !== '') {
             const payloadData = {
@@ -47,18 +46,13 @@ const QuotationMainPage = () => {
                 qtnDate,
                 validity,
                 qtn_expiry: format(new Date(mastData.QUD_EXPIRY), 'yyyy-MM-dd'),
-                company_slno: 2
+                company_slno: 1
             };
-            const insertData = await axiosApi.post("/bisQuotation/inserQtnDetails", payloadData);
+            const insertData = await axiosApi.post("/bisQuotation/inserTmcQtnDetails", payloadData);
             const { success, message } = insertData.data;
             if (success === 1) {
                 succesNofity(message)
                 setShowTbl(0)
-                // setQtnNo('')
-                // setQtnDate('')
-                // setValidity('')
-                // setMastData([])
-                // setDetailData([])
             }
             else {
                 warningNofity(message)
@@ -359,5 +353,5 @@ const QuotationMainPage = () => {
     );
 };
 
-export default memo(QuotationMainPage);
+export default memo(TmcQuotationMian);
 

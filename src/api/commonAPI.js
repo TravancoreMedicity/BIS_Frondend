@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import axiosApi from "../Axios/Axios";
+import axiosApi, { axiosellider_kmc, axiosellider_tmc } from "../Axios/Axios";
 
 export const getDocTypeMasterList = async () => {
   return await axiosApi
@@ -760,3 +760,125 @@ export const getKmcIpModuleDetails = async () => {
     }
   });
 };
+//api for get active items
+export const getActiveItems = async () => {
+  return await axiosellider_kmc.get("/bisQuotationData/getActiveItems").then((res) => {
+    const { success, data } = res.data;
+    if (success === 2) {
+      return data ?? [];
+    }
+    else {
+      return [];
+    }
+  });
+};
+
+export const getTmcActiveItems = async () => {
+  return await axiosellider_tmc.get("/bisQuotationData/getActiveItems").then((res) => {
+    const { success, data } = res.data;
+    if (success === 2) {
+      return data ?? [];
+    }
+    else {
+      return [];
+    }
+  });
+};
+
+//api for get linked quotation items
+export const getKMCLinkedItems = async () => {
+  return await axiosApi.get("/bisQuotation/getKMCLinkedItems").then((res) => {
+    const { success, data } = res.data;
+    if (success === 2) {
+      return data ?? [];
+    }
+    else {
+      return [];
+    }
+  });
+};
+
+export const getTmcLinkedItems = async () => {
+  return await axiosApi.get("/bisQuotation/getTMCLinkedItems").then((res) => {
+    const { success, data } = res.data;
+    if (success === 2) {
+      return data ?? [];
+    }
+    else {
+      return [];
+    }
+  });
+};
+//total quotation
+export const getKMCTotalQtn = async () => {
+  return await axiosellider_kmc.get("/bisQuotationData/getTotalQtn").then((res) => {
+    const { success, data } = res.data;
+    if (success === 2) {
+      return data ?? [];
+    }
+    else {
+      return [];
+    }
+  });
+};
+
+export const getTmcCTotalQtn = async () => {
+  return await axiosellider_tmc.get("/bisQuotationData/getTotalQtn").then((res) => {
+    const { success, data } = res.data;
+    if (success === 2) {
+      return data ?? [];
+    }
+    else {
+      return [];
+    }
+  });
+};
+export const getKMCFinalizedQtn = async () => {
+  return await axiosApi.get("/bisQuotation/KMCFinalizedQtn").then((res) => {
+    const { success, data } = res.data;
+    if (success === 2) {
+      return data ?? [];
+    }
+    else {
+      return [];
+    }
+  });
+};
+
+export const getTmcFinalizedQtn = async () => {
+  return await axiosApi.get("/bisQuotation/TMCFinalizedQtn").then((res) => {
+    const { success, data } = res.data;
+    if (success === 2) {
+      return data ?? [];
+    }
+    else {
+      return [];
+    }
+  });
+};
+//to get Store Master Data
+export const GetstoreMaster = async () => {
+  return await axiosApi.get("/bisQuotation/getKmcStoreData").then((res) => {
+    const { success, data } = res.data;
+    if (success === 2) {
+      return data ?? [];
+    }
+    else {
+      return [];
+    }
+  });
+};
+
+export const GetTmcStoreMaster = async () => {
+  return await axiosApi.get("/bisQuotation/getTmcStoreData").then((res) => {
+    const { success, data } = res.data;
+    if (success === 2) {
+      return data ?? [];
+    }
+    else {
+      return [];
+    }
+  });
+};
+
+

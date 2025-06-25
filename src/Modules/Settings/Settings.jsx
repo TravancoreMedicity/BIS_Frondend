@@ -24,13 +24,15 @@ const Settings = () => {
 
     const menuName = [
         { menuSlno: 1, menuName: 'User Management', menuCodeName: 'UserManagement' },
-
         { menuSlno: 12, menuName: 'user Type Master', menuCodeName: 'UserTypeMaster' },
         { menuSlno: 16, menuName: 'Module Name Master', menuCodeName: 'ModuleNameMaster' },
         { menuSlno: 15, menuName: 'Menu Name Master', menuCodeName: 'MenuNameMaster' },
         { menuSlno: 14, menuName: 'Module Group Master', menuCodeName: 'ModuleGroupMaster' },
         { menuSlno: 18, menuName: 'User Group Rights', menuCodeName: 'UserGroupRights' },
-
+        { menuSlno: 19, menuName: 'Kmc Store Master', menuCodeName: 'StoreMaster' },
+        // { menuSlno: 20, menuName: 'Med Store', menuCodeName: 'MedStore' },
+        // { menuSlno: 21, menuName: 'Med Description', menuCodeName: 'MedDescription' },
+        { menuSlno: 22, menuName: 'Tmc Store Master', menuCodeName: 'TmcStoreMaster' },
     ]
 
     // const employeemenu = menuName?.filter(menu =>
@@ -59,3 +61,4 @@ const Settings = () => {
 }
 
 export default memo(Settings)
+

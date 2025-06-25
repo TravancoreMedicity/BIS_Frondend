@@ -128,7 +128,6 @@ const ModuleGroupMaster = () => {
     }, [])
 
     const EditBtn = useCallback((item) => {
-        // console.log("item", item);
         const newobject = JSON.parse(item.bis_module_slno);
         setEditData(1);
         setModuleGrpDetails({
@@ -138,7 +137,6 @@ const ModuleGroupMaster = () => {
         });
         setSelectedModules(newobject || {});
     }, []);
-
 
     return (
         <DefaultPageLayout label="Module Group Master" >

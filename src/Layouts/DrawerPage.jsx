@@ -7,68 +7,94 @@ import {
     ListItemButton,
     ListItemIcon,
     Toolbar,
-    Typography,
-    ListSubheader
+    Typography
 } from "@mui/material";
-import {
-    Settings,
-    NavArrowRight,
-    PharmacyCrossCircle
-} from "iconoir-react";
+import { Settings, NavArrowRight, PharmacyCrossCircle } from "iconoir-react";
+import ReceiptIcon from '@mui/icons-material/Receipt';
 import { useNavigate } from "react-router-dom";
+import DashboardIcon from '@mui/icons-material/Dashboard';
 
 const DrawerPage = ({ drawerWidth, handleDrawerClose }) => {
-    const [selectedIndices, setSelectedIndices] = useState({
-        TMCH: null,
-        KMCH: null,
-        Settings: null
-    });
-
+    const [selectedSection, setSelectedSection] = useState(null);
+    const [selectedIndex, setSelectedIndex] = useState(null);
     const navigate = useNavigate();
 
     const handleListItemClick = useCallback((_, index, route, section) => {
-        setSelectedIndices((prev) => ({ ...prev, [section]: index }));
+        setSelectedSection(section);
+        setSelectedIndex(index);
         navigate(route);
     }, [navigate]);
 
-    const TMCH = useMemo(() => [
-        { slno: 4, menu: "Dashboard", text: "/Home/Dashboard", icon: <PharmacyCrossCircle height={20} width={20} className="hoverClass" /> },
-        { slno: 3, menu: "Settings", text: "/Home/Settings", icon: <Settings height={20} width={20} className="hoverClass" /> },
-        { slno: 5, menu: "Data Push", text: "/Home/LoadData", icon: <PharmacyCrossCircle height={20} width={20} className="hoverClass" /> }
+    // Drawer section items
+    const TMC = useMemo(() => [
+        {
+            slno: 1,
+            menu: "Dashboard",
+            text: "/Home/Dashboard",
+            icon: <DashboardIcon height={20} width={20} className="hoverClass" />
+        },
+        {
+            slno: 14,
+            menu: "Quotation Statistics",
+            text: "/Home/Tmc_Quotation_Statics",
+            icon: <ReceiptIcon height={20} width={20} className="hoverClass" />
+        },
     ], []);
 
-    const KMCH = useMemo(() => [
-        { slno: 6, menu: "Dashboard", text: "/Home/KMCDashboard", icon: <PharmacyCrossCircle height={20} width={20} className="hoverClass" /> },
-        { slno: 8, menu: "Data Push", text: "/Home/KmchLoadDatas", icon: <PharmacyCrossCircle height={20} width={20} className="hoverClass" /> }
+    const KMC = useMemo(() => [
+        {
+            slno: 4,
+            menu: "Dashboard",
+            text: "/Home/KMCDashboard",
+            icon: <DashboardIcon height={20} width={20} className="hoverClass" />
+        },
+        {
+            slno: 7,
+            menu: "Quotation Statistics",
+            text: "/Home/QtnStatistics",
+            icon: <ReceiptIcon height={20} width={20} className="hoverClass" />
+        },
     ], []);
 
-    const Quotation = useMemo(() => [
-        { slno: 9, menu: "Quotation", text: "/Home/QuotationMainPage", icon: <PharmacyCrossCircle height={20} width={20} className="hoverClass" /> }
+    const Setting = useMemo(() => [
+        {
+            slno: 2,
+            menu: "Settings",
+            text: "/Home/Settings",
+            icon: <Settings height={20} width={20} className="hoverClass" />
+        },
+
+        { slno: 3, menu: "TMC Data Push", text: "/Home/LoadData", icon: <PharmacyCrossCircle height={20} width={20} className="hoverClass" /> },
+        { slno: 13, menu: "TMC Quotation", text: "/Home/TmcQuotationMian", icon: <ReceiptIcon height={20} width={20} className="hoverClass" /> },
+        { slno: 5, menu: "KMC Data Push", text: "/Home/KmchLoadDatas", icon: <PharmacyCrossCircle height={20} width={20} className="hoverClass" /> },
+        { slno: 6, menu: "KMC Quotation", text: "/Home/QuotationMainPage", icon: <ReceiptIcon height={20} width={20} className="hoverClass" /> },
+
     ], []);
 
     const renderDrawerSection = (sectionTitle, menuItems, sectionKey) => (
-        <div>
-            <Toolbar variant="dense" />
-            <List
-                subheader={
-                    <ListSubheader
-                        component="div"
-                        sx={{
-                            fontFamily: "var(--font-varient)",
-                            fontWeight: 600,
-                            bgcolor: "rgba(var(--drawer-bg-color))",
-                            color: "rgba(var(--drawer-font-color))"
-                        }}
-                    >
-                        {sectionTitle}
-                    </ListSubheader>
-                }
+        <Box sx={{ mt: 1 }} >
+            {/* <Toolbar variant="dense" /> */}
+
+            <Typography
+                variant="caption"
+                sx={{
+                    fontSize: "12px",
+                    fontWeight: 700,
+                    color: "rgba(var(--font-secondary-white))",
+                    ml: 2,
+                    mt: 0,
+                    mb: 0,
+                }}
             >
+                {sectionTitle}
+            </Typography>
+            <List sx={{ p: 0, m: 0 }}>
                 {menuItems.map((item, index) => {
-                    const isSelected = selectedIndices[sectionKey] === index;
+                    const isSelected = selectedSection === sectionKey && selectedIndex === index;
 
                     return (
                         <ListItem
+                            sx={{ p: 0, mt: 0.4 }}
                             key={item.slno}
                             disablePadding
                             secondaryAction={
@@ -136,7 +162,7 @@ const DrawerPage = ({ drawerWidth, handleDrawerClose }) => {
                     );
                 })}
             </List>
-        </div>
+        </Box>
     );
 
     return (
@@ -144,7 +170,9 @@ const DrawerPage = ({ drawerWidth, handleDrawerClose }) => {
             component="nav"
             sx={{
                 width: { sm: drawerWidth },
-                transition: "width 0.5s"
+                transition: "width 0.5s",
+                p: 0,
+                mt: 0
             }}
             aria-label="drawer navigation"
         >
@@ -160,9 +188,11 @@ const DrawerPage = ({ drawerWidth, handleDrawerClose }) => {
                 }}
                 onClose={handleDrawerClose}
             >
-                {renderDrawerSection("Travancore Medical College", TMCH, "TMCH")}
-                {renderDrawerSection("Kerala Medical College", KMCH, "KMCH")}
-                {renderDrawerSection("Settings", Quotation, "Quotation")}
+                <Box sx={{ mt: 7 }}>
+                    {renderDrawerSection("Travancore Medical College", TMC, "TMCH")}
+                    {renderDrawerSection("Kerala Medical College", KMC, "KMCH")}
+                    {renderDrawerSection("Settings", Setting, "Settings")}
+                </Box>
             </Drawer>
         </Box>
     );
@@ -170,144 +200,196 @@ const DrawerPage = ({ drawerWidth, handleDrawerClose }) => {
 
 export default memo(DrawerPage);
 
+
+
 // import React, { useState, useCallback, useMemo, memo } from "react";
-// import Box from "@mui/material/Box";
-// import Drawer from "@mui/material/Drawer";
-// import List from "@mui/material/List";
-// import ListItem from "@mui/material/ListItem";
-// import ListItemButton from "@mui/material/ListItemButton";
-// import ListItemIcon from "@mui/material/ListItemIcon";
-// import Toolbar from "@mui/material/Toolbar";
-// import Typography from "@mui/material/Typography";
-// import { ListSubheader } from "@mui/material";
-// import { Settings, NavArrowRight, PharmacyCrossCircle } from 'iconoir-react';
-// import { useNavigate } from 'react-router-dom';  // Import useNavigate hook
+// import {
+//     Box,
+//     Drawer,
+//     List,
+//     ListItem,
+//     ListItemButton,
+//     ListItemIcon,
+//     Toolbar,
+//     Typography
+// } from "@mui/material";
+// import {
+//     Settings,
+//     NavArrowRight,
+//     PharmacyCrossCircle
+// } from "iconoir-react";
+// import { useNavigate } from "react-router-dom";
+// // import ArticleIcon from '@mui/icons-material/Article';
+// // import VaccinesIcon from '@mui/icons-material/Vaccines';
+// // import EngineeringIcon from '@mui/icons-material/Engineering';
+// // import WorkspacesIcon from '@mui/icons-material/Workspaces';
+// // import BiotechIcon from '@mui/icons-material/Biotech';
+// // import ApartmentIcon from '@mui/icons-material/Apartment';
+// import ReceiptIcon from '@mui/icons-material/Receipt';
 
 // const DrawerPage = ({ drawerWidth, handleDrawerClose }) => {
-//     // State for TMCH and KMCH selections
-//     const [selectedIndexTMCH, setSelectedIndexTMCH] = useState(null);
-//     const [selectedIndexKMCH, setSelectedIndexKMCH] = useState(null);
-//     const [selectedIndexQuotation, setSelectedIndexQuotation] = useState(null);
 
-//     const navigate = useNavigate();  // Initialize navigate
+//     // Global selection state
+//     const [selectedSection, setSelectedSection] = useState(null);
+//     const [selectedIndex, setSelectedIndex] = useState(null);
 
-//     const handleListItemClick = useCallback((event, index, route, section) => {
-//         // Update the selected index based on the section clicked
-//         if (section === "TMCH") {
-//             setSelectedIndexTMCH(index);  // Only update TMCH selection
-//         } else if (section === "KMCH") {
-//             setSelectedIndexKMCH(index);  // Only update KMCH selection
-//         }
-//         else if (section === "Quotation") {
-//             setSelectedIndexQuotation(index);  // Only update KMCH selection
-//         }
-//         navigate(route);  // Use navigate to route to the new page
+//     const navigate = useNavigate();
+
+//     const handleListItemClick = useCallback((_, index, route, section) => {
+//         setSelectedSection(section);
+//         setSelectedIndex(index);
+//         navigate(route);
 //     }, [navigate]);
 
-//     const TMCH = useMemo(() => [
-//         { slno: 4, menu: "Dashboard", text: "/Home/Dashboard", icon: <PharmacyCrossCircle height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> },
-//         { slno: 3, menu: "Settings", text: "/Home/Settings", icon: <Settings height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> },
-//         { slno: 5, menu: "Data Push", text: "/Home/LoadData", icon: <PharmacyCrossCircle height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> }
+//     // const TMCH = useMemo(() => [
+//     //     { slno: 1, menu: "TMC Dashboard", text: "/Home/Dashboard", icon: <PharmacyCrossCircle height={20} width={20} className="hoverClass" /> },
+//     //     { slno: 2, menu: "TMC Settings", text: "/Home/Settings", icon: <Settings height={20} width={20} className="hoverClass" /> },
+//     //     { slno: 3, menu: "TMC Data Push", text: "/Home/LoadData", icon: <PharmacyCrossCircle height={20} width={20} className="hoverClass" /> }
+//     // ], []);
+
+//     // const KMCH = useMemo(() => [
+//     //     { slno: 4, menu: "KMC Dashboard", text: "/Home/KMCDashboard", icon: <PharmacyCrossCircle height={20} width={20} className="hoverClass" /> },
+//     //     { slno: 5, menu: "KMC Data Push", text: "/Home/KmchLoadDatas", icon: <PharmacyCrossCircle height={20} width={20} className="hoverClass" /> }
+//     // ], []);
+
+//     // const Quotation = useMemo(() => [
+//     //     { slno: 6, menu: "Quotation", text: "/Home/QuotationMainPage", icon: <PharmacyCrossCircle height={20} width={20} className="hoverClass" /> }
+//     // ], []);
+
+//     // const Quotation_statistics = useMemo(() => [
+//     //     { slno: 7, menu: "Quotation Statistics", text: "/Home/QtnStatistics", icon: <ArticleIcon height={20} width={20} className="hoverClass" /> },
+//     //     { slno: 8, menu: "Consumable Inventory", text: "/Home/QtnActiveitems", icon: <VaccinesIcon height={20} width={20} className="hoverClass" /> },
+//     //     { slno: 9, menu: "Projects Inventory", text: "/Home/QtnTotal", icon: <EngineeringIcon height={20} width={20} className="hoverClass" /> },
+//     //     { slno: 10, menu: "General Inventory", text: "/Home/Qtnfinalized", icon: <WorkspacesIcon height={20} width={20} className="hoverClass" /> },
+//     //     { slno: 11, menu: "Biomedical Inventory", text: "/Home/QtnTotal", icon: <BiotechIcon height={20} width={20} className="hoverClass" /> },
+//     //     { slno: 12, menu: "Dental Inventory", text: "/Home/Qtnfinalized", icon: <ApartmentIcon height={20} width={20} className="hoverClass" /> }
+//     // ], []);
+
+//     // const TMCH = useMemo(() => [
+//     //     { slno: 1, menu: "TMC Dashboard", text: "/Home/Dashboard", icon: <PharmacyCrossCircle height={20} width={20} className="hoverClass" /> },
+//     //     { slno: 3, menu: "TMC Data Push", text: "/Home/LoadData", icon: <PharmacyCrossCircle height={20} width={20} className="hoverClass" /> },
+//     //     { slno: 13, menu: "TMC Quotation", text: "/Home/TmcQuotationMian", icon: <ArticleIcon height={20} width={20} className="hoverClass" /> },
+//     //     { slno: 14, menu: "Tmc Qtn Statics ", text: "/Home/Tmc_Quotation_Statics", icon: <ArticleIcon height={20} width={20} className="hoverClass" /> },
+//     //     { slno: 2, menu: "Settings", text: "/Home/Settings", icon: <Settings height={20} width={20} className="hoverClass" /> },
+//     //     { slno: 4, menu: "KMC Dashboard", text: "/Home/KMCDashboard", icon: <PharmacyCrossCircle height={20} width={20} className="hoverClass" /> },
+//     //     { slno: 5, menu: "KMC Data Push", text: "/Home/KmchLoadDatas", icon: <PharmacyCrossCircle height={20} width={20} className="hoverClass" /> },
+//     //     { slno: 6, menu: "KMC Quotation", text: "/Home/QuotationMainPage", icon: <ArticleIcon height={20} width={20} className="hoverClass" /> },
+//     //     { slno: 7, menu: " KMC Qtn Statistics", text: "/Home/QtnStatistics", icon: <ArticleIcon height={20} width={20} className="hoverClass" /> },
+//     // ], []);
+
+
+
+//     const TMC = useMemo(() => [
+//         { slno: 1, menu: "Dashboard", text: "/Home/Dashboard", icon: <PharmacyCrossCircle height={20} width={20} className="hoverClass" /> },
+//         { slno: 14, menu: "Quotation Statistics ", text: "/Home/Tmc_Quotation_Statics", icon: <ReceiptIcon height={20} width={20} className="hoverClass" /> },
 //     ], []);
 
-//     const KMCH = useMemo(() => [
-//         { slno: 6, menu: "Dashboard", text: "/Home/KMCDashboard", icon: <PharmacyCrossCircle height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> },
-//         // { slno: 7, menu: "Settings", text: "/Home/KMCSettings", icon: <Settings height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> },
-//         { slno: 8, menu: "Data Push", text: "/Home/KmchLoadDatas", icon: <PharmacyCrossCircle height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> },
+//     const KMC = useMemo(() => [
+//         { slno: 4, menu: "Dashboard", text: "/Home/KMCDashboard", icon: <PharmacyCrossCircle height={20} width={20} className="hoverClass" /> },
+//         { slno: 7, menu: " QuotationStatistics", text: "/Home/QtnStatistics", icon: <ReceiptIcon height={20} width={20} className="hoverClass" /> },
 //     ], []);
 
-//     const Quotation = useMemo(() => [
-//         { slno: 9, menu: "Quotation", text: "/Home/Quotation", icon: <PharmacyCrossCircle height={20} width={20} color="rgba(var(--drawer-font-color))" className='hoverClass' /> },
-//     ], []);
+//     const Setting = useMemo(() => [
+//         { slno: 2, menu: "Settings", text: "/Home/Settings", icon: <Settings height={20} width={20} className="hoverClass" /> },
+//         // { slno: 3, menu: "TMC Data Push", text: "/Home/LoadData", icon: <PharmacyCrossCircle height={20} width={20} className="hoverClass" /> },
+//         // { slno: 13, menu: "TMC Quotation", text: "/Home/TmcQuotationMian", icon: <ArticleIcon height={20} width={20} className="hoverClass" /> },
+//         // { slno: 5, menu: "KMC Data Push", text: "/Home/KmchLoadDatas", icon: <PharmacyCrossCircle height={20} width={20} className="hoverClass" /> },
+//         // { slno: 6, menu: "KMC Quotation", text: "/Home/QuotationMainPage", icon: <ArticleIcon height={20} width={20} className="hoverClass" /> },
 
-//     const renderDrawerSection = (sectionTitle, menuItems, section) => (
+//     ], []);
+//     const renderDrawerSection = (sectionTitle, menuItems, sectionKey) => (
 //         <div>
 //             <Toolbar variant="dense" />
-//             <List
-//                 subheader={
-//                     <ListSubheader
-//                         component="div"
-//                         id="nested-list-subheader"
-//                         sx={{
-//                             fontFamily: "var(--font-varient)",
-//                             fontWeight: 600,
-//                             bgcolor: "rgba(var(--drawer-bg-color))",
-//                             color: "rgba(var(--drawer-font-color))",
-//                         }}
-//                     >
-//                         {sectionTitle}
-//                     </ListSubheader>
-//                 }
+//             <Typography
+//                 variant="caption"
+//                 sx={{
+//                     fontSize: "12px",
+//                     fontWeight: 700,
+//                     color: "rgba(var(--font-secondary-white))",
+//                     ml: 2,
+//                     mt: 1,
+//                     mb: 0.5,
+//                 }}
 //             >
-//                 {menuItems?.map((val, index) => (
-//                     <ListItem
-//                         key={index}
-//                         disablePadding
-//                         sx={{ display: "flex" }}
-//                         secondaryAction={
-//                             <NavArrowRight height={20} width={20} color="rgba(var(--drawer-font-color))" className={section === "TMCH" && selectedIndexTMCH === index ? "bouncing-element" : (section === "KMCH" && selectedIndexKMCH === index ? "bouncing-element" : '')} />
-//                         }
-//                     >
-//                         <ListItemButton
-//                             selected={section === "TMCH" ? selectedIndexTMCH === index : section === "KMCH" ? selectedIndexKMCH === index : false}
-//                             onClick={(e) => handleListItemClick(e, index, val.text, section)}
-//                             sx={{
-//                                 display: "flex",
-//                                 mx: 0,
-//                                 px: 0,
-//                                 borderRadius: 0,
-//                                 my: 0.1,
-//                                 height: 35,
-//                                 alignItems: "center",
-//                                 transition: "transform 0.3s ease, color 0.3s ease",
-//                                 transform: "translateX(0)",
-//                                 '&.Mui-selected': {
-//                                     bgcolor: "rgba(var(--drawer-btn-bg-color))",
-//                                     ':hover': {
-//                                         bgcolor: "rgba(var(--drawer-btn-bg-color))",
-//                                     }
-//                                 },
-//                                 ":hover": {
-//                                     bgcolor: "rgba(var(--drawer-btn-bg-color))",
-//                                     "& .hoverClass": {
-//                                         transform: "translateX(2px)",
-//                                         color: "rgba(var(--drawer-font-color))",
-//                                     },
-//                                 },
-//                             }}
+//                 {sectionTitle}
+//             </Typography>
+//             <List>
+//                 {menuItems.map((item, index) => {
+//                     const isSelected = selectedSection === sectionKey && selectedIndex === index;
+
+//                     return (
+//                         <ListItem
+//                             sx={{ p: 0, m: 0 }}
+//                             key={item.slno}
+//                             disablePadding
+//                             secondaryAction={
+//                                 <NavArrowRight
+//                                     height={20}
+//                                     width={20}
+//                                     className={isSelected ? "bouncing-element" : ""}
+//                                     color="rgba(var(--drawer-font-color))"
+//                                 />
+//                             }
 //                         >
-//                             <ListItemIcon
-//                                 className="hoverClass"
+//                             <ListItemButton
+//                                 selected={isSelected}
+//                                 onClick={(e) => handleListItemClick(e, index, item.text, sectionKey)}
 //                                 sx={{
 //                                     display: "flex",
-//                                     justifyContent: "center",
-//                                     color: "rgba(var(--font-secondary-white))",
-//                                     transition: "transform 0.3s ease",
-//                                     transform: "translateX(0)",
+//                                     height: 35,
+//                                     px: 0,
+//                                     mx: 0,
+//                                     my: 0.1,
+//                                     borderRadius: 0,
+//                                     alignItems: "center",
+//                                     transition: "transform 0.3s ease, color 0.3s ease",
+//                                     '&.Mui-selected': {
+//                                         bgcolor: "rgba(var(--drawer-btn-bg-color))",
+//                                         ':hover': {
+//                                             bgcolor: "rgba(var(--drawer-btn-bg-color))"
+//                                         }
+//                                     },
+//                                     ":hover": {
+//                                         bgcolor: "rgba(var(--drawer-btn-bg-color))",
+//                                         "& .hoverClass": {
+//                                             transform: "translateX(2px)",
+//                                             color: "rgba(var(--drawer-font-color))"
+//                                         }
+//                                     }
 //                                 }}
 //                             >
-//                                 {val.icon}
-//                             </ListItemIcon>
-//                             <Typography
-//                                 noWrap
-//                                 className="hoverClass text-fontsecondarywhite"
-//                                 sx={{
-//                                     display: "flex",
-//                                     fontFamily: "var(--font-varient)",
-//                                     fontSize: "14px",
-//                                     fontWeight: 600,
-//                                     transition: "transform 0.3s ease",
-//                                     transform: "translateX(0)",
-//                                 }}
-//                             >
-//                                 {val.menu}
-//                             </Typography>
-//                         </ListItemButton>
-//                     </ListItem>
-//                 ))}
+//                                 <ListItemIcon
+//                                     className="hoverClass"
+//                                     sx={{
+//                                         justifyContent: "center",
+//                                         transition: "transform 0.3s ease",
+//                                         transform: "translateX(0)",
+//                                         color: "rgba(var(--font-secondary-white))"
+//                                     }}
+//                                 >
+//                                     {item.icon}
+//                                 </ListItemIcon>
+//                                 <Typography
+//                                     noWrap
+//                                     className="hoverClass text-fontsecondarywhite"
+//                                     sx={{
+//                                         fontFamily: "var(--font-varient)",
+//                                         fontSize: "14px",
+//                                         fontWeight: 600,
+//                                         transition: "transform 0.3s ease",
+//                                         transform: "translateX(0)"
+//                                     }}
+//                                 >
+//                                     {item.menu}
+//                                 </Typography>
+//                             </ListItemButton>
+//                         </ListItem>
+//                     );
+//                 })}
 //             </List>
 //         </div>
 //     );
+
 
 //     return (
 //         <Box
@@ -315,8 +397,9 @@ export default memo(DrawerPage);
 //             sx={{
 //                 width: { sm: drawerWidth },
 //                 transition: "width 0.5s",
+//                 p: 0, m: 0
 //             }}
-//             aria-label="mailbox folders"
+//             aria-label="drawer navigation"
 //         >
 //             <Drawer
 //                 variant="permanent"
@@ -325,17 +408,30 @@ export default memo(DrawerPage);
 //                         boxSizing: "border-box",
 //                         width: drawerWidth,
 //                         transition: "width 0.5s",
-//                         backgroundColor: "rgba(var(--bg-drawer))",
-//                     },
+//                         backgroundColor: "rgba(var(--bg-drawer))"
+//                     }
 //                 }}
 //                 onClose={handleDrawerClose}
 //             >
-//                 {renderDrawerSection('Travancore Medical College', TMCH, "TMCH")}
-//                 {renderDrawerSection('Kerala Medical College', KMCH, "KMCH")}
-//                 {renderDrawerSection('Quotation', Quotation, "Quotation")}
+
+//                 <Box>
+//                     {renderDrawerSection("Travancore Medical College", TMC, "TMCH")}
+//                     {renderDrawerSection("Kerala Medical College", KMC, "KMCH")}
+//                     {renderDrawerSection("Settings", Setting, "Settings")}
+//                 </Box>
+//                 {/* <Box>
+//                     {renderDrawerSection("Kerala Medical College", KMC, "KMCH")}
+//                 </Box>
+//                 <Box>
+//                     {renderDrawerSection("Settings", Setting, "Settings")}
+//                 </Box> */}
+//                 {/* <Box>
+//                     {renderDrawerSection("Quotation Statistics", Quotation_statistics, "Quotation_statistics")}
+//                 </Box> */}
+
 //             </Drawer>
 //         </Box>
 //     );
-// }
+// };
 
 // export default memo(DrawerPage);
