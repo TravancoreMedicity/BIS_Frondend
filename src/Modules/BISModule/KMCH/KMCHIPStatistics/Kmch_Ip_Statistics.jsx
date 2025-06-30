@@ -4,13 +4,14 @@ import { useQuery } from '@tanstack/react-query';
 import { endOfMonth, format, startOfMonth } from "date-fns";
 import OverallSalesProgress from "../../BIS_CommoCode/SalesProgress/OverallSalesProgress"
 import KMCHeader from "../../BIS_CommoCode/KMCHeader"
-import { getkmcOpDetails } from "../../../../api/commonAPI"
-import Kmc_OPYearWise from "./Kmc_OPYearWise";
-import Kmc_OpDeptWise from "./Kmc_OpDeptWise";
-import Kmc_DrWise from "./Kmc_DrWise";
-import Kmc_AllOpDeptWise from "./Kmc_AllOpDeptWise";
+import { getKmcIpDetails } from "../../../../api/commonAPI"
+import Kmc_AllOpDeptWise from "../KMCHOPStatistics/Kmc_AllOpDeptWise";
+import Kmc_IPYearWise from "./Kmc_IPYearWise";
+import Kmc_IpDeptWise from "./Kmc_IpDeptWise";
+import Kmc_IpDrWise from "./Kmc_IpDrWise";
+import Kmc_AllIpDeptWise from "./Kmc_AllIpDeptWise";
 
-const Kmch_Op_statistics = () => {
+const Kmch_Ip_Statistics = () => {
 
     const [fromDate, setFromDate] = useState(format(startOfMonth(new Date()), "yyyy-MM-dd"));
     const [toDate, setToDate] = useState(format(endOfMonth(new Date()), "yyyy-MM-dd"));
@@ -29,36 +30,36 @@ const Kmch_Op_statistics = () => {
     }, [fromDate, toDate])
 
     //usequery
-    const { data: OpDetails } = useQuery({
-        queryKey: ['opDataDetails', payloadDatas], // include payload in queryKey to cache per payload
-        queryFn: () => getkmcOpDetails(payloadDatas),
+    const { data: IpDetails } = useQuery({
+        queryKey: ['ipDataDetails', payloadDatas], // include payload in queryKey to cache per payload
+        queryFn: () => getKmcIpDetails(payloadDatas),
         enabled: !!payloadDatas, // ensures payload exists before running
     })
 
-
+    // kmc_ip_date, kmc_ip_total_admission, kmc_ip_total_discharge, kmc_ip_dama
     // op_visit_date
     const data = {
-        labels: OpDetails?.map(val => val.kmc_op_visit_date) || [],
+        labels: IpDetails?.map(val => val.kmc_ip_date) || [],
 
-        datasets: OpDetails
+        datasets: IpDetails
             ? [
                 {
-                    label: 'Total Outpatients',
-                    data: OpDetails?.map(val => val.kmc_op_total_op) || [],
+                    label: 'Total Admission',
+                    data: IpDetails?.map(val => val.kmc_ip_total_admission) || [],
                     borderColor: 'rgb(75, 192, 192)',
                     backgroundColor: 'rgba(96, 94, 163, 0.50)',
                     barThickness: 50,
                 },
                 {
-                    label: 'New Patients',
-                    data: OpDetails?.map(val => val.kmc_op_new_reg) || [],
+                    label: 'Total Discharge',
+                    data: IpDetails?.map(val => val.kmc_ip_total_discharge) || [],
                     borderColor: 'rgba(44, 80, 103, 0.95)',
                     backgroundColor: 'rgba(12, 132, 162, 0.50)',
                     barThickness: 50,
                 },
                 {
-                    label: 'Visit',
-                    data: OpDetails?.map(val => val.kmc_op_visit) || [],
+                    label: 'Dama',
+                    data: IpDetails?.map(val => val.kmc_ip_dama) || [],
                     borderColor: 'rgb(255, 99, 132)',
                     backgroundColor: 'rgba(184, 62, 143, 0.48)',
                     barThickness: 50,
@@ -90,11 +91,11 @@ const Kmch_Op_statistics = () => {
                     width: "100%"
                 }}
             >
-                <DashboardCard title="Out Patient Count">
+                <DashboardCard title="Inpatient Count">
                     <OverallSalesProgress Graphicaldata={data} Displaystyle={1} fromDate={fromDate} setFromDate={setFromDate} toDate={toDate} setToDate={setToDate} />
                 </DashboardCard>
-                <DashboardCard title="Out Patient Count (Year Wise)">
-                    <Kmc_OPYearWise />
+                <DashboardCard title="Inpatient Count (Year Wise)">
+                    <Kmc_IPYearWise />
                 </DashboardCard>
             </Box>
 
@@ -108,8 +109,8 @@ const Kmch_Op_statistics = () => {
                     mt: 1,
                 }}
             >
-                <DashboardCard title="Out Patient Department Wise">
-                    <Kmc_OpDeptWise fromDate={dept_fromDate} setFromDate={setdept_FromDate} toDate={dept_toDate} setToDate={setdept_ToDate} />
+                <DashboardCard title="Inpatient Department Wise">
+                    <Kmc_IpDeptWise fromDate={dept_fromDate} setFromDate={setdept_FromDate} toDate={dept_toDate} setToDate={setdept_ToDate} />
                 </DashboardCard>
             </Box>
 
@@ -124,8 +125,8 @@ const Kmch_Op_statistics = () => {
                     width: { sm: '100%', xl: "100%" },
                 }}
             >
-                <DashboardCard title="Doctor Wise Total OP Count">
-                    <Kmc_DrWise Displaystyle={1} fromDate={dr_fromDate} setFromDate={setdr_FromDate} toDate={dr_toDate} setToDate={setdr_ToDate} />
+                <DashboardCard title="Doctor Wise Total Inpatient Count">
+                    <Kmc_IpDrWise Displaystyle={1} fromDate={dr_fromDate} setFromDate={setdr_FromDate} toDate={dr_toDate} setToDate={setdr_ToDate} />
                 </DashboardCard>
             </Box>
             <Box
@@ -138,8 +139,8 @@ const Kmch_Op_statistics = () => {
                     width: { sm: '100%', xl: "100%" },
                 }}
             >
-                <DashboardCard title="Out Patient Department Wise (Largest to Smallest)">
-                    <Kmc_AllOpDeptWise Displaystyle={1} fromDate={dept_all_fromDate} setFromDate={setdept_all_FromDate} toDate={dept_all_toDate} setToDate={setdept_all_ToDate} />
+                <DashboardCard title="Inpatient Department Wise (Largest to Smallest)">
+                    <Kmc_AllIpDeptWise Displaystyle={1} fromDate={dept_all_fromDate} setFromDate={setdept_all_FromDate} toDate={dept_all_toDate} setToDate={setdept_all_ToDate} />
                 </DashboardCard>
             </Box>
 
@@ -173,7 +174,8 @@ const DashboardCard = ({ title, children }) => (
     </Box>
 );
 
-export default memo(Kmch_Op_statistics);
+export default memo(Kmch_Ip_Statistics);
+
 
 
 

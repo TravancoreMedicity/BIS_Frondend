@@ -47,6 +47,11 @@ const TmcStoreMaster = lazy(() => import("./Modules/Settings/TmcStoreMaster.jsx"
 const TmcQuotationMian = lazy(() => import("./Modules/BISModule/BIS_Quotation/TmcQuotationMian.jsx"))
 const Tmc_Quotation_Statics = lazy(() => import("./Modules/BISModule/BIS_Quotation/OuotationSatistics/Tmc_Quotation_Statics.jsx"))
 const KmcSupplierWiseQtn = lazy(() => import("./Modules/BISModule/BIS_Quotation/SupplierWiseQtn/KmcSupplierWiseQtn.jsx"))
+const Kmch_Op_statistics = lazy(() => import("./Modules/BISModule/KMCH/KMCHOPStatistics/Kmch_Op_statistics.jsx"))
+const Kmc_dept_detailPage = lazy(() => import("./Modules/BISModule/KMCH/Kmc_dept_detailPage.jsx"))
+const Kmch_Ip_Statistics = lazy(() => import("./Modules/BISModule/KMCH/KMCHIPStatistics/Kmch_Ip_Statistics.jsx"))
+const ViewAllMonthsInYear = lazy(() => import("./Modules/BISModule/KMCH/KMCHIPStatistics/ViewAllMonthsInYear.jsx"))
+
 
 const routes = createBrowserRouter([
   {
@@ -189,6 +194,31 @@ const routes = createBrowserRouter([
             path: "KmcSupplierWiseQtn", element:
               <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
                 < KmcSupplierWiseQtn />
+              </Suspense>, errorElement: <ErrorElement />
+          },
+          {
+            path: "Kmch_Op_statistics", element:
+              <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+                < Kmch_Op_statistics />
+              </Suspense>, errorElement: <ErrorElement />
+          },
+          {
+            path: "Kmc_dept_detailPage", element:
+              <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+                < Kmc_dept_detailPage />
+              </Suspense>, errorElement: <ErrorElement />
+          },
+          {
+            path: "Kmch_Ip_Statistics", element:
+              <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+                < Kmch_Ip_Statistics />
+              </Suspense>, errorElement: <ErrorElement />
+          },
+
+          {
+            path: "ViewAllMonthsInYear/:year", element:
+              <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+                < ViewAllMonthsInYear />
               </Suspense>, errorElement: <ErrorElement />
           },
 

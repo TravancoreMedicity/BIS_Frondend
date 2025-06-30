@@ -103,7 +103,7 @@ axiosApi.interceptors.response.use(
             // Handle logout or redirection to login page
             setTimeout(() => {
                 window.location.href = "/";
-            }, 3000); // Wait 3 seconds before redirecting
+            }, 1000); // Wait 3 seconds before redirecting
         }
 
         return Promise.reject(error);

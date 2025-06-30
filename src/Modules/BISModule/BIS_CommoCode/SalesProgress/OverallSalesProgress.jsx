@@ -57,70 +57,7 @@ const OverallSalesProgress = ({ Graphicaldata, Displaystyle, fromDate, setFromDa
     const startOfLastWeek = subWeeks(startOfThisWeek, 1);
     const endOfLastWeek = addDays(startOfLastWeek, 6);
 
-    // Function to filter data based on selected date range
-    // const filterDataByDateRange = useCallback((labels, data, dateRange) => {
-    //     if (dateRange.isRange) {
-    //         const { rangeStart, rangeEnd } = dateRange;
 
-    //         // For monthly ranges (Last 6 months or This Year)
-    //         if (dayCount === 4 || dayCount === 5) {
-    //             const months = eachMonthOfInterval({ start: rangeStart, end: rangeEnd });
-    //             const monthLabels = months.map(month => format(month, 'MMM yyyy'));
-
-    //             const monthlySums = data?.datasets?.map(dataset => {
-    //                 return months?.map(month => {
-    //                     const monthStart = startOfMonth(month);
-    //                     const monthEnd = endOfMonth(month);
-
-    //                     return labels.reduce((sum, label, index) => {
-    //                         const labelDate = new Date(label);
-    //                         if (isWithinInterval(labelDate, { start: monthStart, end: monthEnd })) {
-    //                             return sum + (dataset.data[index] || 0);
-    //                         }
-    //                         return sum;
-    //                     }, 0);
-    //                 });
-    //             });
-
-    //             return {
-    //                 labels: monthLabels,
-    //                 datasets: data?.datasets?.map((dataset, i) => ({
-    //                     ...dataset,
-    //                     data: monthlySums[i]
-    //                 }))
-    //             };
-    //         }
-
-    //         // For other ranges, filter daily data within the range
-    //         const filteredIndices = labels?.map((label, index) => {
-    //             const labelDate = new Date(label);
-    //             return (labelDate >= rangeStart && labelDate <= rangeEnd) ? index : null;
-    //         }).filter(index => index !== null);
-
-    //         return {
-    //             labels: labels.filter((_, index) => filteredIndices.includes(index)),
-    //             datasets: data.datasets.map(dataset => ({
-    //                 ...dataset,
-    //                 data: filteredIndices.map(index => dataset.data[index]),
-    //             }))
-    //         };
-    //     }
-
-    //     // Handle exact date matches (Today, Last Week, This Month)
-    //     const filteredIndices = labels?.map((label, index) =>
-    //         dateRange.includes(label) ? index : null
-    //     ).filter(index => index !== null);
-
-    //     return {
-    //         labels: labels.filter((_, index) => filteredIndices.includes(index)),
-    //         datasets: data.datasets.map(dataset => ({
-    //             ...dataset,
-    //             data: filteredIndices.map(index => dataset.data[index])
-    //         }))
-    //     };
-    // }, [dayCount]);
-
-    // import { format, eachMonthOfInterval, startOfMonth, endOfMonth, isWithinInterval } from 'date-fns';
 
     const filterDataByDateRange = useCallback((labels, data, dateRange) => {
         if (dateRange.isRange) {

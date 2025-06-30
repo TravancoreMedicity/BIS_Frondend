@@ -34,7 +34,7 @@ const DrawerPage = ({ drawerWidth, handleDrawerClose }) => {
             icon: <DashboardIcon height={20} width={20} className="hoverClass" />
         },
         {
-            slno: 14,
+            slno: 2,
             menu: "Quotation Statistics",
             text: "/Home/Tmc_Quotation_Statics",
             icon: <ReceiptIcon height={20} width={20} className="hoverClass" />
@@ -43,31 +43,33 @@ const DrawerPage = ({ drawerWidth, handleDrawerClose }) => {
 
     const KMC = useMemo(() => [
         {
-            slno: 4,
+            slno: 3,
             menu: "Dashboard",
             text: "/Home/KMCDashboard",
             icon: <DashboardIcon height={20} width={20} className="hoverClass" />
         },
         {
-            slno: 7,
+            slno: 4,
             menu: "Quotation Statistics",
             text: "/Home/QtnStatistics",
             icon: <ReceiptIcon height={20} width={20} className="hoverClass" />
         },
+        { slno: 10, menu: "OP Statistics", text: "/Home/Kmch_Op_statistics", icon: <ReceiptIcon height={20} width={20} className="hoverClass" /> },
+        { slno: 11, menu: "IP Statistics", text: "/Home/Kmch_Ip_Statistics", icon: <ReceiptIcon height={20} width={20} className="hoverClass" /> },
     ], []);
 
     const Setting = useMemo(() => [
         {
-            slno: 2,
+            slno: 5,
             menu: "Settings",
             text: "/Home/Settings",
             icon: <Settings height={20} width={20} className="hoverClass" />
         },
 
-        { slno: 3, menu: "TMC Data Push", text: "/Home/LoadData", icon: <PharmacyCrossCircle height={20} width={20} className="hoverClass" /> },
-        { slno: 13, menu: "TMC Quotation", text: "/Home/TmcQuotationMian", icon: <ReceiptIcon height={20} width={20} className="hoverClass" /> },
-        { slno: 5, menu: "KMC Data Push", text: "/Home/KmchLoadDatas", icon: <PharmacyCrossCircle height={20} width={20} className="hoverClass" /> },
-        { slno: 6, menu: "KMC Quotation", text: "/Home/QuotationMainPage", icon: <ReceiptIcon height={20} width={20} className="hoverClass" /> },
+        { slno: 6, menu: "TMC Data Push", text: "/Home/LoadData", icon: <PharmacyCrossCircle height={20} width={20} className="hoverClass" /> },
+        { slno: 7, menu: "TMC Quotation", text: "/Home/TmcQuotationMian", icon: <ReceiptIcon height={20} width={20} className="hoverClass" /> },
+        { slno: 8, menu: "KMC Data Push", text: "/Home/KmchLoadDatas", icon: <PharmacyCrossCircle height={20} width={20} className="hoverClass" /> },
+        { slno: 9, menu: "KMC Quotation", text: "/Home/QuotationMainPage", icon: <ReceiptIcon height={20} width={20} className="hoverClass" /> },
 
     ], []);
 
