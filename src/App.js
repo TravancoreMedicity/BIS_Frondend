@@ -51,6 +51,8 @@ const Kmch_Op_statistics = lazy(() => import("./Modules/BISModule/KMCH/KMCHOPSta
 const Kmc_dept_detailPage = lazy(() => import("./Modules/BISModule/KMCH/Kmc_dept_detailPage.jsx"))
 const Kmch_Ip_Statistics = lazy(() => import("./Modules/BISModule/KMCH/KMCHIPStatistics/Kmch_Ip_Statistics.jsx"))
 const ViewAllMonthsInYear = lazy(() => import("./Modules/BISModule/KMCH/KMCHIPStatistics/ViewAllMonthsInYear.jsx"))
+const Kmch_Patient_Statiatics = lazy(() => import("./Modules/BISModule/KMCH/KMCHPatientStatistics/Kmch_Patient_Statiatics.jsx"))
+const IP_OP_DeptDetails = lazy(() => import("./Modules/BISModule/KMCH/KMCHPatientStatistics/IP_OP_DeptDetails.jsx"))
 
 
 const routes = createBrowserRouter([
@@ -221,6 +223,19 @@ const routes = createBrowserRouter([
                 < ViewAllMonthsInYear />
               </Suspense>, errorElement: <ErrorElement />
           },
+          {
+            path: "Kmch_Patient_Statiatics", element:
+              <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+                < Kmch_Patient_Statiatics />
+              </Suspense>, errorElement: <ErrorElement />
+          },
+          {
+            path: "IP_OP_DeptDetails/:deptName/:deptId", element:
+              <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+                < IP_OP_DeptDetails />
+              </Suspense>, errorElement: <ErrorElement />
+          },
+
 
           { path: "UserManagement", element: <UserManagement />, errorElement: <ErrorElement /> },
           { path: "UserTypeMaster", element: <UserTypeMaster />, errorElement: <ErrorElement /> },

@@ -56,6 +56,8 @@ const DrawerPage = ({ drawerWidth, handleDrawerClose }) => {
         },
         { slno: 10, menu: "OP Statistics", text: "/Home/Kmch_Op_statistics", icon: <ReceiptIcon height={20} width={20} className="hoverClass" /> },
         { slno: 11, menu: "IP Statistics", text: "/Home/Kmch_Ip_Statistics", icon: <ReceiptIcon height={20} width={20} className="hoverClass" /> },
+        { slno: 12, menu: "Patient Statistics", text: "/Home/Kmch_Patient_Statiatics", icon: <ReceiptIcon height={20} width={20} className="hoverClass" /> },
+
     ], []);
 
     const Setting = useMemo(() => [
