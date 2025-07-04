@@ -47,6 +47,10 @@ const MenuNameMaster = () => {
         staleTime: Infinity,
     });
 
+
+    console.log("getmodulelist", getmodulelist);
+    console.log("fetchMenus", fetchMenus);
+
     const handleChange = (e) => {
         setMenuNames({ ...MenuNames, [e.target.name]: sanitizeInput(e.target.value) })
     }
@@ -61,7 +65,7 @@ const MenuNameMaster = () => {
             const postdata = {
                 Menu_name: MenuNames?.Menu_name,
                 Menu_status: Number(MenuNames?.Menu_status),
-                module_name: MenuNames?.module_name,
+                module_name: Number(MenuNames?.module_name),
             }
             const response = await axiosApi.post('/MenuNameMaster/insertMenuName', postdata)
             const { message, success } = response.data;
@@ -211,7 +215,7 @@ const MenuNameMaster = () => {
                                     }} /></td>
                                     <td>{idx + 1}</td>
                                     <td>{item?.bis_menu_name?.toUpperCase()}</td>
-                                    <td>{getmodulelist.find(module => module.value === item?.bis_menu_slno)?.label || 'Unknown Module'}</td>
+                                    <td>{getmodulelist.find(module => module.value === item?.bis_menu_module)?.label || 'Unknown Module'}</td>
                                     <td>{Number(item?.bis_menu_status) === 1 ? "Active" : Number(item?.bis_menu_status) === 2 ? "Inactive" : "Suspented"}</td>
                                 </tr>
                             ))

@@ -13,6 +13,8 @@ const Settings = () => {
 
     const loggedUser = atob(JSON.parse(localStorage.getItem("app_auth"))?.authType)
 
+    // console.log("loggedUser", loggedUser);
+
     const { data: userSettings } = useQuery({
         queryKey: ['getuserSettings', loggedUser],
         queryFn: () => userWiseSettingsRights(loggedUser),
@@ -20,7 +22,6 @@ const Settings = () => {
     });
 
     // console.log(userSettings, "userSettings");
-
 
     const menuName = [
         { menuSlno: 1, menuName: 'User Management', menuCodeName: 'UserManagement' },
@@ -35,14 +36,17 @@ const Settings = () => {
         { menuSlno: 22, menuName: 'Tmc Store Master', menuCodeName: 'TmcStoreMaster' },
     ]
 
-    // const employeemenu = menuName?.filter(menu =>
-    //     userSettings?.some(item => item.menu_slno === menu.menuSlno)
-    // );
+    const employeemenu = menuName?.filter(menu =>
+        userSettings?.some(item => item.bis_menu_slno === menu.menuSlno)
+    );
+
+    // console.log("employeemenu", employeemenu);
+
     return (
         <DefaultPageLayout label='Master Settings' >
             <Grid container spacing={1} sx={{ flexGrow: 0, px: 1 }}>
                 {
-                    menuName?.map((val, idx) => (
+                    employeemenu?.map((val, idx) => (
                         <Grid
                             size={{ xs: 12, sm: 12, md: 6, lg: 3, xl: 3 }}
                             key={idx} onClick={() => navigation(`/Home/${val.menuCodeName}`)} >

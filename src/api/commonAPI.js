@@ -484,6 +484,18 @@ export const getModules = async () => {
   });
 };
 
+
+export const getUsergrpRights = async () => {
+  return await axiosApi.get(`/UserGroupRightMaster/getUsergrpRights`).then((res) => {
+    const { success, data } = res.data;
+    if (success === 1) {
+      return data
+
+    }
+  });
+};
+
+
 export const getAllModules = async () => {
   return await axiosApi.get(`/ModuleNameMaster/selectAllModules`).then((res) => {
     const { success, data } = res.data;
@@ -881,4 +893,12 @@ export const GetTmcStoreMaster = async () => {
   });
 };
 
-
+// export const getUserDrawer = async (loggedUser) => {
+//   const res = await axiosApi.get(`/userRegistration/getUserDrawer/${loggedUser}`,);
+//   const { success, data } = res.data;
+//   if (success === 1) {
+//     return data ?? [];
+//   } else {
+//     return [];
+//   }
+// };

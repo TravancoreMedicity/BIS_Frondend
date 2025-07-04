@@ -150,8 +150,9 @@ const ModuleGroupMaster = () => {
                         placeholder={"User Type"}
                     />
 
-                    <Box> <Typography sx={{ fontSize: 15 }}>Module Names</Typography>
-                        <Box className="flex flex-1 items-center justify-between py-[0.199rem] px-2 ">
+                    <Box>
+                        <Typography sx={{ fontSize: 15 }}>Module Names</Typography>
+                        <Box className="flex flex-1 flex-wrap items-center justify-start gap-3 py-[0.199rem] px-2 p-1">
                             {moduleNameList?.map((val, index) => (
                                 <CustomCheckBoxWithLabel
                                     key={index}
