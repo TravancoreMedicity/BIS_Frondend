@@ -15,6 +15,7 @@ import {
 } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import GraphicalRep from '../../BIS_CommoCode/GraphicalRep';
+import DateRangeSelector from '../../BIS_CommoCode/CommonDateRange/DateRangeSelector';
 
 ChartJS.register(
     CategoryScale, LinearScale, BarElement,
@@ -152,7 +153,7 @@ const Dr_Wise_IP_OP = () => {
             legend: { position: 'top' },
             datalabels: {
                 color: 'black',
-                font: { weight: 'bold', size: 10 },
+                font: { weight: 'bold', size: 11 },
                 formatter: (value, ctx) => {
                     const datasetLabel = ctx.dataset.label;
                     if (datasetLabel === 'Total OP') {
@@ -173,11 +174,16 @@ const Dr_Wise_IP_OP = () => {
         },
         scales: {
             x: {
-                display: false,
+                display: true,
                 stacked: true,
                 ticks: {
                     color: 'black',
-                    font: { weight: 'bold' }
+                    font: { weight: 'bold' },
+                    callback: function (value, index) {
+                        const ip = chartData.datasets[0]?.data[index] || 0;
+                        const op = chartData.datasets[1]?.data[index] || 0;
+                        return ip + op; // show total count on x-axis
+                    }
                 }
             },
             y: {
@@ -190,7 +196,7 @@ const Dr_Wise_IP_OP = () => {
     return (
         <Box sx={{ width: '100%', overflow: 'auto' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-                <Box sx={{ flexWrap: "wrap", mt: 0.5, flex: 1 }}>
+                {/* <Box sx={{ flexWrap: "wrap", mt: 0.5, flex: 1 }}>
                     <ButtonGroup aria-label="date range selector" sx={{
                         '--ButtonGroup-radius': '30px', display: "flex",
                         flexWrap: { sm: "wrap", xl: 'nowrap' }, p: 0, size: "sm"
@@ -228,7 +234,15 @@ const Dr_Wise_IP_OP = () => {
                             </Button>
                         ))}
                     </ButtonGroup>
-                </Box>
+                </Box> */}
+
+                <DateRangeSelector
+                    fromDate={fromDate}
+                    toDate={toDate}
+                    setFromDate={setFromDate}
+                    setToDate={setToDate}
+                    onPeriodChange={handlePeriodChange}
+                />
 
                 <GraphicalRep Chartlayout={Chartlayout} seChartlayout={seChartlayout} />
             </Box>
@@ -245,7 +259,7 @@ const Dr_Wise_IP_OP = () => {
                                     datasets: [{
                                         data: chartData.datasets.map(ds =>
                                             ds.data.reduce((sum, val) => sum + val, 0)),
-                                        backgroundColor: ['rgba(96, 94, 163, 0.7)', 'rgba(2, 3, 3, 0.6)']
+                                        backgroundColor: ['rgba(96, 94, 163, 0.7)', 'rgba(26, 113, 113, 0.6)']
                                     }]
                                 }}
                                 options={{
@@ -253,6 +267,7 @@ const Dr_Wise_IP_OP = () => {
                                     maintainAspectRatio: false,
                                     plugins: {
                                         legend: { position: 'right' }
+
                                     }
                                 }}
                             />

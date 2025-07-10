@@ -5,10 +5,13 @@ import { endOfMonth, format, startOfMonth } from "date-fns";
 import KMCHeader from "../../BIS_CommoCode/KMCHeader"
 import { getkmcOpDetails } from "../../../../api/commonAPI"
 import OP_IP_Statistics from "./OP_IP_Statistics";
-import OP_IP_Deptwise from "./OP_IP_Deptwise";
 import Dr_Wise_IP_OP from "./Dr_Wise_IP_OP";
 import IP_OP_LabStatistics from "./IP_OP_LabStatistics";
 import IP_OP_ReadioStastistics from "./IP_OP_ReadioStastistics";
+import DeptWise_OP_IP from "./DeptWise_OP_IP";
+import Pharmacy_Statistics from "./Pharmacy_Statistics";
+import IP_occupanncy from "./IP_occupanncy";
+import GeneralBilling from "./GeneralBilling";
 
 const Kmch_Patient_Statiatics = () => {
 
@@ -104,7 +107,8 @@ const Kmch_Patient_Statiatics = () => {
                 }}
             >
                 <DashboardCard title="OP/IP Department Wise">
-                    <OP_IP_Deptwise fromDate={dept_fromDate} setFromDate={setdept_FromDate} toDate={dept_toDate} setToDate={setdept_ToDate} />
+                    {/* <OP_IP_Deptwise fromDate={dept_fromDate} setFromDate={setdept_FromDate} toDate={dept_toDate} setToDate={setdept_ToDate} /> */}
+                    <DeptWise_OP_IP fromDate={dept_fromDate} setFromDate={setdept_FromDate} toDate={dept_toDate} setToDate={setdept_ToDate} />
                 </DashboardCard>
             </Box>
 
@@ -149,6 +153,49 @@ const Kmch_Patient_Statiatics = () => {
             >
                 <DashboardCard title="Radiology Test Statistics">
                     <IP_OP_ReadioStastistics Displaystyle={1} fromDate={dept_all_fromDate} setFromDate={setdept_all_FromDate} toDate={dept_all_toDate} setToDate={setdept_all_ToDate} />
+                </DashboardCard>
+            </Box>
+            <Box
+                sx={{
+                    display: "flex",
+                    flexDirection: { xs: "column", md: "row" },
+                    gap: 2,
+                    px: 2,
+                    mt: 1,
+                    width: { sm: '100%', xl: "100%" },
+                }}
+            >
+                <DashboardCard title="Pharmacy Statistics">
+                    <Pharmacy_Statistics Displaystyle={1} fromDate={dept_all_fromDate} setFromDate={setdept_all_FromDate} toDate={dept_all_toDate} setToDate={setdept_all_ToDate} />
+                </DashboardCard>
+            </Box>
+            <Box
+                sx={{
+                    display: "flex",
+                    flexDirection: { xs: "column", md: "row" },
+                    gap: 2,
+                    px: 2,
+                    mt: 1,
+                    width: { sm: '100%', xl: "100%" },
+                }}
+            >
+                <DashboardCard title="IP Occupancy">
+                    <IP_occupanncy Displaystyle={1} fromDate={dept_all_fromDate} setFromDate={setdept_all_FromDate} toDate={dept_all_toDate} setToDate={setdept_all_ToDate} />
+                </DashboardCard>
+            </Box>
+
+            <Box
+                sx={{
+                    display: "flex",
+                    flexDirection: { xs: "column", md: "row" },
+                    gap: 2,
+                    px: 2,
+                    mt: 1,
+                    width: { sm: '100%', xl: "100%" },
+                }}
+            >
+                <DashboardCard title="General Billing">
+                    <GeneralBilling Displaystyle={1} fromDate={dept_all_fromDate} setFromDate={setdept_all_FromDate} toDate={dept_all_toDate} setToDate={setdept_all_ToDate} />
                 </DashboardCard>
             </Box>
 

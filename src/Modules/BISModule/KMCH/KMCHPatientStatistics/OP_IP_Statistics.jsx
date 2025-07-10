@@ -278,7 +278,6 @@ const OP_IP_Statistics = ({ Displaystyle, fromDate, setFromDate, toDate, setToDa
                     '--ButtonGroup-radius': '30px', display: "flex",
                     flexWrap: { sm: "wrap", xl: 'nowrap' }, p: 0, size: "sm"
                 }}>
-                    {/* {['Today', 'Last Week', 'This Month', 'Last 6 months', 'This Year', 'Custom'].map((label, index) => ( */}
                     {['Last Week', 'This Month', 'Last 6 months', 'This Year', 'Custom'].map((label, index) => (
 
                         <Button key={label} onClick={() => handlePeriodChange(index + 2)}>
@@ -290,7 +289,7 @@ const OP_IP_Statistics = ({ Displaystyle, fromDate, setFromDate, toDate, setToDa
                                         value={fromDate}
                                         onChange={(e) => setFromDate(e.target.value)}
                                         size='xs'
-                                        sx={{ p: 0.5, color: 'grey', }}
+                                        sx={{ p: 0, color: 'grey', }}
                                     />
                                     <Input
                                         type="date"
@@ -298,7 +297,7 @@ const OP_IP_Statistics = ({ Displaystyle, fromDate, setFromDate, toDate, setToDa
                                         onChange={(e) => setToDate(e.target.value)}
                                         size='xs'
                                         sx={{
-                                            p: 0.5,
+                                            p: 0,
                                             // backgroundColor: "rgba(175, 193, 210, 0.35)",
                                             color: 'grey',
                                         }}

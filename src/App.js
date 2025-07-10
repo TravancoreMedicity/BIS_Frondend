@@ -56,6 +56,8 @@ const IP_OP_DeptDetails = lazy(() => import("./Modules/BISModule/KMCH/KMCHPatien
 const Tmch_Ip_Statistics = lazy(() => import("./Modules/BISModule/TMCH/TMCHIPStatistics/Tmch_Ip_Statistics.jsx"))
 const Tmch_Op_statistics = lazy(() => import("./Modules/BISModule/TMCH/TMCHOPStatistics/Tmch_Op_statistics.jsx"))
 const Tmch_Patient_Statiatics = lazy(() => import("./Modules/BISModule/TMCH/TMCHPatientStatistics/Tmch_Patient_Statiatics.jsx"))
+const GeneralBillingSectn = lazy(() => import("./Modules/BISModule/KMCH/GeneralBillingSectn.jsx"))
+
 
 const routes = createBrowserRouter([
   {
@@ -255,7 +257,13 @@ const routes = createBrowserRouter([
                 < Tmch_Patient_Statiatics />
               </Suspense>, errorElement: <ErrorElement />
           },
+          {
 
+            path: "GeneralBillingSectn/:date/:date", element:
+              <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+                < GeneralBillingSectn />
+              </Suspense>, errorElement: <ErrorElement />
+          },
 
           { path: "UserManagement", element: <UserManagement />, errorElement: <ErrorElement /> },
           { path: "UserTypeMaster", element: <UserTypeMaster />, errorElement: <ErrorElement /> },
