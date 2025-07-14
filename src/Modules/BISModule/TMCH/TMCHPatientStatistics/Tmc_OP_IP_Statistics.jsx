@@ -226,12 +226,12 @@ const OP_IP_Statistics = ({ Displaystyle, fromDate, setFromDate, toDate, setToDa
         },
         scales: {
             x: {
-                ticks: { font: { size: 10 } },
+                ticks: { font: { size: 11 } },
                 grid: { display: false }
             },
             y: {
                 beginAtZero: true,
-                ticks: { font: { size: 10 } }
+                ticks: { font: { size: 11 } }
             }
         }
     }), []);

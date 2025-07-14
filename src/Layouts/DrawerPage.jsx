@@ -26,10 +26,9 @@ const DrawerPage = ({ drawerWidth, handleDrawerClose }) => {
         navigate(route);
     }, [navigate]);
 
+    // const loggedUser = atob(JSON.parse(localStorage.getItem("app_auth"))?.authType)
 
-
-
-    const loggedUser = atob(JSON.parse(localStorage.getItem("app_auth"))?.authType)
+    // console.log(loggedUser);
 
     // const { data: userDrawer = [] } = useQuery({
     //     queryKey: ['getUserDrawer', loggedUser],

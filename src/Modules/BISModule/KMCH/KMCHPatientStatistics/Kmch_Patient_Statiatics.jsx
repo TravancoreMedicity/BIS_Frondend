@@ -107,7 +107,6 @@ const Kmch_Patient_Statiatics = () => {
                 }}
             >
                 <DashboardCard title="OP/IP Department Wise">
-                    {/* <OP_IP_Deptwise fromDate={dept_fromDate} setFromDate={setdept_FromDate} toDate={dept_toDate} setToDate={setdept_ToDate} /> */}
                     <DeptWise_OP_IP fromDate={dept_fromDate} setFromDate={setdept_FromDate} toDate={dept_toDate} setToDate={setdept_ToDate} />
                 </DashboardCard>
             </Box>

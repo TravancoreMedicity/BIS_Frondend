@@ -2,13 +2,16 @@ import React, { memo, useMemo, useState } from "react";
 import { Box, Typography } from "@mui/joy";
 import { useQuery } from '@tanstack/react-query';
 import { endOfMonth, format, startOfMonth } from "date-fns";
-import KMCHeader from "../../BIS_CommoCode/KMCHeader"
 import { getOpDetails } from "../../../../api/commonAPI";
 import Tmch_OP_IP_Statistics from "./Tmc_OP_IP_Statistics";
 import Tmch_OP_IP_Deptwise from "./Tmc_OP_IP_Deptwise";
 import Tmch_Dr_Wise_IP_OP from "./Tmc_Dr_Wise_IP_OP";
 import Tmch_IP_OP_LabStatistics from "./Tmc_IP_OP_LabStatistics";
 import Tmch_IP_OP_ReadioStastistics from "./Tmc_IP_OP_ReadioStastistics";
+import CommonHeader from "../../BIS_CommoCode/CommonHeader"
+import Pharmacy_Statistics from "./Pharmacy_Statistics";
+import IP_occupanncy from "./IP_occupanncy";
+import GeneralBilling from "./GeneralBilling";
 
 const Tmch_Patient_Statiatics = () => {
 
@@ -76,7 +79,8 @@ const Tmch_Patient_Statiatics = () => {
                 overflow: "auto",
             }}
         >
-            <KMCHeader />
+            <CommonHeader />
+
             {/* Row 1 */}
             <Box
                 sx={{
@@ -151,7 +155,50 @@ const Tmch_Patient_Statiatics = () => {
                     <Tmch_IP_OP_ReadioStastistics Displaystyle={1} fromDate={dept_all_fromDate} setFromDate={setdept_all_FromDate} toDate={dept_all_toDate} setToDate={setdept_all_ToDate} />
                 </DashboardCard>
             </Box>
+            <Box
+                sx={{
+                    display: "flex",
+                    flexDirection: { xs: "column", md: "row" },
+                    gap: 2,
+                    px: 2,
+                    mt: 1,
+                    width: { sm: '100%', xl: "100%" },
+                }}
+            >
+                <DashboardCard title="Pharmacy Statistics">
+                    <Pharmacy_Statistics Displaystyle={1} fromDate={dept_all_fromDate} setFromDate={setdept_all_FromDate} toDate={dept_all_toDate} setToDate={setdept_all_ToDate} />
+                </DashboardCard>
+            </Box>
 
+            <Box
+                sx={{
+                    display: "flex",
+                    flexDirection: { xs: "column", md: "row" },
+                    gap: 2,
+                    px: 2,
+                    mt: 1,
+                    width: { sm: '100%', xl: "100%" },
+                }}
+            >
+                <DashboardCard title="IP Occupancy">
+                    <IP_occupanncy Displaystyle={1} fromDate={dept_all_fromDate} setFromDate={setdept_all_FromDate} toDate={dept_all_toDate} setToDate={setdept_all_ToDate} />
+                </DashboardCard>
+            </Box>
+
+            <Box
+                sx={{
+                    display: "flex",
+                    flexDirection: { xs: "column", md: "row" },
+                    gap: 2,
+                    px: 2,
+                    mt: 1,
+                    width: { sm: '100%', xl: "100%" },
+                }}
+            >
+                <DashboardCard title="General Billing">
+                    <GeneralBilling Displaystyle={1} fromDate={dept_all_fromDate} setFromDate={setdept_all_FromDate} toDate={dept_all_toDate} setToDate={setdept_all_ToDate} />
+                </DashboardCard>
+            </Box>
         </Box>
     );
 };

@@ -1,7 +1,7 @@
 import { Box, Button, ButtonGroup, Input, Typography } from '@mui/joy';
-import React, { memo, useState, useCallback, useEffect } from 'react';
+import React, { memo, useState, useCallback, useEffect, useMemo } from 'react';
 import {
-    addDays, format, isWithinInterval, parseISO,
+    addDays, format,
     startOfMonth, startOfWeek, subMonths, subWeeks
 } from "date-fns";
 import { Bar, Line, PolarArea } from 'react-chartjs-2';
@@ -25,252 +25,288 @@ ChartJS.register(
     RadialLinearScale,
     ArcElement
 );
-
 const departmentDetails = [
-    { dept_id: 1, dept_name: "General Surgery", visit_date: "2025-05-01", TotalIp: 100, TotalOP: 40 },
-    { dept_id: 2, dept_name: "Cardiology", visit_date: "2025-05-01", TotalIp: 80, TotalOP: 20 },
-    { dept_id: 3, dept_name: "Dermatology", visit_date: "2025-07-25", TotalIp: 60, TotalOP: 10 },
-    { dept_id: 4, dept_name: "General Surgery", visit_date: "2025-07-24", TotalIp: 100, TotalOP: 40 },
-    { dept_id: 5, dept_name: "Cardiology", visit_date: "2025-07-23", TotalIp: 80, TotalOP: 20 },
-    { dept_id: 6, dept_name: "Dermatology", visit_date: "2025-07-01", TotalIp: 60, TotalOP: 10 },
-    { dept_id: 7, dept_name: "General Surgery", visit_date: "2025-07-01", TotalIp: 100, TotalOP: 40 },
-    { dept_id: 8, dept_name: "Cardiology", visit_date: "2025-07-01", TotalIp: 80, TotalOP: 20 },
-    { dept_id: 9, dept_name: "Dermatology", visit_date: "2025-07-01", TotalIp: 60, TotalOP: 10 },
+    { dept_id: 1, dept_name: "General Surgery", visit_date: "2025-05-01", TotalIp: 100, TotalOP: 120 },
+    { dept_id: 2, dept_name: "Cardiology", visit_date: "2025-05-01", TotalIp: 80, TotalOP: 100 },
+    { dept_id: 3, dept_name: "Dermatology", visit_date: "2025-07-25", TotalIp: 60, TotalOP: 70 },
+    { dept_id: 4, dept_name: "ENT", visit_date: "2025-07-24", TotalIp: 90, TotalOP: 110 },
+    { dept_id: 5, dept_name: "Neurology", visit_date: "2025-07-23", TotalIp: 70, TotalOP: 90 },
+    { dept_id: 6, dept_name: "Orthopedics", visit_date: "2025-07-01", TotalIp: 60, TotalOP: 100 },
+    { dept_id: 7, dept_name: "Urology", visit_date: "2025-07-01", TotalIp: 85, TotalOP: 110 },
+    { dept_id: 8, dept_name: "Nephrology", visit_date: "2025-07-01", TotalIp: 95, TotalOP: 120 },
+    { dept_id: 9, dept_name: "Oncology", visit_date: "2025-07-01", TotalIp: 110, TotalOP: 150 },
+    { dept_id: 10, dept_name: "Gastroenterology", visit_date: "2025-07-01", TotalIp: 70, TotalOP: 85 },
+    { dept_id: 11, dept_name: "Pulmonology", visit_date: "2025-06-30", TotalIp: 88, TotalOP: 110 },
+    { dept_id: 12, dept_name: "Psychiatry", visit_date: "2025-06-28", TotalIp: 76, TotalOP: 95 },
+    { dept_id: 13, dept_name: "Endocrinology", visit_date: "2025-07-01", TotalIp: 65, TotalOP: 80 },
+    { dept_id: 14, dept_name: "Hematology", visit_date: "2025-07-01", TotalIp: 92, TotalOP: 110 },
+    { dept_id: 15, dept_name: "Plastic Surgery", visit_date: "2025-07-01", TotalIp: 58, TotalOP: 75 },
+    { dept_id: 16, dept_name: "Rheumatology", visit_date: "2025-06-25", TotalIp: 63, TotalOP: 85 },
+    { dept_id: 17, dept_name: "Pediatrics", visit_date: "2025-06-20", TotalIp: 55, TotalOP: 65 },
+    { dept_id: 18, dept_name: "Ophthalmology", visit_date: "2025-06-15", TotalIp: 72, TotalOP: 90 },
+    { dept_id: 19, dept_name: "Geriatrics", visit_date: "2025-06-10", TotalIp: 66, TotalOP: 80 },
+    { dept_id: 20, dept_name: "Immunology", visit_date: "2025-06-05", TotalIp: 105, TotalOP: 120 },
+    { dept_id: 21, dept_name: "Anesthesiology", visit_date: "2025-06-01", TotalIp: 77, TotalOP: 90 },
+    { dept_id: 22, dept_name: "Radiology", visit_date: "2025-05-28", TotalIp: 82, TotalOP: 100 },
+    { dept_id: 23, dept_name: "Emergency", visit_date: "2025-05-25", TotalIp: 99, TotalOP: 130 },
+    { dept_id: 24, dept_name: "Pathology", visit_date: "2025-05-20", TotalIp: 68, TotalOP: 85 },
+    { dept_id: 25, dept_name: "Microbiology", visit_date: "2025-05-15", TotalIp: 61, TotalOP: 80 },
+    { dept_id: 26, dept_name: "Biochemistry", visit_date: "2025-05-10", TotalIp: 74, TotalOP: 90 },
+    { dept_id: 27, dept_name: "Forensic Medicine", visit_date: "2025-05-05", TotalIp: 80, TotalOP: 100 },
+    { dept_id: 28, dept_name: "Rehabilitation", visit_date: "2025-04-30", TotalIp: 67, TotalOP: 85 },
+    { dept_id: 29, dept_name: "Dentistry", visit_date: "2025-04-25", TotalIp: 53, TotalOP: 60 },
+    { dept_id: 30, dept_name: "Occupational Therapy", visit_date: "2025-04-20", TotalIp: 64, TotalOP: 80 },
+    { dept_id: 31, dept_name: "Speech Therapy", visit_date: "2025-07-01", TotalIp: 40, TotalOP: 55 },
+    { dept_id: 32, dept_name: "Nutrition", visit_date: "2025-07-01", TotalIp: 45, TotalOP: 60 },
+    { dept_id: 33, dept_name: "Pain Management", visit_date: "2025-07-01", TotalIp: 60, TotalOP: 80 },
+    { dept_id: 34, dept_name: "Genetics", visit_date: "2025-07-01", TotalIp: 55, TotalOP: 70 },
+    { dept_id: 35, dept_name: "Infectious Diseases", visit_date: "2025-06-30", TotalIp: 70, TotalOP: 90 },
+    { dept_id: 36, dept_name: "Burn Unit", visit_date: "2025-06-25", TotalIp: 90, TotalOP: 110 },
+    { dept_id: 37, dept_name: "Intensive Care", visit_date: "2025-06-20", TotalIp: 120, TotalOP: 150 },
+    { dept_id: 38, dept_name: "Sports Medicine", visit_date: "2025-06-15", TotalIp: 66, TotalOP: 80 },
+    { dept_id: 39, dept_name: "Sleep Medicine", visit_date: "2025-06-10", TotalIp: 48, TotalOP: 60 },
+    { dept_id: 40, dept_name: "Hepatology", visit_date: "2025-06-05", TotalIp: 85, TotalOP: 100 },
+    { dept_id: 41, dept_name: "Toxicology", visit_date: "2025-07-01", TotalIp: 50, TotalOP: 65 },
+    { dept_id: 42, dept_name: "Transplant Surgery", visit_date: "2025-06-30", TotalIp: 58, TotalOP: 75 },
+    { dept_id: 43, dept_name: "Clinical Pharmacology", visit_date: "2025-06-28", TotalIp: 60, TotalOP: 80 },
+    { dept_id: 44, dept_name: "Occupational Health", visit_date: "2025-06-25", TotalIp: 45, TotalOP: 62 },
+    { dept_id: 45, dept_name: "Palliative Care", visit_date: "2025-06-22", TotalIp: 70, TotalOP: 90 },
+    { dept_id: 46, dept_name: "Nuclear Medicine", visit_date: "2025-06-18", TotalIp: 52, TotalOP: 68 },
+    { dept_id: 47, dept_name: "Allergy & Immunology", visit_date: "2025-06-15", TotalIp: 63, TotalOP: 85 },
+    { dept_id: 48, dept_name: "Medical Imaging", visit_date: "2025-06-10", TotalIp: 78, TotalOP: 92 },
+    { dept_id: 49, dept_name: "Reproductive Medicine", visit_date: "2025-06-08", TotalIp: 55, TotalOP: 73 },
+    { dept_id: 50, dept_name: "Hyperbaric Medicine", visit_date: "2025-06-05", TotalIp: 46, TotalOP: 60 }
 
-    { dept_id: 10, dept_name: "General Surgery", visit_date: "2025-07-01", TotalIp: 100, TotalOP: 40 },
-    { dept_id: 11, dept_name: "General Surgery", visit_date: "2025-07-01", TotalIp: 100, TotalOP: 40 },
-
-    { dept_id: 12, dept_name: "Cardiology", visit_date: "2025-07-01", TotalIp: 80, TotalOP: 20 },
-    { dept_id: 13, dept_name: "Dermatology", visit_date: "2025-07-01", TotalIp: 60, TotalOP: 10 },
-    { dept_id: 14, dept_name: "General Surgery", visit_date: "2025-07-01", TotalIp: 100, TotalOP: 40 },
-    { dept_id: 15, dept_name: "Cardiology", visit_date: "2025-06-01", TotalIp: 80, TotalOP: 20 },
-    { dept_id: 16, dept_name: "Dermatology", visit_date: "2025-07-01", TotalIp: 60, TotalOP: 10 },
-    { dept_id: 17, dept_name: "General Surgery", visit_date: "2025-06-01", TotalIp: 100, TotalOP: 40 },
-    { dept_id: 18, dept_name: "Cardiology", visit_date: "2025-06-01", TotalIp: 80, TotalOP: 20 },
-    { dept_id: 19, dept_name: "Dermatology", visit_date: "2025-06-01", TotalIp: 60, TotalOP: 10 }
 ];
 
-const now = new Date();
 
-const OP_IP_Deptwise = () => {
+
+
+const OP_IP_Deptwise = ({ fromDate, setFromDate, toDate, setToDate }) => {
     const [Chartlayout, seChartlayout] = useState(1);
-    const [fromDate, setFromDate] = useState(format(startOfMonth(now), 'yyyy-MM-dd'));
-    const [toDate, setToDate] = useState(format(now, 'yyyy-MM-dd'));
-    const [chartData, setChartData] = useState({ labels: [], datasets: [], totals: [], dept_id: [] });
-    const [polarData, setPolarData] = useState({ labels: [], datasets: [] });
+    const [chartData, setChartData] = useState(null);
+    const [deptMapList, setDeptMapList] = useState([]);
     const navigate = useNavigate();
 
-    const startOfThisWeek = startOfWeek(now, { weekStartsOn: 1 });
+    const today = new Date();
+    const startOfThisWeek = startOfWeek(today, { weekStartsOn: 1 });
     const startOfLastWeek = subWeeks(startOfThisWeek, 1);
     const endOfLastWeek = addDays(startOfLastWeek, 6);
 
-    const filterDeptData = useCallback((rangeStart, rangeEnd) => {
+    const filterAndAggregate = useCallback((rangeStart, rangeEnd) => {
         const filtered = departmentDetails.filter(({ visit_date }) => {
-            const visitDate = parseISO(visit_date);
-            return isWithinInterval(visitDate, { start: rangeStart, end: rangeEnd });
+            const date = new Date(visit_date);
+            return date >= rangeStart && date <= rangeEnd;
         });
 
-        const labels = filtered.map(d => d.dept_name);
-        const TotalIp = filtered.map(d => d.TotalIp);
-        const TotalOP = filtered.map(d => d.TotalOP);
-        const dept_id = filtered.map(d => d.dept_id);
+        const deptMap = {};
+        const deptList = [];
 
-
-        setPolarData({
-            labels,
-            datasets: [{
-                label: "Total IP",
-                data: TotalIp,
-                backgroundColor: [
-                    '#FF6384', '#36A2EB', '#FFCE56',
-                    '#4BC0C0', '#9966FF', '#FF9F40'
-                ]
-            }]
+        filtered.forEach(({ dept_name, dept_id, TotalOP, TotalIp }) => {
+            if (!deptMap[dept_name]) {
+                deptMap[dept_name] = { TotalOP: 0, TotalIp: 0, id: dept_id };
+                deptList.push({ name: dept_name, id: dept_id });
+            }
+            deptMap[dept_name].TotalOP += TotalOP;
+            deptMap[dept_name].TotalIp += TotalIp;
         });
+
+        const labels = Object.keys(deptMap);
+        const opData = labels.map(dept => deptMap[dept].TotalOP);
+        const ipData = labels.map(dept => deptMap[dept].TotalIp);
+
+        setDeptMapList(deptList);
 
         return {
             labels,
             datasets: [
                 {
                     label: 'Total OP',
-                    data: TotalOP,
-                    backgroundColor: '#FFB6C1',
-                    stack: 'stack1'
+                    data: opData,
+                    backgroundColor: 'rgba(96, 94, 163, 0.6)',
+                    borderColor: 'rgba(96, 94, 163, 1)',
+                    borderWidth: 1
                 },
                 {
                     label: 'Total IP',
-                    data: TotalIp,
-                    backgroundColor: '#A8AACC',
-                    stack: 'stack1'
-                },
-
-            ],
-            totals: TotalIp,
-            dept_id: dept_id
+                    data: ipData,
+                    backgroundColor: 'rgba(12, 132, 162, 0.6)',
+                    borderColor: 'rgba(12, 132, 162, 1)',
+                    borderWidth: 1
+                }
+            ]
         };
     }, []);
 
-    const handlePeriodChange = (period) => {
-        let rangeStart, rangeEnd;
+    const handlePeriodChange = useCallback((period) => {
+        const now = new Date();
+        const ranges = {
+            2: () => [startOfLastWeek, endOfLastWeek],
+            3: () => [startOfMonth(now), now],
+            4: () => [startOfMonth(subMonths(now, 5)), now],
+            5: () => [new Date(now.getFullYear(), 0, 1), now],
+        };
 
-        if (period === 2) {
-            rangeStart = startOfLastWeek;
-            rangeEnd = endOfLastWeek;
-        } else if (period === 3) {
-            rangeStart = startOfMonth(now);
-            rangeEnd = now;
-        } else if (period === 4) {
-            rangeStart = startOfMonth(subMonths(now, 5));
-            rangeEnd = now;
-        } else if (period === 5) {
-            rangeStart = new Date(now.getFullYear(), 0, 1);
-            rangeEnd = now;
-        }
+        if (!ranges[period]) return;
 
-        if (rangeStart && rangeEnd) {
-            setFromDate(format(rangeStart, 'yyyy-MM-dd'));
-            setToDate(format(rangeEnd, 'yyyy-MM-dd'));
-            const data = filterDeptData(rangeStart, rangeEnd);
-            setChartData(data);
-        }
-    };
+        const [start, end] = ranges[period]();
+        setFromDate(format(start, 'yyyy-MM-dd'));
+        setToDate(format(end, 'yyyy-MM-dd'));
+        const chart = filterAndAggregate(start, end);
+        setChartData(chart);
+    }, [filterAndAggregate, setFromDate, setToDate]);
 
     useEffect(() => {
-        const rangeStart = parseISO(fromDate);
-        const rangeEnd = parseISO(toDate);
-        const data = filterDeptData(rangeStart, rangeEnd);
-        setChartData(data);
-    }, [fromDate, toDate, filterDeptData]);
+        handlePeriodChange(2); // Default: Last Week
+    }, []);
 
-    const options = {
+    useEffect(() => {
+        if (fromDate && toDate) {
+            const start = new Date(fromDate);
+            const end = new Date(toDate);
+            const chart = filterAndAggregate(start, end);
+            setChartData(chart);
+        }
+    }, [fromDate, toDate, filterAndAggregate]);
+
+    const barOptions = useMemo(() => ({
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-            legend: { position: 'top' },
-            datalabels: {
-                color: 'black',
-                font: { weight: 'bold', size: 10 },
-                formatter: (value, ctx) => {
-                    const datasetLabel = ctx.dataset.label;
-                    if (datasetLabel === 'Total IP') return ctx.chart.data.labels[ctx.dataIndex];
-                    if (datasetLabel === 'Total OP') return value;
-                    return '';
-                },
-                anchor: 'center',
-                align: 'center',
+            legend: {
                 display: true,
-                rotation: -90
+                position: 'top',
+                labels: {
+                    boxWidth: 15,
+                    font: { size: 12 },
+                    padding: 20,
+                    usePointStyle: true,
+                },
             },
             tooltip: {
+                enabled: true,
                 callbacks: {
-                    label: (context) => `${context.dataset.label}: ${context.raw}`
-                }
-            }
+                    label: (context) => `${context.dataset.label}: ${context.raw}`,
+                },
+            },
+            datalabels: {
+                anchor: 'end',
+                align: 'top',
+                color: '#333',
+                font: { size: 10 },
+                formatter: (value) => value,
+            },
         },
         scales: {
             x: {
-                stacked: true,
-                ticks: {
-                    callback: function (value, index) {
-                        return chartData.totals ? chartData.totals[index] : '';
-                    },
-                    color: 'black',
-                    font: { weight: 'bold' }
-                }
+                ticks: { autoSkip: false, maxRotation: 45, font: { size: 10 } },
+                grid: { display: false }
             },
             y: {
-                stacked: true,
-                beginAtZero: true
+                beginAtZero: true,
+                ticks: { font: { size: 10 } }
             }
         },
         onClick: (event, elements) => {
             if (elements.length > 0) {
                 const index = elements[0].index;
-                const deptName = chartData.labels[index];
-                const deptId = chartData.dept_id[index];
-
-                if (deptName && deptId) {
-                    navigate(`/Home/IP_OP_DeptDetails/${encodeURIComponent(deptName)}/${deptId}`);
+                const { name, id } = deptMapList[index] || {};
+                if (name && id) {
+                    navigate(`/Home/IP_OP_DeptDetails/${encodeURIComponent(name)}/${id}`);
                 }
             }
         }
-    };
+    }), [deptMapList, navigate]);
+
+    const transformToLineChartData = useCallback((data) => ({
+        labels: data.labels,
+        datasets: data.datasets.map(ds => ({
+            ...ds,
+            borderWidth: 2,
+            tension: 0.4,
+            fill: false,
+            pointRadius: 4,
+            pointBackgroundColor: ds.borderColor
+        }))
+    }), []);
+
+    const transformToPolarData = useCallback((data) => {
+        const labels = data.datasets.map(ds => ds.label);
+        const values = data.datasets.map(ds =>
+            ds.data.reduce((sum, val) => sum + val, 0)
+        );
+        return {
+            labels,
+            datasets: [{
+                data: values,
+                backgroundColor: ['rgba(255, 99, 132, 0.5)', 'rgba(54, 162, 235, 0.5)'],
+                borderWidth: 1
+            }]
+        };
+    }, []);
 
     return (
         <Box sx={{ width: '100%', overflow: 'auto' }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-                <Box sx={{ flexWrap: "wrap", mt: 0.5, flex: 1 }}>
-                    <ButtonGroup aria-label="date range selector" sx={{
-                        '--ButtonGroup-radius': '30px', display: "flex",
-                        flexWrap: { sm: "wrap", xl: 'nowrap' }, p: 0, size: "sm"
-                    }}>
-                        {['Last Week', 'This Month', 'Last 6 months', 'This Year', 'Custom'].map((label, index) => (
-                            <Button key={label} onClick={() => handlePeriodChange(index + 2)}>
-                                {index === 4 ? (
-                                    <Box sx={{ display: "flex", flexDirection: "row", gap: 1 }}>
-                                        <Input
-                                            type="date"
-                                            value={fromDate}
-                                            onChange={(e) => setFromDate(e.target.value)}
-                                            size='xs'
-                                            sx={{ p: 0.5, color: 'grey' }}
-                                        />
-                                        <Input
-                                            type="date"
-                                            value={toDate}
-                                            onChange={(e) => setToDate(e.target.value)}
-                                            size='xs'
-                                            sx={{ p: 0.5, color: 'grey' }}
-                                            slotProps={{ input: { min: fromDate } }}
-                                        />
-                                    </Box>
-                                ) : (
-                                    <Typography sx={{
-                                        fontSize: 11,
-                                        color: "rgba(var(--input-font-color))",
-                                        '&:hover': {
-                                            color: 'rgba(var(--font-black))',
-                                            backgroundColor: 'transparent',
-                                        }
-                                    }}>{label}</Typography>
-                                )}
-                            </Button>
-                        ))}
-                    </ButtonGroup>
-                </Box>
+            <ButtonGroup sx={{ flexWrap: 'wrap', mt: 1 }}>
+                {['Last Week', 'This Month', 'Last 6 months', 'This Year', 'Custom'].map((label, index) => (
+                    <Button key={label} onClick={() => index < 4 && handlePeriodChange(index + 2)}>
+                        {index === 4 ? (
+                            <Box sx={{ display: "flex", gap: 1 }}>
+                                <Input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} size='xs' />
+                                <Input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} size='xs' />
+                            </Box>
+                        ) : (
+                            <Typography sx={{ fontSize: 11 }}>{label}</Typography>
+                        )}
+                    </Button>
+                ))}
+            </ButtonGroup>
+
+            <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
                 <GraphicalRep Chartlayout={Chartlayout} seChartlayout={seChartlayout} />
             </Box>
 
-            <Box sx={{ mt: 2, width: "100%", height: 500 }}>
-                {Chartlayout === 1 &&
-                    <Box sx={{ width: '100%', height: '100%', position: 'relative' }}>
-                        <Bar data={chartData} options={options} />
+
+            {/* <Box sx={{
+                overflow: "auto", '&::-webkit-scrollbar': {
+                    height: 5,
+                    cursor: "pointer"
+                }, gap: 2,
+            }}>
+                {Chartlayout === 1 && chartData && (
+                    <Bar data={chartData} options={barOptions} height={350} />
+                )}
+                {Chartlayout === 2 && chartData && (
+                    <Line data={transformToLineChartData(chartData)} options={barOptions} height={350} />
+                )}
+                {Chartlayout === 3 && chartData && (
+                    <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: '100%' }}>
+                        <PolarArea data={transformToPolarData(chartData)} height={300} width={300} />
                     </Box>
-                }
-                {Chartlayout === 2 &&
-                    <Box sx={{ width: '100%', height: '100%', position: 'relative' }}>
-                        <Line data={chartData} options={options} />
-                    </Box>
-                }
-                {Chartlayout === 3 && (
-                    <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: 500 }}>
-                        <Box sx={{ width: 600, height: 600 }}>
-                            <PolarArea
-                                data={polarData}
-                                options={{
-                                    responsive: true,
-                                    maintainAspectRatio: false,
-                                    plugins: {
-                                        legend: { position: 'right' }
-                                    }
-                                }}
-                            />
-                        </Box>
+                )}
+            </Box> */}
+
+            <Box sx={{
+                overflow: "auto", '&::-webkit-scrollbar': {
+                    height: 5,
+                    cursor: "pointer"
+                }, gap: 2,
+            }}>
+                {Chartlayout === 1 && chartData && (
+                    <Bar data={chartData} options={barOptions} height={350} />
+                )}
+                {Chartlayout === 2 && chartData && (
+                    <Line data={transformToLineChartData(chartData)} options={barOptions} height={350} />
+                )}
+                {Chartlayout === 3 && chartData && (
+                    <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: '100%' }}>
+                        <PolarArea data={transformToPolarData(chartData)} height={300} width={300} />
                     </Box>
                 )}
             </Box>
         </Box>
     );
 };
+
 
 export default memo(OP_IP_Deptwise) 

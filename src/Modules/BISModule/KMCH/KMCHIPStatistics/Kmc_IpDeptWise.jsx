@@ -146,7 +146,7 @@ const Kmc_IpDeptWise = () => {
             legend: { position: 'top' },
             datalabels: {
                 color: 'black',
-                font: { weight: 'bold', size: 10 },
+                font: { weight: 'bold', size: 11 },
                 formatter: (value, ctx) => {
                     const datasetLabel = ctx.dataset.label;
                     if (datasetLabel === 'Total IP') return ctx.chart.data.labels[ctx.dataIndex];

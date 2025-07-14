@@ -11,6 +11,7 @@ import {
     Title, Tooltip, Legend
 } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
+import { useNavigate } from 'react-router-dom';
 import GraphicalRep from '../../BIS_CommoCode/GraphicalRep';
 
 ChartJS.register(
@@ -41,13 +42,16 @@ const labDetails = Array.from({ length: 180 }, (_, i) => {
     };
 });
 
-const IP_OP_ReadioStastistics = () => {
+const GeneralBilling = () => {
     const [fromDate, setFromDate] = useState('');
     const [toDate, setToDate] = useState('');
     const [chartData, setChartData] = useState(null);
     const [currentPeriod, setCurrentPeriod] = useState(2);
     const [Chartlayout, seChartlayout] = useState(1);
     const [polarData, setPolarData] = useState({ labels: [], datasets: [] });
+    const [open, setOpen] = useState(0);
+
+    const navigate = useNavigate();
 
     const today = new Date();
     const startOfThisWeek = startOfWeek(today, { weekStartsOn: 1 });
@@ -117,7 +121,7 @@ const IP_OP_ReadioStastistics = () => {
             labels,
             datasets: [
                 {
-                    label: 'Total Radiology Test',
+                    label: 'Total General Bill',
                     data: totalTestData,
                     backgroundColor: [
                         '#FF6384', '#36A2EB', '#FFCE56',
@@ -133,21 +137,21 @@ const IP_OP_ReadioStastistics = () => {
             labels,
             datasets: [
                 {
-                    label: 'Total Radiology Test',
+                    label: 'Total General Bill',
                     data: totalTestData,
                     backgroundColor: 'rgba(75, 192, 192, 0.6)',
                     borderColor: 'rgba(75, 192, 192, 1)',
                     borderWidth: 1
                 },
                 {
-                    label: 'OP Test',
+                    label: 'OP Bills',
                     data: totalOPData,
                     backgroundColor: 'rgba(54, 162, 235, 0.6)',
                     borderColor: 'rgba(54, 162, 235, 1)',
                     borderWidth: 1
                 },
                 {
-                    label: 'IP Test',
+                    label: 'IP Bills',
                     data: totalIPData,
                     backgroundColor: 'rgba(255, 99, 132, 0.6)',
                     borderColor: 'rgba(255, 99, 132, 1)',
@@ -228,8 +232,24 @@ const IP_OP_ReadioStastistics = () => {
                 beginAtZero: true,
                 ticks: { font: { size: 10 } }
             }
+        },
+        onClick: (event, elements) => {
+
+            if (elements.length > 0) {
+                setOpen(1)
+                const index = elements[0].index;
+                const dateInfo = chartData.labels[index];
+                const datefrm = format(fromDate, 'yyyy-MM-dd')
+                const dateto = format(toDate, 'yyyy-MM-dd')
+
+                navigate(`/Home/GeneralBillingSectn/${datefrm}/${dateto}`, {
+                    state: { datefrm: datefrm, dateto: dateto }
+                });
+            }
         }
-    }), []);
+    }), [chartData, setOpen]);
+    // console.log(open);
+
 
     return (
         <Box sx={{ width: '100%', overflow: 'auto', p: 2 }}>
@@ -305,5 +325,5 @@ const IP_OP_ReadioStastistics = () => {
     );
 };
 
-export default memo(IP_OP_ReadioStastistics);
 
+export default memo(GeneralBilling) 

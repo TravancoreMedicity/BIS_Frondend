@@ -41,7 +41,7 @@ const labDetails = Array.from({ length: 180 }, (_, i) => {
     };
 });
 
-const IP_OP_ReadioStastistics = () => {
+const Pharmacy_Statistics = () => {
     const [fromDate, setFromDate] = useState('');
     const [toDate, setToDate] = useState('');
     const [chartData, setChartData] = useState(null);
@@ -117,7 +117,7 @@ const IP_OP_ReadioStastistics = () => {
             labels,
             datasets: [
                 {
-                    label: 'Total Radiology Test',
+                    label: 'Total Bill Count',
                     data: totalTestData,
                     backgroundColor: [
                         '#FF6384', '#36A2EB', '#FFCE56',
@@ -133,21 +133,21 @@ const IP_OP_ReadioStastistics = () => {
             labels,
             datasets: [
                 {
-                    label: 'Total Radiology Test',
+                    label: 'Total Bill Count',
                     data: totalTestData,
                     backgroundColor: 'rgba(75, 192, 192, 0.6)',
                     borderColor: 'rgba(75, 192, 192, 1)',
                     borderWidth: 1
                 },
                 {
-                    label: 'OP Test',
+                    label: 'OP Bill Count',
                     data: totalOPData,
                     backgroundColor: 'rgba(54, 162, 235, 0.6)',
                     borderColor: 'rgba(54, 162, 235, 1)',
                     borderWidth: 1
                 },
                 {
-                    label: 'IP Test',
+                    label: 'IP Bill Count',
                     data: totalIPData,
                     backgroundColor: 'rgba(255, 99, 132, 0.6)',
                     borderColor: 'rgba(255, 99, 132, 1)',
@@ -305,5 +305,4 @@ const IP_OP_ReadioStastistics = () => {
     );
 };
 
-export default memo(IP_OP_ReadioStastistics);
-
+export default memo(Pharmacy_Statistics) 

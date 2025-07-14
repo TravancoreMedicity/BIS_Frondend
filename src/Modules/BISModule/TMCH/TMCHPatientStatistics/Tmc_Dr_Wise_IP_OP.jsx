@@ -152,7 +152,7 @@ const Dr_Wise_IP_OP = () => {
             legend: { position: 'top' },
             datalabels: {
                 color: 'black',
-                font: { weight: 'bold', size: 10 },
+                font: { weight: 'bold', size: 11 },
                 formatter: (value, ctx) => {
                     const datasetLabel = ctx.dataset.label;
                     if (datasetLabel === 'Total OP') {
@@ -173,11 +173,16 @@ const Dr_Wise_IP_OP = () => {
         },
         scales: {
             x: {
-                display: false,
+                display: true,
                 stacked: true,
                 ticks: {
                     color: 'black',
-                    font: { weight: 'bold' }
+                    // font: { weight: 'bold' },
+                    callback: function (value, index) {
+                        const ip = chartData.datasets[0]?.data[index] || 0;
+                        const op = chartData.datasets[1]?.data[index] || 0;
+                        return ip + op; // show total count on x-axis
+                    }
                 }
             },
             y: {

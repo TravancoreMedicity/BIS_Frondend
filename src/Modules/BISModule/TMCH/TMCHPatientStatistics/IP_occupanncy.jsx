@@ -35,13 +35,13 @@ const labDetails = Array.from({ length: 180 }, (_, i) => {
     return {
         slno: i + 1,
         totalTest,
-        totalOP,
-        totalIP,
+        // totalOP,
+        // totalIP,
         testdate
     };
 });
 
-const IP_OP_ReadioStastistics = () => {
+const IP_occupanncy = () => {
     const [fromDate, setFromDate] = useState('');
     const [toDate, setToDate] = useState('');
     const [chartData, setChartData] = useState(null);
@@ -69,20 +69,20 @@ const IP_OP_ReadioStastistics = () => {
 
         let labels = [];
         let totalTestData = [];
-        let totalOPData = [];
-        let totalIPData = [];
+        // let totalOPData = [];
+        // let totalIPData = [];
 
         if (period === 4 || period === 5) {
             const monthMap = {};
-            filtered.map(({ testdate, totalTest, totalOP, totalIP }) => {
+            filtered.map(({ testdate, totalTest }) => {
                 const date = parseISO(testdate);
                 const key = format(date, 'yyyy-MM');
                 if (!monthMap[key]) {
                     monthMap[key] = { totalTest: 0, totalOP: 0, totalIP: 0 };
                 }
                 monthMap[key].totalTest += totalTest;
-                monthMap[key].totalOP += totalOP;
-                monthMap[key].totalIP += totalIP;
+                // monthMap[key].totalOP += totalOP;
+                // monthMap[key].totalIP += totalIP;
             });
 
             const sortedKeys = Object.keys(monthMap).sort();
@@ -92,32 +92,32 @@ const IP_OP_ReadioStastistics = () => {
             });
 
             totalTestData = sortedKeys.map(key => monthMap[key].totalTest);
-            totalOPData = sortedKeys.map(key => monthMap[key].totalOP);
-            totalIPData = sortedKeys.map(key => monthMap[key].totalIP);
+            // totalOPData = sortedKeys.map(key => monthMap[key].totalOP);
+            // totalIPData = sortedKeys.map(key => monthMap[key].totalIP);
 
         } else {
             const dateMap = {};
-            filtered.forEach(({ testdate, totalTest, totalOP, totalIP }) => {
+            filtered.map(({ testdate, totalTest }) => {
                 if (!dateMap[testdate]) {
-                    dateMap[testdate] = { totalTest: 0, totalOP: 0, totalIP: 0 };
+                    dateMap[testdate] = { totalTest: 0 };
                 }
                 dateMap[testdate].totalTest += totalTest;
-                dateMap[testdate].totalOP += totalOP;
-                dateMap[testdate].totalIP += totalIP;
+                // dateMap[testdate].totalOP += totalOP;
+                // dateMap[testdate].totalIP += totalIP;
             });
 
             const sortedDates = Object.keys(dateMap).sort((a, b) => new Date(a) - new Date(b));
             labels = sortedDates.map(date => formatLabel(date, period));
             totalTestData = sortedDates.map(date => dateMap[date].totalTest);
-            totalOPData = sortedDates.map(date => dateMap[date].totalOP);
-            totalIPData = sortedDates.map(date => dateMap[date].totalIP);
+            // totalOPData = sortedDates.map(date => dateMap[date].totalOP);
+            // totalIPData = sortedDates.map(date => dateMap[date].totalIP);
         }
 
         setPolarData({
             labels,
             datasets: [
                 {
-                    label: 'Total Radiology Test',
+                    label: 'Total IP Occupancy',
                     data: totalTestData,
                     backgroundColor: [
                         '#FF6384', '#36A2EB', '#FFCE56',
@@ -133,26 +133,26 @@ const IP_OP_ReadioStastistics = () => {
             labels,
             datasets: [
                 {
-                    label: 'Total Radiology Test',
+                    label: 'Total IP Occupancy',
                     data: totalTestData,
                     backgroundColor: 'rgba(75, 192, 192, 0.6)',
                     borderColor: 'rgba(75, 192, 192, 1)',
                     borderWidth: 1
                 },
-                {
-                    label: 'OP Test',
-                    data: totalOPData,
-                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1
-                },
-                {
-                    label: 'IP Test',
-                    data: totalIPData,
-                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    borderWidth: 1
-                }
+                // {
+                //     label: 'OP Test',
+                //     data: totalOPData,
+                //     backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                //     borderColor: 'rgba(54, 162, 235, 1)',
+                //     borderWidth: 1
+                // },
+                // {
+                //     label: 'IP Test',
+                //     data: totalIPData,
+                //     backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                //     borderColor: 'rgba(255, 99, 132, 1)',
+                //     borderWidth: 1
+                // }
             ]
         };
     }, []);
@@ -305,5 +305,5 @@ const IP_OP_ReadioStastistics = () => {
     );
 };
 
-export default memo(IP_OP_ReadioStastistics);
 
+export default memo(IP_occupanncy) 
