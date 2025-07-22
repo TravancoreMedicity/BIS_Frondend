@@ -57,7 +57,7 @@ const Tmch_Ip_Statistics = lazy(() => import("./Modules/BISModule/TMCH/TMCHIPSta
 const Tmch_Op_statistics = lazy(() => import("./Modules/BISModule/TMCH/TMCHOPStatistics/Tmch_Op_statistics.jsx"))
 const Tmch_Patient_Statiatics = lazy(() => import("./Modules/BISModule/TMCH/TMCHPatientStatistics/Tmch_Patient_Statiatics.jsx"))
 const GeneralBillingSectn = lazy(() => import("./Modules/BISModule/KMCH/GeneralBillingSectn.jsx"))
-
+const Inventory_matrix_main = lazy(() => import("./Modules/BISModule/KMCH/KMCH_InventoryMatrix/Inventory_matrix_main.jsx"))
 
 const routes = createBrowserRouter([
   {
@@ -262,6 +262,13 @@ const routes = createBrowserRouter([
             path: "GeneralBillingSectn/:date/:date", element:
               <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
                 < GeneralBillingSectn />
+              </Suspense>, errorElement: <ErrorElement />
+          },
+          {
+
+            path: "Inventory_matrix_main", element:
+              <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+                < Inventory_matrix_main />
               </Suspense>, errorElement: <ErrorElement />
           },
 
