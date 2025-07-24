@@ -17,7 +17,6 @@ const Inventory_matrix_main = () => {
             setHasActivated(true);
         }
     };
-
     const compArr = [
         { id: 1, comp: <CRS_Sales activeComp={activeComp} setActiveComp={handleSetActiveComp} /> },
         { id: 2, comp: <CRS_Common activeComp={activeComp} setActiveComp={handleSetActiveComp} /> },
@@ -25,15 +24,13 @@ const Inventory_matrix_main = () => {
         { id: 4, comp: <CRS_Dental activeComp={activeComp} setActiveComp={handleSetActiveComp} /> },
         { id: 5, comp: <ProjectStore activeComp={activeComp} setActiveComp={handleSetActiveComp} /> }
     ];
-
     return (
         <Box
             sx={{
                 p: 2,
-                maxHeight: 'calc(100vh - 100px)',
+                maxHeight: 'calc(100vh - 50px)',
                 overflowY: 'auto',
-                background: 'linear-gradient(to bottom, #f0f4f8, #fff)',
-                minHeight: 800,
+                minHeight: 805,
                 fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
             }}
         >
@@ -43,7 +40,7 @@ const Inventory_matrix_main = () => {
                     borderRadius: 3,
                     mb: 5,
                     borderBottom: 2,
-                    borderColor: '#e0d9d9ff'
+                    borderColor: '#cfc1dd'
                 }}
             >
                 <Typography
@@ -52,8 +49,8 @@ const Inventory_matrix_main = () => {
                         gap: 2
                     }}
                 >
-                    <Typography level="h5" sx={{ color: '#7d7575ff', letterSpacing: 2.1, fontWeight: 'bold' }}>INVENTORY FLOW</Typography>
-                    <Typography sx={{ mt: 0.5, fontFamily: "sans-serif", fontSize: 13 }}>
+                    <Typography level="h5" sx={{ color: '#7d7575ff', letterSpacing: 2.1, fontWeight: 'bold', color: "rgb(var( --font-darkGrey))" }}>INVENTORY FLOW</Typography>
+                    <Typography sx={{ mt: 0.5, fontFamily: "sans-serif", fontSize: 13, color: "rgb(var( --font-darkGrey))" }}>
                         ( Stock Value Update On: <b>15-07-2025 23:59:59</b> )
                     </Typography>
                 </Typography>
@@ -62,7 +59,6 @@ const Inventory_matrix_main = () => {
             <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "space-evenly" }}>
                 {compArr?.map((val) => {
                     const shouldShow = activeComp === 0 || activeComp === val.id;
-
                     return hasActivated ? (
                         <Slide
                             key={val.id}

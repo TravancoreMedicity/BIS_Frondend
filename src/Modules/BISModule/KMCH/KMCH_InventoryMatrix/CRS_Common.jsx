@@ -1,5 +1,5 @@
 import React, { memo, useCallback } from 'react';
-import { Box, Card, CardContent, Typography } from '@mui/joy';
+import { Box, Typography } from '@mui/joy';
 import BiotechIcon from '@mui/icons-material/Biotech';
 import SanitizerIcon from '@mui/icons-material/Sanitizer';
 import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
@@ -9,55 +9,11 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import InventoryIcon from '@mui/icons-material/Inventory2';
 import WarningIcon from '@mui/icons-material/WarningAmberRounded';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
-
-const NodeBox = ({ title, description, icon, color, onClick }) => (
-    <Box
-        onClick={onClick}
-        sx={{
-            cursor: 'pointer',
-            border: `2px solid ${color}`,
-            borderRadius: '16px',
-            p: 1,
-            width: 250,
-            background: `linear-gradient(135deg, ${color}11, #fff)`,
-            textAlign: 'center',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-            transition: '0.2s',
-            '&:hover': {
-                boxShadow: `0 0 0 2px ${color}`,
-                transform: 'scale(1.04)',
-            },
-        }}
-    >
-        <Box >
-            <Box sx={{ display: "flex", justifyContent: "center", gap: 1.5 }}>
-                <Typography sx={{ color: color, fontSize: 12 }}>{icon}</Typography>
-                <Typography level="title-md" fontWeight="lg" sx={{ fontSize: 12, mt: 0.6 }}>
-                    {title}
-                </Typography>
-            </Box>
-        </Box>
-        <Typography level="body-xs" sx={{ fontSize: 11, color: '#555' }}>
-            {description}
-        </Typography>
-    </Box>
-);
+import DetailCard from '../../BIS_CommoCode/DetailCard';
+import StyledBox from '../../BIS_CommoCode/StyledBox';
 
 const ConnectorLine = ({ height = 30, color = '#999' }) => (
     <Box sx={{ width: '4px', height, backgroundColor: color, borderRadius: 2, my: 1 }} />
-);
-
-const DetailCard = ({ title, mrp, pcost, icon, color }) => (
-    <Card variant="soft" sx={{ width: "100%", maxWidth: 300, p: 2, backgroundColor: '#F3F6F9', border: 1, borderColor: "#9ECAD6" }}>
-        <CardContent>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, gap: 1 }}>
-                {icon}
-                <Typography level="title-sm" fontWeight="lg">{title}</Typography>
-            </Box>
-            <Typography level="body-sm">MRP: <b style={{ color }}>{mrp.toLocaleString()}</b></Typography>
-            <Typography level="body-sm">Pcost: <b style={{ color }}>{pcost.toLocaleString()}</b></Typography>
-        </CardContent>
-    </Card>
 );
 
 const CRS_Common = ({ activeComp, setActiveComp }) => {
@@ -68,29 +24,14 @@ const CRS_Common = ({ activeComp, setActiveComp }) => {
 
     return (
         <Box sx={{ display: "flex", justifyContent: "space-between", }}>
-
             {/* LEFT COLUMN SLIDE-IN */}
-            {/* <Slide in={activeComp === 2} direction="left" timeout={600} mountOnEnter unmountOnExit> */}
             <Box sx={{
-                mt: 0, p: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: '100vh',
+                mt: 0, p: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: '80vh',
                 fontFamily: 'Segoe UI, sans-serif',
                 transition: 'transform 0.15s ease',
                 transform: activeComp === 2 ? 'translateX(-15px)' : 'translateX(0)'
             }}>
-                {/* <Box
-                sx={{
-                    mt: 0,
-                    p: 1,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    minHeight: '100vh',
-                    fontFamily: 'Segoe UI, sans-serif',
-                    transition: 'transform 0.5s ease',
-                    transform: activeComp === 2 ? 'translateX(-50px)' : 'translateX(0)'
-                }}
-            > */}
-                <NodeBox
+                <StyledBox
                     title="CRS Common"
                     description={
                         <>
@@ -115,11 +56,10 @@ const CRS_Common = ({ activeComp, setActiveComp }) => {
                         flexDirection: 'column',
                         alignItems: 'center',
                         gap: 3,
-                        backgroundColor: '#fafafa',
                         boxShadow: 'inset 0 0 8px rgba(0,0,0,0.03)',
                     }}
                 >
-                    <NodeBox
+                    <StyledBox
                         title="Biomedical Store"
                         description={
                             <>
@@ -132,7 +72,7 @@ const CRS_Common = ({ activeComp, setActiveComp }) => {
                         icon={<BiotechIcon />}
                         color="#00796b"
                     />
-                    <NodeBox
+                    <StyledBox
                         title="Central Store Consumable"
                         description={
                             <>
@@ -145,7 +85,7 @@ const CRS_Common = ({ activeComp, setActiveComp }) => {
                         icon={<SanitizerIcon />}
                         color="#00796b"
                     />
-                    <NodeBox
+                    <StyledBox
                         title="General Store"
                         description={
                             <>
@@ -160,23 +100,20 @@ const CRS_Common = ({ activeComp, setActiveComp }) => {
                     />
                 </Box>
                 <ConnectorLine color="#1565c0" />
-                <NodeBox
+                <StyledBox
                     title="User End"
                     description="Final Department"
                     icon={<PersonIcon />}
                     color="#6a1b9a"
                 />
             </Box>
-            {/* </Slide> */}
-
             {/* RIGHT PANEL SLIDE-IN */}
-
             <Box
                 sx={{
-                    // width: 1200,             // Always fixed width
                     flex: 1,
                     position: 'relative',
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+                    maxHeight: 'calc(100vh - 170px)',
                 }}
             >
                 <Box
@@ -189,14 +126,14 @@ const CRS_Common = ({ activeComp, setActiveComp }) => {
                         transform: activeComp === 2 ? 'translateX(0)' : 'translateX(100%)',
                         opacity: activeComp === 2 ? 1 : 0,
                         transition: 'transform 0.8s ease, opacity 0.8s ease',
-                        bgcolor: "#fdfcfc",
                         p: 2,
                         border: 1,
-                        borderColor: "#9ECAD6",
+                        borderColor: "#cfc1dd",
                         borderRadius: 4,
                         boxShadow: '0 6px 20px rgba(0,0,0,0.06)',
                         zIndex: 999,
-                        pointerEvents: activeComp === 2 ? 'auto' : 'none' // prevent click when hidden
+                        pointerEvents: activeComp === 2 ? 'auto' : 'none', // prevent click when hidden
+                        overflowY: 'auto'
                     }}
                 >
                     <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>

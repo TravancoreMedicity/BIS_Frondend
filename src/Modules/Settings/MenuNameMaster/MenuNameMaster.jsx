@@ -48,8 +48,8 @@ const MenuNameMaster = () => {
     });
 
 
-    console.log("getmodulelist", getmodulelist);
-    console.log("fetchMenus", fetchMenus);
+    // console.log("getmodulelist", getmodulelist);
+    // console.log("fetchMenus", fetchMenus);
 
     const handleChange = (e) => {
         setMenuNames({ ...MenuNames, [e.target.name]: sanitizeInput(e.target.value) })

@@ -101,7 +101,8 @@ const DrawerPage = ({ drawerWidth, handleDrawerClose }) => {
                 sx={{
                     fontSize: "12px",
                     fontWeight: 700,
-                    color: "rgba(var(--font-secondary-white))",
+                    // color: "rgba(var(--font-secondary-white))",
+                    color: "rgba(var(--bg-offwhite))",
                     ml: 2,
                     mt: 0,
                     mb: 0,
@@ -123,7 +124,8 @@ const DrawerPage = ({ drawerWidth, handleDrawerClose }) => {
                                     height={20}
                                     width={20}
                                     className={isSelected ? "bouncing-element" : ""}
-                                    color="rgba(var(--drawer-font-color))"
+                                    // color="rgba(var(--drawer-font-color))"
+                                    color="rgba(var(--bg-offwhite))"
                                 />
                             }
                         >
@@ -160,7 +162,11 @@ const DrawerPage = ({ drawerWidth, handleDrawerClose }) => {
                                         justifyContent: "center",
                                         transition: "transform 0.3s ease",
                                         transform: "translateX(0)",
-                                        color: "rgba(var(--font-secondary-white))"
+                                        // color: "rgba(var(--font-secondary-white))"
+                                        // color: "white"
+
+
+                                        color: "rgba(var(--bg-offwhite))"
                                     }}
                                 >
                                     {item.icon}
@@ -173,7 +179,8 @@ const DrawerPage = ({ drawerWidth, handleDrawerClose }) => {
                                         fontSize: "14px",
                                         fontWeight: 600,
                                         transition: "transform 0.3s ease",
-                                        transform: "translateX(0)"
+                                        transform: "translateX(0)",
+                                        color: "rgba(var(--bg-offwhite))"
                                     }}
                                 >
                                     {item.menu}
@@ -183,7 +190,7 @@ const DrawerPage = ({ drawerWidth, handleDrawerClose }) => {
                     );
                 })}
             </List>
-        </Box>
+        </Box >
     );
 
     return (
@@ -204,7 +211,7 @@ const DrawerPage = ({ drawerWidth, handleDrawerClose }) => {
                         boxSizing: "border-box",
                         width: drawerWidth,
                         transition: "width 0.5s",
-                        backgroundColor: "rgba(var(--bg-drawer))"
+                        backgroundColor: "rgba(var(--drawer_bg_clr))"
                     }
                 }}
                 onClose={handleDrawerClose}

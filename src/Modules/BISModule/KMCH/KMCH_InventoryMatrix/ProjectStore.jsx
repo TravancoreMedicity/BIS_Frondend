@@ -1,60 +1,16 @@
 import React, { memo, useCallback } from 'react';
-import { Box, Card, CardContent, Typography } from '@mui/joy';
+import { Box, Typography } from '@mui/joy';
 import PersonIcon from '@mui/icons-material/Person';
 import LocalMallIcon from '@mui/icons-material/LocalMall';
 import CancelIcon from '@mui/icons-material/Cancel';
 import InventoryIcon from '@mui/icons-material/Inventory2';
 import WarningIcon from '@mui/icons-material/WarningAmberRounded';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
-
-const NodeBox = ({ title, description, icon, color, onClick }) => (
-    <Box
-        onClick={onClick}
-        sx={{
-            cursor: 'pointer',
-            border: `2px solid ${color}`,
-            borderRadius: '16px',
-            p: 1,
-            width: 250,
-            background: `linear-gradient(135deg, ${color}11, #fff)`,
-            textAlign: 'center',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-            transition: '0.2s',
-            '&:hover': {
-                boxShadow: `0 0 0 2px ${color}`,
-                transform: 'scale(1.04)',
-            },
-        }}
-    >
-        <Box>
-            <Box sx={{ display: "flex", justifyContent: "center", gap: 1.5 }}>
-                <Typography sx={{ color: color, fontSize: 12 }}>{icon}</Typography>
-                <Typography level="title-md" fontWeight="lg" sx={{ fontSize: 12, mt: 0.6 }}>
-                    {title}
-                </Typography>
-            </Box>
-        </Box>
-        <Typography level="body-xs" sx={{ fontSize: 11, color: '#555' }}>
-            {description}
-        </Typography>
-    </Box>
-);
+import StyledBox from '../../BIS_CommoCode/StyledBox';
+import DetailCard from '../../BIS_CommoCode/DetailCard';
 
 const ConnectorLine = ({ height = 30, color = '#999' }) => (
     <Box sx={{ width: '4px', height, backgroundColor: color, borderRadius: 2, my: 1 }} />
-);
-
-const DetailCard = ({ title, mrp, pcost, icon, color }) => (
-    <Card variant="soft" sx={{ width: "100%", maxWidth: 300, p: 2, backgroundColor: '#F3F6F9', border: 1, borderColor: "#9ECAD6" }}>
-        <CardContent>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, gap: 1 }}>
-                {icon}
-                <Typography level="title-sm" fontWeight="lg">{title}</Typography>
-            </Box>
-            <Typography level="body-sm">MRP: <b style={{ color }}>{mrp.toLocaleString()}</b></Typography>
-            <Typography level="body-sm">Pcost: <b style={{ color }}>{pcost.toLocaleString()}</b></Typography>
-        </CardContent>
-    </Card>
 );
 
 const ProjectStore = ({ activeComp, setActiveComp }) => {
@@ -63,20 +19,21 @@ const ProjectStore = ({ activeComp, setActiveComp }) => {
     }, [setActiveComp]);
 
     return (
-        <Box sx={{ position: 'relative', display: "flex", gap: 2, minHeight: '100vh' }}>
+        <Box sx={{ position: 'relative', display: "flex", gap: 2, height: '80vh' }}>
             {/* Left Side */}
             <Box
                 sx={{
-                    mt: 0,
+                    width: 270,
                     p: 1,
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     fontFamily: 'Segoe UI, sans-serif',
+                    overflowY: 'auto',
                     zIndex: 1,
                 }}
             >
-                <NodeBox
+                <StyledBox
                     title="Project Store"
                     description={
                         <>
@@ -91,7 +48,7 @@ const ProjectStore = ({ activeComp, setActiveComp }) => {
                     onClick={handleProjectStoreClick}
                 />
                 <ConnectorLine color="#2e7d32" />
-                <NodeBox
+                <StyledBox
                     title="User End"
                     description="Final Location"
                     icon={<PersonIcon />}
@@ -106,19 +63,18 @@ const ProjectStore = ({ activeComp, setActiveComp }) => {
                     top: 0,
                     right: 0,
                     height: '100%',
-                    width: '100%',
-                    maxWidth: 'calc(100% - 270px)', // 270px = NodeBox width + padding
+                    width: 'calc(100% - 270px)',
                     transform: activeComp === 5 ? 'translateX(0)' : 'translateX(100%)',
                     opacity: activeComp === 5 ? 1 : 0,
                     transition: 'transform 0.6s ease, opacity 0.6s ease',
-                    bgcolor: "#fdfcfc",
                     p: 2,
                     border: 1,
-                    borderColor: "#9ECAD6",
+                    borderColor: "#cfc1dd",
                     borderRadius: 4,
                     boxShadow: '0 6px 20px rgba(0,0,0,0.06)',
                     zIndex: 10,
-                    pointerEvents: activeComp === 5 ? 'auto' : 'none'
+                    pointerEvents: activeComp === 5 ? 'auto' : 'none',
+                    overflowY: 'auto',
                 }}
             >
                 <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>

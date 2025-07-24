@@ -65,9 +65,8 @@ const LogoutMoidal = () => {
                 slots={{ root: Avatar, }}
                 slotProps={{ root: { variant: 'plain', } }}
             >
-                <PeopleTag style={{ color: 'rgba(var(--icon-primary))' }} />
+                <PeopleTag style={{ color: "#cfc1dd" }} />
             </MenuButton>
-
             <Menu
                 placement="bottom-start"
                 sx={{
