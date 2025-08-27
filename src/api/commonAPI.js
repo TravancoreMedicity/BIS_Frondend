@@ -894,11 +894,55 @@ export const GetTmcStoreMaster = async () => {
 };
 
 // export const getUserDrawer = async (loggedUser) => {
-//   const res = await axiosApi.get(`/userRegistration/getUserDrawer/${loggedUser}`,);
+//   // console.log("loggedUser", loggedUser);
+//   const res = await axiosApi.get(`/userRegistration/getUserDrawer/${loggedUser}`);
 //   const { success, data } = res.data;
+//   // console.log("success", success);
+
 //   if (success === 1) {
 //     return data ?? [];
 //   } else {
 //     return [];
 //   }
 // };
+
+
+// export const getUserDrawerfun = async loggedUser => {
+//   console.log("loggedUser", loggedUser);
+//   return await axiosApi.get(`/userRegistration/getUserDrawer/${loggedUser}`).then((res) => {
+//     const { success, data } = res.data;
+//     if (success === 1) {
+//       return data
+//     }
+//   });
+// };
+
+
+
+export const getUserDrawerfun = async loggedUser => {
+  return axiosApi.get(`/tmReport/getUserDrawer/${loggedUser}`).then(res => {
+    const { success, data } = res.data
+    if (success === 1) {
+      return data
+    }
+  })
+}
+
+export const getSubMenuNames = async () => {
+  return await axiosApi.get(`/bisSubMenuMaster/getdatas`).then((res) => {
+    const { success, data } = res.data;
+    if (success === 1) {
+      return data;
+    }
+  });
+};
+
+
+export const getgraphicalViewRights = async authNo => {
+  return axiosApi.get(`/bisGraphicalViewMast/fetchGraphicalviewRights/${authNo}`).then(res => {
+    const { success, data } = res.data
+    if (success === 2) {
+      return data
+    }
+  })
+}

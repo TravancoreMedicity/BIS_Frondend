@@ -15,6 +15,7 @@ import {
 } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import GraphicalRep from '../../BIS_CommoCode/GraphicalRep';
+import { useNavigate } from 'react-router-dom';
 
 ChartJS.register(
     CategoryScale, LinearScale, BarElement,
@@ -58,6 +59,8 @@ for (let dr_code = 1; dr_code <= 150; dr_code++) {
 }
 
 const Kmc_DrWise = () => {
+
+    const navigate = useNavigate();
     const now = new Date();
     const thisMonthStart = startOfMonth(now);
 
@@ -190,7 +193,28 @@ const Kmc_DrWise = () => {
                 borderRadius: 4,
                 borderSkipped: false
             }
+        },
+        onClick: (event, elements) => {
+            if (elements.length > 0) {
+                const index = elements[0].index;
+
+                // Get the corresponding doctor name
+                const doctorName = chartData.datasets[0].datalabels.formatter(null, { dataIndex: index });
+
+                // Find full doctor data (from original top 20 doctors)
+                const doctor = doctorWiseOp.find(doc => doc.dr_name === doctorName);
+
+                // console.log("doctor", doctor);
+
+                if (doctor) {
+                    const encodedName = encodeURIComponent(doctor.dr_name);
+                    navigate(`/Home/Kmc_dr_details/${doctor.dr_code}/${encodedName}`, {
+                        state: { doctor }
+                    });
+                }
+            }
         }
+
     };
 
     return (

@@ -184,7 +184,12 @@ const Kmc_OpDeptWise = () => {
                 const index = elements[0].index;
                 const deptName = chartData.labels[index];
                 const selected = departmentDetails.find(d => d.dept_name === deptName);
-                if (selected) navigate(`/Home/Kmc_dept_detailPage`);
+                if (selected) {
+                    const encodedName = encodeURIComponent(selected.dept_name);
+                    navigate(`/Home/Kmc_dept_detailPage/${selected.dept_id}/${encodedName}`, {
+                        state: { dept_name: selected.dept_name }
+                    });
+                }
             }
         }
     };

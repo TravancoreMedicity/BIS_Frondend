@@ -48,7 +48,7 @@ const TmcQuotationMian = lazy(() => import("./Modules/BISModule/BIS_Quotation/Tm
 const Tmc_Quotation_Statics = lazy(() => import("./Modules/BISModule/BIS_Quotation/OuotationSatistics/Tmc_Quotation_Statics.jsx"))
 const KmcSupplierWiseQtn = lazy(() => import("./Modules/BISModule/BIS_Quotation/SupplierWiseQtn/KmcSupplierWiseQtn.jsx"))
 const Kmch_Op_statistics = lazy(() => import("./Modules/BISModule/KMCH/KMCHOPStatistics/Kmch_Op_statistics.jsx"))
-const Kmc_dept_detailPage = lazy(() => import("./Modules/BISModule/KMCH/Kmc_dept_detailPage.jsx"))
+const Kmc_dept_detailPage = lazy(() => import("./Modules/BISModule/KMCH/KMCHOPStatistics/DepartmentDetails/Kmc_dept_detailPage.jsx"))
 const Kmch_Ip_Statistics = lazy(() => import("./Modules/BISModule/KMCH/KMCHIPStatistics/Kmch_Ip_Statistics.jsx"))
 const ViewAllMonthsInYear = lazy(() => import("./Modules/BISModule/KMCH/KMCHIPStatistics/ViewAllMonthsInYear.jsx"))
 const Kmch_Patient_Statiatics = lazy(() => import("./Modules/BISModule/KMCH/KMCHPatientStatistics/Kmch_Patient_Statiatics.jsx"))
@@ -58,6 +58,25 @@ const Tmch_Op_statistics = lazy(() => import("./Modules/BISModule/TMCH/TMCHOPSta
 const Tmch_Patient_Statiatics = lazy(() => import("./Modules/BISModule/TMCH/TMCHPatientStatistics/Tmch_Patient_Statiatics.jsx"))
 const GeneralBillingSectn = lazy(() => import("./Modules/BISModule/KMCH/GeneralBillingSectn.jsx"))
 const Inventory_matrix_main = lazy(() => import("./Modules/BISModule/KMCH/KMCH_InventoryMatrix/Inventory_matrix_main.jsx"))
+const TMCH_InventoryMatrix = lazy(() => import("./Modules/BISModule/TMCH/TMCH_InventoryMatrix/TMCH_InventoryMatrix.jsx"))
+const Kmch_billingInventory_main = lazy(() => import("./Modules/BISModule/KMCH/KMCHBillingStatistics/Kmch_billingInventory_main.jsx"))
+// const Kmc_dr_details = lazy(() => import("./Modules/BISModule/KMCH/KMCHOPStatistics/DepartmentDetails/Kmc_dept_detailPage.jsx"))
+const GraphicalViewMaster = lazy(() => import("./Modules/Settings/GraphicalViewMaster.jsx"))
+
+const OP_IP_Statistics = lazy(() => import("./Modules/BISModule/KMCH/KMCHPatientStatistics/OP_IP_Statistics.jsx"))
+const DeptWise_OP_IP = lazy(() => import("./Modules/BISModule/KMCH/KMCHPatientStatistics/DeptWise_OP_IP.jsx"))
+const Dr_Wise_IP_OP = lazy(() => import("./Modules/BISModule/KMCH/KMCHPatientStatistics/Dr_Wise_IP_OP.jsx"))
+const IP_OP_LabStatistics = lazy(() => import("./Modules/BISModule/KMCH/KMCHPatientStatistics/IP_OP_LabStatistics.jsx"))
+const IP_OP_ReadioStastistics = lazy(() => import("./Modules/BISModule/KMCH/KMCHPatientStatistics/IP_OP_ReadioStastistics.jsx"))
+const Pharmacy_Statistics = lazy(() => import("./Modules/BISModule/KMCH/KMCHPatientStatistics/Pharmacy_Statistics.jsx"))
+const IP_occupanncy = lazy(() => import("./Modules/BISModule/KMCH/KMCHPatientStatistics/IP_occupanncy.jsx"))
+const GeneralBilling = lazy(() => import("./Modules/BISModule/KMCH/KMCHPatientStatistics/GeneralBilling.jsx"))
+const SubMenuMaster = lazy(() => import("./Modules/Settings/SubMenuMaster/SubMenuMaster.jsx"))
+
+
+// OP_IP_Statistics, DeptWise_OP_IP, Dr_Wise_IP_OP, IP_OP_LabStatistics, IP_OP_ReadioStastistics, Pharmacy_Statistics, IP_occupanncy, GeneralBilling
+
+
 
 const routes = createBrowserRouter([
   {
@@ -209,7 +228,7 @@ const routes = createBrowserRouter([
               </Suspense>, errorElement: <ErrorElement />
           },
           {
-            path: "Kmc_dept_detailPage", element:
+            path: "Kmc_dept_detailPage/:deptId/:deptName", element:
               <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
                 < Kmc_dept_detailPage />
               </Suspense>, errorElement: <ErrorElement />
@@ -265,12 +284,86 @@ const routes = createBrowserRouter([
               </Suspense>, errorElement: <ErrorElement />
           },
           {
-
             path: "Inventory_matrix_main", element:
               <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
                 < Inventory_matrix_main />
               </Suspense>, errorElement: <ErrorElement />
           },
+          {
+            path: "TMCH_InventoryMatrix", element:
+              <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+                < TMCH_InventoryMatrix />
+              </Suspense>, errorElement: <ErrorElement />
+          },
+
+          {
+            path: "Kmch_billingInventory_main", element:
+              <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+                < Kmch_billingInventory_main />
+              </Suspense>, errorElement: <ErrorElement />
+          },
+
+
+          // {
+          //   path: "Kmc_dr_details/:drslno/:dr_name", element:
+          //     <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+          //       < Kmc_dr_details />
+          //     </Suspense>, errorElement: <ErrorElement />
+          // },
+
+          {
+            path: "OP_IP_Statistics", element:
+              <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+                < OP_IP_Statistics />
+              </Suspense>, errorElement: <ErrorElement />
+          },
+          {
+            path: "DeptWise_OP_IP", element:
+              <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+                < DeptWise_OP_IP />
+              </Suspense>, errorElement: <ErrorElement />
+          },
+          {
+            path: "Dr_Wise_IP_OP", element:
+              <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+                < Dr_Wise_IP_OP />
+              </Suspense>, errorElement: <ErrorElement />
+          },
+          {
+            path: "IP_OP_LabStatistics", element:
+              <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+                < IP_OP_LabStatistics />
+              </Suspense>, errorElement: <ErrorElement />
+          },
+          {
+            path: "IP_OP_ReadioStastistics", element:
+              <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+                < IP_OP_ReadioStastistics />
+              </Suspense>, errorElement: <ErrorElement />
+          },
+          {
+            path: "Pharmacy_Statistics", element:
+              <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+                < Pharmacy_Statistics />
+              </Suspense>, errorElement: <ErrorElement />
+          },
+          {
+            path: "IP_occupanncy", element:
+              <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+                < IP_occupanncy />
+              </Suspense>, errorElement: <ErrorElement />
+          },
+          {
+            path: "GeneralBilling", element:
+              <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+                < GeneralBilling />
+              </Suspense>, errorElement: <ErrorElement />
+          },
+
+
+          // OP_IP_Statistics, DeptWise_OP_IP, Dr_Wise_IP_OP, IP_OP_LabStatistics, IP_OP_ReadioStastistics, Pharmacy_Statistics, IP_occupanncy, GeneralBilling
+
+
 
           { path: "UserManagement", element: <UserManagement />, errorElement: <ErrorElement /> },
           { path: "UserTypeMaster", element: <UserTypeMaster />, errorElement: <ErrorElement /> },
@@ -282,6 +375,8 @@ const routes = createBrowserRouter([
           { path: "MedStore", element: <MedStore />, errorElement: <ErrorElement /> },
           { path: "MedDescription", element: <MedDescription />, errorElement: <ErrorElement /> },
           { path: "TmcStoreMaster", element: <TmcStoreMaster />, errorElement: <ErrorElement /> },
+          { path: "GraphicalViewMaster", element: <GraphicalViewMaster />, errorElement: <ErrorElement /> },
+          { path: "SubMenuMaster", element: <SubMenuMaster />, errorElement: <ErrorElement /> },
         ],
       },
       { path: "/Color", element: <Colors /> },

@@ -13,6 +13,7 @@ import {
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { useNavigate } from 'react-router-dom';
 import GraphicalRep from '../../BIS_CommoCode/GraphicalRep';
+import CustomBackDrop from '../../../../Components/CustomBackDrop';
 
 ChartJS.register(
     CategoryScale,
@@ -58,6 +59,7 @@ const Kmc_OpDeptWise = () => {
     const [toDate, setToDate] = useState(format(now, 'yyyy-MM-dd'));
     const [chartData, setChartData] = useState({ labels: [], datasets: [] });
     const [polarData, setPolarData] = useState({ labels: [], datasets: [] });
+    const [open, setOpen] = useState(false);
     const navigate = useNavigate();
 
     const startOfThisWeek = startOfWeek(now, { weekStartsOn: 1 });
@@ -144,8 +146,8 @@ const Kmc_OpDeptWise = () => {
         plugins: {
             legend: { position: 'top' },
             datalabels: {
-                color: 'black',
-                font: { weight: 'bold', size: 10 },
+                color: '#273f6bff',
+                font: { weight: 'bold', size: 12.3 },
                 formatter: (value, ctx) => {
                     const datasetLabel = ctx.dataset.label;
                     if (datasetLabel === 'Follow-up') return ctx.chart.data.labels[ctx.dataIndex];
@@ -170,7 +172,7 @@ const Kmc_OpDeptWise = () => {
                     callback: function (value, index) {
                         return chartData.totals ? chartData.totals[index] : '';
                     },
-                    color: 'black',
+                    color: '#686D76',
                     font: { weight: 'bold' }
                 }
             },
@@ -184,14 +186,24 @@ const Kmc_OpDeptWise = () => {
                 const index = elements[0].index;
                 const deptName = chartData.labels[index];
                 const selected = departmentDetails.find(d => d.dept_name === deptName);
-                if (selected) navigate(`/Home/Kmc_dept_detailPage`);
+                if (selected) {
+                    const encodedName = encodeURIComponent(selected.dept_name);
+                    setOpen(true);
+                    setTimeout(() => {
+                        setOpen(false);
+                        //   navigate("/Home/Dashboard", { replace: true });
+                        navigate(`/Home/Kmc_dept_detailPage/${selected.dept_id}/${encodedName}`, {
+                            state: { dept_name: selected.dept_name }
+                        });
+                    }, 2000);
+                }
             }
         }
     };
 
     return (
-
         <Box sx={{ width: '100%', overflow: 'auto' }}>
+            <CustomBackDrop open={open} setOpen={setOpen} />
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
                 <Box sx={{ flexWrap: "wrap", mt: 0.5, flex: 1 }}>
                     <ButtonGroup aria-label="date range selector" sx={{
@@ -268,6 +280,7 @@ const Kmc_OpDeptWise = () => {
                     </Box>
                 )}
             </Box>
+            {/* </CustomBackDrop > */}
         </Box>
     );
 };

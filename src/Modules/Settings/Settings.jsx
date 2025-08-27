@@ -25,7 +25,7 @@ const Settings = () => {
 
     const menuName = [
         { menuSlno: 1, menuName: 'User Management', menuCodeName: 'UserManagement' },
-        { menuSlno: 12, menuName: 'user Type Master', menuCodeName: 'UserTypeMaster' },
+        { menuSlno: 12, menuName: 'User Type Master', menuCodeName: 'UserTypeMaster' },
         { menuSlno: 16, menuName: 'Module Name Master', menuCodeName: 'ModuleNameMaster' },
         { menuSlno: 15, menuName: 'Menu Name Master', menuCodeName: 'MenuNameMaster' },
         { menuSlno: 14, menuName: 'Module Group Master', menuCodeName: 'ModuleGroupMaster' },
@@ -34,6 +34,8 @@ const Settings = () => {
         // { menuSlno: 20, menuName: 'Med Store', menuCodeName: 'MedStore' },
         // { menuSlno: 21, menuName: 'Med Description', menuCodeName: 'MedDescription' },
         { menuSlno: 22, menuName: 'Tmc Store Master', menuCodeName: 'TmcStoreMaster' },
+        { menuSlno: 35, menuName: 'Sub Menu Master', menuCodeName: 'SubMenuMaster' },
+        { menuSlno: 25, menuName: 'Graphical View Master', menuCodeName: 'GraphicalViewMaster' },
     ]
 
     const employeemenu = menuName?.filter(menu =>

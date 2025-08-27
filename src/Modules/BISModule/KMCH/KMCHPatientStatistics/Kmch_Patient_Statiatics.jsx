@@ -70,7 +70,6 @@ const Kmch_Patient_Statiatics = () => {
             : [],
     };
 
-
     return (
         <Box
             sx={{
@@ -140,6 +139,7 @@ const Kmch_Patient_Statiatics = () => {
                     <IP_OP_LabStatistics Displaystyle={1} fromDate={dept_all_fromDate} setFromDate={setdept_all_FromDate} toDate={dept_all_toDate} setToDate={setdept_all_ToDate} />
                 </DashboardCard>
             </Box>
+
             <Box
                 sx={{
                     display: "flex",
@@ -154,6 +154,7 @@ const Kmch_Patient_Statiatics = () => {
                     <IP_OP_ReadioStastistics Displaystyle={1} fromDate={dept_all_fromDate} setFromDate={setdept_all_FromDate} toDate={dept_all_toDate} setToDate={setdept_all_ToDate} />
                 </DashboardCard>
             </Box>
+
             <Box
                 sx={{
                     display: "flex",
@@ -168,6 +169,7 @@ const Kmch_Patient_Statiatics = () => {
                     <Pharmacy_Statistics Displaystyle={1} fromDate={dept_all_fromDate} setFromDate={setdept_all_FromDate} toDate={dept_all_toDate} setToDate={setdept_all_ToDate} />
                 </DashboardCard>
             </Box>
+
             <Box
                 sx={{
                     display: "flex",

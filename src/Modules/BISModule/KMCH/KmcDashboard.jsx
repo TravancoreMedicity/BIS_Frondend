@@ -4,9 +4,18 @@ import { useQuery } from '@tanstack/react-query';
 import { format } from "date-fns";
 import OverallSalesProgress from "../BIS_CommoCode/SalesProgress/OverallSalesProgress";
 import KMCHeader from "../BIS_CommoCode/KMCHeader";
-import { getKmcdischargeDetails, getKmcIpDetails, getKmclabDetails, getkmcOpDetails, getKmcpharmacyDetails, getKmcradiologyDetails } from "../../../api/commonAPI";
-
+import { getgraphicalViewRights, getKmcdischargeDetails, getKmcIpDetails, getKmclabDetails, getkmcOpDetails, getKmcpharmacyDetails, getKmcradiologyDetails } from "../../../api/commonAPI";
 const KmcDashboard = () => {
+
+    const authNo = atob(JSON.parse(localStorage.getItem("app_auth"))?.authNo);
+
+    // fetch user allowed menu items
+    const { data: graphicalViewRights = [] } = useQuery({
+        queryKey: ["graphicalViewRight", authNo],
+        queryFn: () => getgraphicalViewRights(authNo),
+        enabled: !!authNo,
+        staleTime: Infinity,
+    });
 
     const [fromDate, setFromDate] = useState(format(new Date(), "yyyy-MM-dd"));
     const [toDate, setToDate] = useState(format(new Date(), "yyyy-MM-dd"));
@@ -302,75 +311,120 @@ const KmcDashboard = () => {
             ]
             : [],
     };
+    //graph component arr
+    const dashboardCards = [
+        {
+            title: "Out Patient Count",
+            Graphicaldata: data,
+            Displaystyle: 1,
+            fromDate,
+            setFromDate,
+            toDate,
+            setToDate,
+            view_sub_menu_slno: 7
+        },
+        {
+            title: "In Patient Count",
+            Graphicaldata: InpatientData,
+            Displaystyle: 2,
+            fromDate: ipfromDate,
+            setFromDate: setIpFromDate,
+            toDate: iptoDate,
+            setToDate: setIpToDate,
+            view_sub_menu_slno: 8
+        },
+        {
+            title: "Pharmacy Sales",
+            Graphicaldata: pharmacySales,
+            Displaystyle: 3,
+            fromDate: phfromDate,
+            setFromDate: setPhFromDate,
+            toDate: phtoDate,
+            setToDate: setPhToDate,
+            view_sub_menu_slno: 9
+        },
+        {
+            title: "Discharge",
+            Graphicaldata: dischargeDatas,
+            Displaystyle: 1,
+            fromDate: dcfromDate,
+            setFromDate: setdcFromDate,
+            toDate: dctoDate,
+            setToDate: setdcToDate,
+            view_sub_menu_slno: 10
+        },
+        {
+            title: "Laborotary",
+            Graphicaldata: labDatas,
+            Displaystyle: 2,
+            fromDate: labfromDate,
+            setFromDate: setlabFromDate,
+            toDate: labtoDate,
+            setToDate: setlabToDate,
+            view_sub_menu_slno: 11
+        },
+        {
+            title: "Radiology",
+            Graphicaldata: radiologyDatas,
+            Displaystyle: 3,
+            fromDate: radfromDate,
+            setFromDate: setradFromDate,
+            toDate: radtoDate,
+            setToDate: setradToDate,
+            view_sub_menu_slno: 12
+        },
+    ];
+
+    const allowedSubMenus = graphicalViewRights.map((item) => item.view_sub_menu_slno);
+
+    // ✅ Filter dashboardCards based on allowed submenus
+    const filteredCards = dashboardCards.filter((card) =>
+        allowedSubMenus.includes(card.view_sub_menu_slno)
+    );
 
     return (
         <Box
             sx={{
+                flex: 1,
                 width: "100%",
                 height: { xl: 900, sm: 1200 },
                 overflow: "auto",
             }}
         >
             <KMCHeader />
-            {/* Row 1 */}
+
             <Box
                 sx={{
-                    display: "flex",
-                    flexDirection: { xs: "column", md: "row" },
+                    display: "grid",
                     gap: 2,
                     px: 2,
                     mt: 1,
-                    width: "100%"
+                    gridTemplateColumns: {
+                        xs: "repeat(2, 1fr)",
+                        sm: "repeat(2, 1fr)",
+                        md: "repeat(2, 1fr)",
+                    },
                 }}
             >
-                <DashboardCard title="Out Patient Count">
-                    <OverallSalesProgress Graphicaldata={data} Displaystyle={1} fromDate={fromDate} setFromDate={setFromDate} toDate={toDate} setToDate={setToDate} />
-                </DashboardCard>
-                <DashboardCard title="In Patient Count">
-                    <OverallSalesProgress Graphicaldata={InpatientData} Displaystyle={2}
-                        fromDate={ipfromDate} setFromDate={setIpFromDate} toDate={iptoDate} setToDate={setIpToDate}
-                    />
-                </DashboardCard>
+                {filteredCards.map((card, idx) => (
+                    <DashboardCard
+                        key={idx}
+                        title={`${card.title}`} // 👈 show submenu ID too if you want
+                    >
+                        <OverallSalesProgress
+                            Graphicaldata={card.Graphicaldata}
+                            Displaystyle={card.Displaystyle}
+                            fromDate={card.fromDate}
+                            setFromDate={card.setFromDate}
+                            toDate={card.toDate}
+                            setToDate={card.setToDate}
+                        />
+                    </DashboardCard>
+                ))}
             </Box>
-
-            {/* Row 2 */}
-            <Box
-                sx={{
-                    display: "flex",
-                    flexDirection: { xs: "column", md: "row" },
-                    gap: 2,
-                    px: 2,
-                    mt: 1,
-                }}
-            >
-                <DashboardCard title="Pharmacy Sales">
-                    <OverallSalesProgress Graphicaldata={pharmacySales} Displaystyle={3} fromDate={phfromDate} setFromDate={setPhFromDate} toDate={phtoDate} setToDate={setPhToDate} />
-                </DashboardCard>
-                <DashboardCard title="Discharge">
-                    <OverallSalesProgress Graphicaldata={dischargeDatas} Displaystyle={1} fromDate={dcfromDate} setFromDate={setdcFromDate} toDate={dctoDate} setToDate={setdcToDate} />
-                </DashboardCard>
-            </Box>
-
-            {/* Row 3 */}
-            <Box
-                sx={{
-                    display: "flex",
-                    flexDirection: { xs: "column", md: "row" },
-                    gap: 2,
-                    px: 2,
-                    mt: 1,
-                    width: { sm: '100%', xl: "100%" },
-                }}
-            >
-                <DashboardCard title="Laborotary">
-                    <OverallSalesProgress Graphicaldata={labDatas} Displaystyle={2} fromDate={labfromDate} setFromDate={setlabFromDate} toDate={labtoDate} setToDate={setlabToDate} />
-                </DashboardCard>
-                <DashboardCard title="Radiology">
-                    <OverallSalesProgress Graphicaldata={radiologyDatas} Displaystyle={3} fromDate={radfromDate} setFromDate={setradFromDate} toDate={radtoDate} setToDate={setradToDate} />
-                </DashboardCard>
-            </Box>
-
         </Box>
+
+
     );
 };
 
@@ -401,5 +455,104 @@ const DashboardCard = ({ title, children }) => (
 );
 
 export default memo(KmcDashboard);
+
+//     return (
+//         <Box
+//             sx={{
+//                 width: "100%",
+//                 height: { xl: 900, sm: 1200 },
+//                 overflow: "auto",
+//             }}
+//         >
+//             <KMCHeader />
+//             {/* Row 1 */}
+//             <Box
+//                 sx={{
+//                     display: "flex",
+//                     flexDirection: { xs: "column", md: "row" },
+//                     gap: 2,
+//                     px: 2,
+//                     mt: 1,
+//                     width: "100%"
+//                 }}
+//             >
+//                 <DashboardCard title="Out Patient Count">
+//                     <OverallSalesProgress Graphicaldata={data} Displaystyle={1} fromDate={fromDate} setFromDate={setFromDate} toDate={toDate} setToDate={setToDate} />
+//                 </DashboardCard>
+//                 <DashboardCard title="In Patient Count">
+//                     <OverallSalesProgress Graphicaldata={InpatientData} Displaystyle={2}
+//                         fromDate={ipfromDate} setFromDate={setIpFromDate} toDate={iptoDate} setToDate={setIpToDate}
+//                     />
+//                 </DashboardCard>
+//             </Box>
+
+//             {/* Row 2 */}
+//             <Box
+//                 sx={{
+//                     display: "flex",
+//                     flexDirection: { xs: "column", md: "row" },
+//                     gap: 2,
+//                     px: 2,
+//                     mt: 1,
+//                 }}
+//             >
+//                 <DashboardCard title="Pharmacy Sales">
+//                     <OverallSalesProgress Graphicaldata={pharmacySales} Displaystyle={3} fromDate={phfromDate} setFromDate={setPhFromDate} toDate={phtoDate} setToDate={setPhToDate} />
+//                 </DashboardCard>
+//                 <DashboardCard title="Discharge">
+//                     <OverallSalesProgress Graphicaldata={dischargeDatas} Displaystyle={1} fromDate={dcfromDate} setFromDate={setdcFromDate} toDate={dctoDate} setToDate={setdcToDate} />
+//                 </DashboardCard>
+//             </Box>
+
+//             {/* Row 3 */}
+//             <Box
+//                 sx={{
+//                     display: "flex",
+//                     flexDirection: { xs: "column", md: "row" },
+//                     gap: 2,
+//                     px: 2,
+//                     mt: 1,
+//                     width: { sm: '100%', xl: "100%" },
+//                 }}
+//             >
+//                 <DashboardCard title="Laborotary">
+//                     <OverallSalesProgress Graphicaldata={labDatas} Displaystyle={2} fromDate={labfromDate} setFromDate={setlabFromDate} toDate={labtoDate} setToDate={setlabToDate} />
+//                 </DashboardCard>
+//                 <DashboardCard title="Radiology">
+//                     <OverallSalesProgress Graphicaldata={radiologyDatas} Displaystyle={3} fromDate={radfromDate} setFromDate={setradFromDate} toDate={radtoDate} setToDate={setradToDate} />
+//                 </DashboardCard>
+//             </Box>
+
+//         </Box>
+//     );
+// };
+
+// // Reusable card component
+// const DashboardCard = ({ title, children }) => (
+//     <Box
+//         sx={{
+//             flex: 1,
+//             border: 1,
+//             borderColor: "#d2d2cf",
+//             width: " 100%",
+//             p: 1,
+//             overflowX: "scroll"
+//         }}
+//     >
+//         <Typography
+//             sx={{
+//                 textAlign: "center",
+//                 fontSize: 20,
+//                 color: 'rgba(var(--font-light))',
+//                 mb: 1,
+//             }}
+//         >
+//             {title}
+//         </Typography>
+//         {children}
+//     </Box>
+// );
+
+// export default memo(KmcDashboard);
 
 

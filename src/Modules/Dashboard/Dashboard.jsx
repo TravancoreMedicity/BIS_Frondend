@@ -2,11 +2,21 @@ import React, { memo, useMemo, useState } from "react";
 import { Box, Typography } from "@mui/joy";
 import CommonHeader from "../BISModule/BIS_CommoCode/CommonHeader";
 import OverallSalesProgress from "../BISModule/BIS_CommoCode/SalesProgress/OverallSalesProgress";
-import { getIpDetails, getOpDetails, getpharmacyDetails, getdischargeDetails, getlabDetails, getradiologyDetails } from "../../api/commonAPI";
+import { getIpDetails, getOpDetails, getpharmacyDetails, getdischargeDetails, getlabDetails, getradiologyDetails, getgraphicalViewRights } from "../../api/commonAPI";
 import { useQuery } from '@tanstack/react-query';
 import { format } from "date-fns";
 
 const Dashboard = () => {
+
+  const authNo = atob(JSON.parse(localStorage.getItem("app_auth"))?.authNo);
+
+  // fetch user allowed menu items
+  const { data: graphicalViewRights = [] } = useQuery({
+    queryKey: ["graphicalViewRight", authNo],
+    queryFn: () => getgraphicalViewRights(authNo),
+    enabled: !!authNo,
+    staleTime: Infinity,
+  });
 
   const [fromDate, setFromDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [toDate, setToDate] = useState(format(new Date(), "yyyy-MM-dd"));
@@ -303,74 +313,117 @@ const Dashboard = () => {
       : [],
   };
 
+  //graph component arr
+  const dashboardCards = [
+    {
+      title: "Out Patient Count",
+      Graphicaldata: data,
+      Displaystyle: 1,
+      fromDate,
+      setFromDate,
+      toDate,
+      setToDate,
+      view_sub_menu_slno: 1
+    },
+    {
+      title: "In Patient Count",
+      Graphicaldata: InpatientData,
+      Displaystyle: 2,
+      fromDate: ipfromDate,
+      setFromDate: setIpFromDate,
+      toDate: iptoDate,
+      setToDate: setIpToDate,
+      view_sub_menu_slno: 2
+    },
+    {
+      title: "Pharmacy Sales",
+      Graphicaldata: pharmacySales,
+      Displaystyle: 3,
+      fromDate: phfromDate,
+      setFromDate: setPhFromDate,
+      toDate: phtoDate,
+      setToDate: setPhToDate,
+      view_sub_menu_slno: 3
+    },
+    {
+      title: "Discharge",
+      Graphicaldata: dischargeDatas,
+      Displaystyle: 1,
+      fromDate: dcfromDate,
+      setFromDate: setdcFromDate,
+      toDate: dctoDate,
+      setToDate: setdcToDate,
+      view_sub_menu_slno: 4
+    },
+    {
+      title: "Laborotary",
+      Graphicaldata: labDatas,
+      Displaystyle: 2,
+      fromDate: labfromDate,
+      setFromDate: setlabFromDate,
+      toDate: labtoDate,
+      setToDate: setlabToDate,
+      view_sub_menu_slno: 5
+    },
+    {
+      title: "Radiology",
+      Graphicaldata: radiologyDatas,
+      Displaystyle: 3,
+      fromDate: radfromDate,
+      setFromDate: setradFromDate,
+      toDate: radtoDate,
+      setToDate: setradToDate,
+      view_sub_menu_slno: 6
+    },
+  ];
+
+  const allowedSubMenus = graphicalViewRights.map((item) => item.view_sub_menu_slno);
+
+  // ✅ Filter dashboardCards based on allowed submenus
+  const filteredCards = dashboardCards.filter((card) =>
+    allowedSubMenus.includes(card.view_sub_menu_slno)
+  );
+
   return (
     <Box
       sx={{
+        flex: 1,
         width: "100%",
         height: { xl: 900, sm: 1200 },
         overflow: "auto",
       }}
     >
       <CommonHeader />
-      {/* Row 1 */}
+
       <Box
         sx={{
           display: "flex",
-          flexDirection: { xs: "column", md: "row" },
           gap: 2,
           px: 2,
           mt: 1,
-          width: "100%"
+          flexWrap: "wrap", // ✅ allow wrapping
         }}
       >
-        <DashboardCard title="Out Patient Count">
-          <OverallSalesProgress Graphicaldata={data} Displaystyle={1} fromDate={fromDate} setFromDate={setFromDate} toDate={toDate} setToDate={setToDate} />
-        </DashboardCard>
-        <DashboardCard title="In Patient Count">
-          <OverallSalesProgress Graphicaldata={InpatientData} Displaystyle={2}
-            fromDate={ipfromDate} setFromDate={setIpFromDate} toDate={iptoDate} setToDate={setIpToDate}
-          />
-        </DashboardCard>
+        {filteredCards.map((card, idx) => (
+          <DashboardCard
+            key={idx}
+            title={`${card.title}`}
+          >
+            <OverallSalesProgress
+              Graphicaldata={card.Graphicaldata}
+              Displaystyle={card.Displaystyle}
+              fromDate={card.fromDate}
+              setFromDate={card.setFromDate}
+              toDate={card.toDate}
+              setToDate={card.setToDate}
+            />
+          </DashboardCard>
+        ))}
       </Box>
-
-      {/* Row 2 */}
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: { xs: "column", md: "row" },
-          gap: 2,
-          px: 2,
-          mt: 1,
-        }}
-      >
-        <DashboardCard title="Pharmacy Sales">
-          <OverallSalesProgress Graphicaldata={pharmacySales} Displaystyle={3} fromDate={phfromDate} setFromDate={setPhFromDate} toDate={phtoDate} setToDate={setPhToDate} />
-        </DashboardCard>
-        <DashboardCard title="Discharge">
-          <OverallSalesProgress Graphicaldata={dischargeDatas} Displaystyle={1} fromDate={dcfromDate} setFromDate={setdcFromDate} toDate={dctoDate} setToDate={setdcToDate} />
-        </DashboardCard>
-      </Box>
-
-      {/* Row 3 */}
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: { xs: "column", md: "row" },
-          gap: 2,
-          px: 2,
-          mt: 1,
-          width: { sm: '100%', xl: "100%" },
-        }}
-      >
-        <DashboardCard title="Laborotary">
-          <OverallSalesProgress Graphicaldata={labDatas} Displaystyle={2} fromDate={labfromDate} setFromDate={setlabFromDate} toDate={labtoDate} setToDate={setlabToDate} />
-        </DashboardCard>
-        <DashboardCard title="Radiology">
-          <OverallSalesProgress Graphicaldata={radiologyDatas} Displaystyle={3} fromDate={radfromDate} setFromDate={setradFromDate} toDate={radtoDate} setToDate={setradToDate} />
-        </DashboardCard>
-      </Box>
-
     </Box>
+
+
+
   );
 };
 
@@ -378,19 +431,19 @@ const Dashboard = () => {
 const DashboardCard = ({ title, children }) => (
   <Box
     sx={{
-      flex: 1,
+      flex: "1 1 calc(50% - 16px)", // 👈 take ~50% width with gap
+      minWidth: "300px",             // 👈 don’t shrink below
       border: 1,
       borderColor: "#d2d2cf",
-      width: " 100%",
       p: 1,
-      overflowX: "scroll"
+      overflowX: "auto",
     }}
   >
     <Typography
       sx={{
         textAlign: "center",
         fontSize: 20,
-        color: 'rgba(var(--font-light))',
+        color: "rgba(var(--font-light))",
         mb: 1,
       }}
     >
@@ -401,4 +454,132 @@ const DashboardCard = ({ title, children }) => (
 );
 
 export default memo(Dashboard);
+
+
+
+
+
+
+
+
+// <Box
+//   sx={{
+//     flex: 1,
+//     width: "100%",
+//     height: { xl: 900, sm: 1200 },
+//     overflow: "auto",
+//   }}
+// >
+//   <CommonHeader />
+
+//   <Box
+//     sx={{
+//       display: "grid",
+//       gap: 2,
+//       px: 2,
+//       mt: 1,
+//       gridTemplateColumns: {
+//         xs: "repeat(2, 1fr)", // 👈 mobile: 2 per row
+//         sm: "repeat(2, 1fr)", // 👈 tablet: still 2 per row
+//         md: "repeat(2, 1fr)", // 👈 desktop: still 2 per row
+//       },
+//     }}
+//   >
+//     {dashboardCards.map((card, idx) => (
+//       <DashboardCard key={idx} title={card.title}>
+//         <OverallSalesProgress
+//           Graphicaldata={card.Graphicaldata}
+//           Displaystyle={card.Displaystyle}
+//           fromDate={card.fromDate}
+//           setFromDate={card.setFromDate}
+//           toDate={card.toDate}
+//           setToDate={card.setToDate}
+//         />
+//       </DashboardCard>
+//     ))}
+//   </Box>
+// </Box>
+
+
+
+
+
+
+
+// <Box
+//   sx={{
+//     width: "100%",
+//     height: { xl: 900, sm: 1200 },
+//     overflow: "auto",
+//   }}
+// >
+//   <CommonHeader />
+//   {/* Row 1 */}
+//   <Box
+//     sx={{
+//       display: "flex",
+//       flexDirection: { xs: "column", md: "row" },
+//       gap: 2,
+//       px: 2,
+//       mt: 1,
+//       width: "100%"
+//     }}
+//   >
+//     <DashboardCard title="Out Patient Count">
+//       <OverallSalesProgress Graphicaldata={data} Displaystyle={1} fromDate={fromDate} setFromDate={setFromDate} toDate={toDate} setToDate={setToDate} />
+//     </DashboardCard>
+//     <DashboardCard title="In Patient Count">
+//       <OverallSalesProgress Graphicaldata={InpatientData} Displaystyle={2}
+//         fromDate={ipfromDate} setFromDate={setIpFromDate} toDate={iptoDate} setToDate={setIpToDate}
+//       />
+//     </DashboardCard>
+//   </Box>
+
+//   {/* Row 2 */}
+//   <Box
+//     sx={{
+//       display: "flex",
+//       flexDirection: { xs: "column", md: "row" },
+//       gap: 2,
+//       px: 2,
+//       mt: 1,
+//     }}
+//   >
+//     <DashboardCard title="Pharmacy Sales">
+//       <OverallSalesProgress Graphicaldata={pharmacySales} Displaystyle={3} fromDate={phfromDate} setFromDate={setPhFromDate} toDate={phtoDate} setToDate={setPhToDate} />
+//     </DashboardCard>
+//     <DashboardCard title="Discharge">
+//       <OverallSalesProgress Graphicaldata={dischargeDatas} Displaystyle={1} fromDate={dcfromDate} setFromDate={setdcFromDate} toDate={dctoDate} setToDate={setdcToDate} />
+//     </DashboardCard>
+//   </Box>
+
+//   {/* Row 3 */}
+//   <Box
+//     sx={{
+//       display: "flex",
+//       flexDirection: { xs: "column", md: "row" },
+//       gap: 2,
+//       px: 2,
+//       mt: 1,
+//       width: { sm: '100%', xl: "100%" },
+//     }}
+//   >
+//     <DashboardCard title="Laborotary">
+//       <OverallSalesProgress Graphicaldata={labDatas} Displaystyle={2} fromDate={labfromDate} setFromDate={setlabFromDate} toDate={labtoDate} setToDate={setlabToDate} />
+//     </DashboardCard>
+//     <DashboardCard title="Radiology">
+//       <OverallSalesProgress Graphicaldata={radiologyDatas} Displaystyle={3} fromDate={radfromDate} setFromDate={setradFromDate} toDate={radtoDate} setToDate={setradToDate} />
+//     </DashboardCard>
+//   </Box>
+
+// </Box>
+
+
+
+
+
+
+
+
+
 
