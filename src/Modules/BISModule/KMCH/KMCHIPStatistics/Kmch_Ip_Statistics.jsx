@@ -2,7 +2,6 @@ import React, { memo, useMemo, useState } from "react";
 import { Box, Typography } from "@mui/joy";
 import { useQuery } from '@tanstack/react-query';
 import { endOfMonth, format, startOfMonth } from "date-fns";
-import OverallSalesProgress from "../../BIS_CommoCode/SalesProgress/OverallSalesProgress"
 import KMCHeader from "../../BIS_CommoCode/KMCHeader"
 import { getKmcIpDetails } from "../../../../api/commonAPI"
 import Kmc_AllOpDeptWise from "../KMCHOPStatistics/Kmc_AllOpDeptWise";
@@ -10,6 +9,7 @@ import Kmc_IPYearWise from "./Kmc_IPYearWise";
 import Kmc_IpDeptWise from "./Kmc_IpDeptWise";
 import Kmc_IpDrWise from "./Kmc_IpDrWise";
 import Kmc_AllIpDeptWise from "./Kmc_AllIpDeptWise";
+import OverallSalesProgress from "../../BIS_CommoCode/OverallSalesProgress";
 
 const Kmch_Ip_Statistics = () => {
 

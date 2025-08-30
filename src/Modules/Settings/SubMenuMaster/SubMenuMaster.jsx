@@ -67,60 +67,66 @@ const SubMenuMaster = () => {
     }
 
     const handleSubmitUserManagment = useCallback(async (e) => {
-
         e.preventDefault();
-        if (editData === 0) {
-            if (Sub_MenuNames.Sub_Menu_name.trim() === '') {
-                warningNofity('Name Of the Sub Menu cannot be empty');
-                return;
+        try {
+            if (editData === 0) {
+                if (Sub_MenuNames.Sub_Menu_name.trim() === '') {
+                    warningNofity('Name Of the Sub Menu cannot be empty');
+                    return;
+                }
+                const postdata = {
+                    Sub_Menu_name: Sub_MenuNames?.Sub_Menu_name,
+                    Sub_Menu_status: Number(Sub_MenuNames?.Sub_Menu_status),
+                    Menu_name: Number(Sub_MenuNames?.menuName),
+                    Module_slno: Number(Sub_MenuNames?.module_slno)
+                };
+
+                const response = await axiosApi.post('/bisSubMenuMaster/insertSubMenuName', postdata);
+                const { message, success } = response.data;
+
+                if (success === 1) {
+                    queryClient.invalidateQueries(['GetSubMenuNames']);
+                    succesNofity(message);
+                    setSub_MenuNames({
+                        Sub_Menu_name: '',
+                        Sub_Menu_status: 0,
+                        Menu_name: 0,
+                        Module_slno: 0
+                    });
+                } else {
+                    warningNofity(message);
+                }
+            } else {
+                const postdata = {
+                    Sub_Menu_slno: Sub_MenuNames?.Sub_Menu_slno,
+                    Sub_Menu_name: Sub_MenuNames?.Sub_Menu_name,
+                    Sub_Menu_status: Number(Sub_MenuNames?.Sub_Menu_status),
+                    Menu_name: Number(Sub_MenuNames?.menuName),
+                    Module_slno: Number(Sub_MenuNames?.module_slno)
+                };
+
+                const response = await axiosApi.patch('/bisSubMenuMaster/editSubMenuName', postdata);
+                const { message, success } = response.data;
+
+                if (success === 1) {
+                    queryClient.invalidateQueries(['GetSubMenuNames']);
+                    succesNofity(message);
+                    setSub_MenuNames({
+                        Sub_Menu_slno: 0,
+                        Sub_Menu_name: '',
+                        Sub_Menu_status: 0,
+                        Menu_name: 0,
+                        Module_slno: 0
+                    });
+                } else {
+                    warningNofity(message);
+                }
             }
-            const postdata = {
-                Sub_Menu_name: Sub_MenuNames?.Sub_Menu_name,
-                Sub_Menu_status: Number(Sub_MenuNames?.Sub_Menu_status),
-                Menu_name: Number(Sub_MenuNames?.menuName),
-                Module_slno: Number(Sub_MenuNames?.module_slno)   // ✅ now available directly
-            };
-            const response = await axiosApi.post('/bisSubMenuMaster/insertSubMenuName', postdata)
-            const { message, success } = response.data;
-            if (success === 1) {
-                queryClient.invalidateQueries(['GetSubMenuNames'])
-                succesNofity(message)
-                setSub_MenuNames({
-                    Sub_Menu_name: '',
-                    Sub_Menu_status: 0,
-                    Menu_name: 0,
-                    Module_slno: 0
-                });
-            }
-            else {
-                warningNofity(message)
-            }
-        } else {
-            const postdata = {
-                Sub_Menu_slno: Sub_MenuNames?.Sub_Menu_slno,
-                Sub_Menu_name: Sub_MenuNames?.Sub_Menu_name,
-                Sub_Menu_status: Number(Sub_MenuNames?.Sub_Menu_status),
-                Menu_name: Number(Sub_MenuNames?.menuName),
-                Module_slno: Number(Sub_MenuNames?.module_slno)
-            }
-            const response = await axiosApi.patch('/bisSubMenuMaster/editSubMenuName', postdata)
-            const { message, success } = response.data;
-            if (success === 1) {
-                queryClient.invalidateQueries(['GetSubMenuNames'])
-                succesNofity(message)
-                setSub_MenuNames({
-                    Sub_Menu_slno: 0,
-                    Sub_Menu_name: '',
-                    Sub_Menu_status: 0,
-                    Menu_name: 0,
-                    Module_slno: 0
-                });
-            }
-            else {
-                warningNofity(message)
-            }
+        } catch (error) {
+            warningNofity("Something went wrong. Please try again later.");
         }
-    }, [Sub_MenuNames, queryClient, editData])
+    }, [Sub_MenuNames, queryClient, editData]);
+
 
     const viewuserList = useCallback(() => {
         setViewTable(1)

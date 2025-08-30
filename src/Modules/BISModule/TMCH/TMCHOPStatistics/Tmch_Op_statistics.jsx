@@ -2,13 +2,14 @@ import React, { memo, useMemo, useState } from "react";
 import { Box, Typography } from "@mui/joy";
 import { useQuery } from '@tanstack/react-query';
 import { endOfMonth, format, startOfMonth } from "date-fns";
-import OverallSalesProgress from "../../BIS_CommoCode/SalesProgress/OverallSalesProgress"
+// import OverallSalesProgress from "../../BIS_CommoCode/SalesProgress/OverallSalesProgress"
 import KMCHeader from "../../BIS_CommoCode/KMCHeader"
 import { getkmcOpDetails } from "../../../../api/commonAPI"
 import Tmc_OPYearWise from "./Tmc_OPYearWise";
 import Tmc_OpDeptWise from "./Tmc_OpDeptWise";
 import Tmc_DrWise from "./Tmc_DrWise";
 import Tmc_AllOpDeptWise from "./Tmc_AllOpDeptWise";
+import OverallSalesProgress from "../../BIS_CommoCode/OverallSalesProgress";
 
 const Kmch_Op_statistics = () => {
 

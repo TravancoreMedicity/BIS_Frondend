@@ -1,8 +1,9 @@
 import React, { Fragment, memo } from 'react';
 import { Box, Typography } from '@mui/material';
-import OverallSalesProgress from '../BIS_CommoCode/SalesProgress/OverallSalesProgress';
+// import OverallSalesProgress from '../BIS_CommoCode/SalesProgress/OverallSalesProgress';
 import ComparisonChart from '../BIS_CommoCode/ComparisonChart';
 import LastThreeYearsComparison from '../BIS_CommoCode/LastThreeYearsComparison';
+import OverallSalesProgress from '../BIS_CommoCode/OverallSalesProgress';
 
 const TmchGraphicalView = () => {
 

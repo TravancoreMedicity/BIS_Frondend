@@ -21,23 +21,33 @@ const TmcStoreMaster = () => {
     });
 
     const AddToStore = useCallback(async () => {
-        const result = await axiosellider_kmc.get("/bisQuotationData/storeItems")
-        const { data, success } = result.data;
-        if (success === 2) {
-            const InsertData = await axiosApi.post("/bisQuotation/insertTmcStoreDetails", data)
-            const { success, message } = InsertData.data;
-            if (success === 1) {
-                succesNofity(message)
-                queryClient.invalidateQueries(['storeMast'])
+        try {
+            const result = await axiosellider_kmc.get("/bisQuotationData/storeItems");
+            const { data, success } = result.data;
+
+            if (success === 2) {
+                if (!data || data.length === 0) {
+                    warningNofity("No store items available to insert.");
+                    return;
+                }
+
+                const InsertData = await axiosApi.post("/bisQuotation/insertTmcStoreDetails", data);
+                const { success, message } = InsertData.data;
+
+                if (success === 1) {
+                    succesNofity(message);
+                    queryClient.invalidateQueries(['storeMast']);
+                } else {
+                    warningNofity("Can't Insert Store Details");
+                }
+            } else {
+                warningNofity("Store Details Already Entered");
             }
-            else {
-                warningNofity("Can't Insert Store Details")
-            }
+        } catch (error) {
+            warningNofity("Something went wrong while inserting store details.");
         }
-        else {
-            warningNofity("Store Details Already Entered")
-        }
-    }, [queryClient])
+    }, [queryClient]);
+
 
     return (
         <DefaultPageLayout label=" Tmc Store Master" >

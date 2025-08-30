@@ -8,22 +8,27 @@ import { succesNofity, warningNofity } from '../../Constant/Constant'
 const MedDescription = () => {
 
     const AddToStore = useCallback(async () => {
-        const result = await axiosellider_kmc.get("/bisQuotationData/medDescription")
-        const { data, success } = result.data;
-        if (success === 2) {
-            const InsertData = await axiosApi.post("/bisQuotation/insertMedDec", data)
-            const { success, message } = InsertData.data;
-            if (success === 1) {
-                succesNofity(message)
+        try {
+            const result = await axiosellider_kmc.get("/bisQuotationData/medDescription");
+            const { data, success } = result.data;
+
+            if (success === 2) {
+                const InsertData = await axiosApi.post("/bisQuotation/insertMedDec", data);
+                const { success, message } = InsertData.data;
+
+                if (success === 1) {
+                    succesNofity(message);
+                } else {
+                    warningNofity(message || "Can't insert store details");
+                }
+            } else {
+                warningNofity("Store details already entered");
             }
-            else {
-                warningNofity(message)
-            }
+        } catch (error) {
+            warningNofity("Something went wrong. Please try again later.");
         }
-        else {
-            warningNofity("Store Details Already Entered")
-        }
-    }, [])
+    }, []);
+
 
     return (
         <DefaultPageLayout label="Med-Description Master" >

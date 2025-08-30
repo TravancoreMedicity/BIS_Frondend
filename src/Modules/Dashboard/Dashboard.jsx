@@ -1,10 +1,11 @@
 import React, { memo, useMemo, useState } from "react";
 import { Box, Typography } from "@mui/joy";
 import CommonHeader from "../BISModule/BIS_CommoCode/CommonHeader";
-import OverallSalesProgress from "../BISModule/BIS_CommoCode/SalesProgress/OverallSalesProgress";
+import OverallSalesProgress from "../BISModule/BIS_CommoCode/OverallSalesProgress";
 import { getIpDetails, getOpDetails, getpharmacyDetails, getdischargeDetails, getlabDetails, getradiologyDetails, getgraphicalViewRights } from "../../api/commonAPI";
 import { useQuery } from '@tanstack/react-query';
 import { format } from "date-fns";
+import { barOptions, lineOptions } from "../BISModule/BIS_CommoCode/CommonDateRange/ChartCommonFuns/ChartCommonFun";
 
 const Dashboard = () => {
 
@@ -416,6 +417,8 @@ const Dashboard = () => {
               setFromDate={card.setFromDate}
               toDate={card.toDate}
               setToDate={card.setToDate}
+              barOptions={barOptions}
+              lineOptions={lineOptions}
             />
           </DashboardCard>
         ))}
@@ -454,130 +457,6 @@ const DashboardCard = ({ title, children }) => (
 );
 
 export default memo(Dashboard);
-
-
-
-
-
-
-
-
-// <Box
-//   sx={{
-//     flex: 1,
-//     width: "100%",
-//     height: { xl: 900, sm: 1200 },
-//     overflow: "auto",
-//   }}
-// >
-//   <CommonHeader />
-
-//   <Box
-//     sx={{
-//       display: "grid",
-//       gap: 2,
-//       px: 2,
-//       mt: 1,
-//       gridTemplateColumns: {
-//         xs: "repeat(2, 1fr)", // 👈 mobile: 2 per row
-//         sm: "repeat(2, 1fr)", // 👈 tablet: still 2 per row
-//         md: "repeat(2, 1fr)", // 👈 desktop: still 2 per row
-//       },
-//     }}
-//   >
-//     {dashboardCards.map((card, idx) => (
-//       <DashboardCard key={idx} title={card.title}>
-//         <OverallSalesProgress
-//           Graphicaldata={card.Graphicaldata}
-//           Displaystyle={card.Displaystyle}
-//           fromDate={card.fromDate}
-//           setFromDate={card.setFromDate}
-//           toDate={card.toDate}
-//           setToDate={card.setToDate}
-//         />
-//       </DashboardCard>
-//     ))}
-//   </Box>
-// </Box>
-
-
-
-
-
-
-
-// <Box
-//   sx={{
-//     width: "100%",
-//     height: { xl: 900, sm: 1200 },
-//     overflow: "auto",
-//   }}
-// >
-//   <CommonHeader />
-//   {/* Row 1 */}
-//   <Box
-//     sx={{
-//       display: "flex",
-//       flexDirection: { xs: "column", md: "row" },
-//       gap: 2,
-//       px: 2,
-//       mt: 1,
-//       width: "100%"
-//     }}
-//   >
-//     <DashboardCard title="Out Patient Count">
-//       <OverallSalesProgress Graphicaldata={data} Displaystyle={1} fromDate={fromDate} setFromDate={setFromDate} toDate={toDate} setToDate={setToDate} />
-//     </DashboardCard>
-//     <DashboardCard title="In Patient Count">
-//       <OverallSalesProgress Graphicaldata={InpatientData} Displaystyle={2}
-//         fromDate={ipfromDate} setFromDate={setIpFromDate} toDate={iptoDate} setToDate={setIpToDate}
-//       />
-//     </DashboardCard>
-//   </Box>
-
-//   {/* Row 2 */}
-//   <Box
-//     sx={{
-//       display: "flex",
-//       flexDirection: { xs: "column", md: "row" },
-//       gap: 2,
-//       px: 2,
-//       mt: 1,
-//     }}
-//   >
-//     <DashboardCard title="Pharmacy Sales">
-//       <OverallSalesProgress Graphicaldata={pharmacySales} Displaystyle={3} fromDate={phfromDate} setFromDate={setPhFromDate} toDate={phtoDate} setToDate={setPhToDate} />
-//     </DashboardCard>
-//     <DashboardCard title="Discharge">
-//       <OverallSalesProgress Graphicaldata={dischargeDatas} Displaystyle={1} fromDate={dcfromDate} setFromDate={setdcFromDate} toDate={dctoDate} setToDate={setdcToDate} />
-//     </DashboardCard>
-//   </Box>
-
-//   {/* Row 3 */}
-//   <Box
-//     sx={{
-//       display: "flex",
-//       flexDirection: { xs: "column", md: "row" },
-//       gap: 2,
-//       px: 2,
-//       mt: 1,
-//       width: { sm: '100%', xl: "100%" },
-//     }}
-//   >
-//     <DashboardCard title="Laborotary">
-//       <OverallSalesProgress Graphicaldata={labDatas} Displaystyle={2} fromDate={labfromDate} setFromDate={setlabFromDate} toDate={labtoDate} setToDate={setlabToDate} />
-//     </DashboardCard>
-//     <DashboardCard title="Radiology">
-//       <OverallSalesProgress Graphicaldata={radiologyDatas} Displaystyle={3} fromDate={radfromDate} setFromDate={setradFromDate} toDate={radtoDate} setToDate={setradToDate} />
-//     </DashboardCard>
-//   </Box>
-
-// </Box>
-
-
-
-
-
 
 
 

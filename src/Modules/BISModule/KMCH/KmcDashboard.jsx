@@ -2,9 +2,12 @@ import React, { memo, useMemo, useState } from "react";
 import { Box, Typography } from "@mui/joy";
 import { useQuery } from '@tanstack/react-query';
 import { format } from "date-fns";
-import OverallSalesProgress from "../BIS_CommoCode/SalesProgress/OverallSalesProgress";
+// import OverallSalesProgress from "../BIS_CommoCode/SalesProgress/OverallSalesProgress";
 import KMCHeader from "../BIS_CommoCode/KMCHeader";
 import { getgraphicalViewRights, getKmcdischargeDetails, getKmcIpDetails, getKmclabDetails, getkmcOpDetails, getKmcpharmacyDetails, getKmcradiologyDetails } from "../../../api/commonAPI";
+import { barOptions, lineOptions } from "../BIS_CommoCode/CommonDateRange/ChartCommonFuns/ChartCommonFun";
+import OverallSalesProgress from "../BIS_CommoCode/OverallSalesProgress";
+// import OverallSalesProgress from "../BIS_CommoCode/OverallSalesProgress";
 const KmcDashboard = () => {
 
     const authNo = atob(JSON.parse(localStorage.getItem("app_auth"))?.authNo);
@@ -383,6 +386,47 @@ const KmcDashboard = () => {
     );
 
     return (
+        // <Box
+        //     sx={{
+        //         flex: 1,
+        //         width: "100%",
+        //         height: { xl: 900, sm: 1200 },
+        //         overflow: "auto",
+        //     }}
+        // >
+        //     <KMCHeader />
+
+        //     <Box
+        //         sx={{
+        //             display: "grid",
+        //             gap: 2,
+        //             px: 2,
+        //             mt: 1,
+        //             gridTemplateColumns: {
+        //                 xs: "repeat(2, 1fr)",
+        //                 sm: "repeat(2, 1fr)",
+        //                 md: "repeat(2, 1fr)",
+        //             },
+        //         }}
+        //     >
+        //         {filteredCards.map((card, idx) => (
+        //             <DashboardCard
+        //                 key={idx}
+        //                 title={`${card.title}`} // 👈 show submenu ID too if you want
+        //             >
+        //                 <OverallSalesProgress
+        //                     Graphicaldata={card.Graphicaldata}
+        //                     Displaystyle={card.Displaystyle}
+        //                     fromDate={card.fromDate}
+        //                     setFromDate={card.setFromDate}
+        //                     toDate={card.toDate}
+        //                     setToDate={card.setToDate}
+        //                 />
+        //             </DashboardCard>
+        //         ))}
+        //     </Box>
+        // </Box>
+
         <Box
             sx={{
                 flex: 1,
@@ -395,21 +439,17 @@ const KmcDashboard = () => {
 
             <Box
                 sx={{
-                    display: "grid",
+                    display: "flex",
                     gap: 2,
                     px: 2,
                     mt: 1,
-                    gridTemplateColumns: {
-                        xs: "repeat(2, 1fr)",
-                        sm: "repeat(2, 1fr)",
-                        md: "repeat(2, 1fr)",
-                    },
+                    flexWrap: "wrap", // ✅ allow wrapping
                 }}
             >
                 {filteredCards.map((card, idx) => (
                     <DashboardCard
                         key={idx}
-                        title={`${card.title}`} // 👈 show submenu ID too if you want
+                        title={`${card.title}`}
                     >
                         <OverallSalesProgress
                             Graphicaldata={card.Graphicaldata}
@@ -418,13 +458,13 @@ const KmcDashboard = () => {
                             setFromDate={card.setFromDate}
                             toDate={card.toDate}
                             setToDate={card.setToDate}
+                            barOptions={barOptions}
+                            lineOptions={lineOptions}
                         />
                     </DashboardCard>
                 ))}
             </Box>
         </Box>
-
-
     );
 };
 

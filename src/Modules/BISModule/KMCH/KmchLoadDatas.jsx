@@ -29,84 +29,183 @@ const KmchLoadDatas = () => {
     })
 
     const uploadData = useCallback(async (fromdate, todate, opslno) => {
-        if (todate) {
-            // const formattedFromDate = format(startOfDay(addDays(fromdate, 1)), 'dd-MMM-yyyy HH:mm:ss');
-            // const formattedToDate = format(endOfDay(todate), 'dd-MMM-yyyy HH:mm:ss');
-            // const tDate = format(todate, 'yyyy-MM-dd');
+        try {
+            // Validate fromdate and todate
+            const fromDateObj = new Date(fromdate);
+            const toDateObj = new Date(todate);
+
+            // Validate fromdate and todate
+            if (!(fromDateObj instanceof Date) || isNaN(fromDateObj.getTime())) {
+                warningNofity("Invalid From Date");
+                return;
+            }
+            if (!(toDateObj instanceof Date) || isNaN(toDateObj.getTime())) {
+                warningNofity("Invalid To Date");
+                return;
+            }
+
+            // Validate opslno
+            if (typeof opslno !== "number" || isNaN(opslno)) {
+                warningNofity("Invalid Operation Selected");
+                return;
+            }
+
+            // Validate opslno
+            if (typeof opslno !== "number" || isNaN(opslno)) {
+                warningNofity("Invalid Operation Selected");
+                return;
+            }
+
+            // Format dates after validation
             const formattedFromDate = format(startOfDay(addDays(fromdate, 1)), 'dd/MM/yyyy 00:00:00');
             const formattedToDate = format(endOfDay(todate), 'dd/MM/yyyy 23:59:59');
             const tDate = format(todate, 'yyyy-MM-dd');
-            const payload = {
-                fromdate: formattedFromDate,
-                todate: formattedToDate,
-            };
-            const getOracleData = await axiosellider_kmc.post("/bisElliderData/opcount", payload)
-            const { data, success } = getOracleData.data;
-            if (opslno === 1 && success === 2 && data.length !== 0) {
-                const enrichedData = data?.map(item => ({
-                    ...item,
-                    tDate,
-                    c_name: 2
-                }));
-                // console.log("enrichedData", enrichedData);
 
-                const insertData = await axiosApi.post("/bisKmcDataPush/insertOpcount", enrichedData);
-                const { success: insertSuccess, message } = insertData.data;
-                if (insertSuccess === 1) {
-                    setFirstUpdate_ststus(1)
-                    setUpdateDate({})
-                    queryClient.invalidateQueries('opModuleDetails')
-                    succesNofity(message)
+            const payload = { fromdate: formattedFromDate, todate: formattedToDate };
+
+            if (opslno === 1) {
+                // Insert OP
+                const { data, success } = (await axiosellider_kmc.post("/bisElliderData/opcount", payload)).data;
+                if (success === 2 && data.length) {
+                    const enriched = data.map(item => ({ ...item, tDate, c_name: 2 }));
+                    const { success: ins, message } = (await axiosApi.post("/bisKmcDataPush/insertOpcount", enriched)).data;
+
+                    if (ins === 1) {
+                        setFirstUpdate_ststus(1);
+                        setUpdateDate({});
+                        queryClient.invalidateQueries('opModuleDetails');
+                        succesNofity(message);
+                    } else {
+                        warningNofity(message);
+                    }
                 } else {
-                    warningNofity(message)
+                    warningNofity("No Data found for OP Insert.");
                 }
             }
-            else if (opslno === 2 && success === 2 && data.length !== 0) {
-                const updateData = data?.map(item => ({
-                    ...item,
-                    tDate
-                }));
-                //update to OP Table
-                const UpdateData = await axiosApi.post("/bisKmcDataPush/updatOpCount", updateData)
-                const { success, message } = UpdateData.data;
-                if (success === 1) {
-                    queryClient.invalidateQueries('opModuleDetails')
-                    succesNofity(message)
-                }
-                else {
-                    warningNofity(message)
+            else if (opslno === 2) {
+                // Update OP
+                const { data, success } = (await axiosellider_kmc.post("/bisElliderData/opcount", payload)).data;
+                if (success === 2 && data.length) {
+                    const updateData = data.map(item => ({ ...item, tDate }));
+                    const { success: upd, message } = (await axiosApi.post("/bisKmcDataPush/updatOpCount", updateData)).data;
+
+                    if (upd === 1) {
+                        queryClient.invalidateQueries('opModuleDetails');
+                        succesNofity(message);
+                    } else {
+                        warningNofity(message);
+                    }
+                } else {
+                    warningNofity("No Data found for OP Update.");
                 }
             }
             else if (opslno === 4) {
-                const getCashcredit = await axiosellider_kmc.post("/bisElliderData/cashcredit", payload)
-                const { data, success } = getCashcredit.data;
+                // Update Cash Credit
+                const { data, success } = (await axiosellider_kmc.post("/bisElliderData/cashcredit", payload)).data;
+                if (success === 2 && data.length) {
+                    const enriched = data.map(item => ({ ...item, tDate, c_name: 2 }));
+                    const { success: ins, message } = (await axiosApi.patch("/bisKmcDataPush/updateCashcredit", enriched)).data;
 
-                if (success === 2 && data.length !== 0) {
-                    const enrichedData = data?.map(item => ({
-                        ...item,
-                        tDate,
-                        c_name: 2
-                    }));
-
-                    const insertData = await axiosApi.patch("/bisKmcDataPush/updateCashcredit", enrichedData);
-                    const { success: insertSuccess, message } = insertData.data;
-                    if (insertSuccess === 1) {
-                        setUpdateDate({})
-                        queryClient.invalidateQueries('opModuleDetails')
-                        succesNofity(message)
+                    if (ins === 1) {
+                        setUpdateDate({});
+                        queryClient.invalidateQueries('opModuleDetails');
+                        succesNofity(message);
                     } else {
-                        warningNofity(message)
+                        warningNofity(message);
                     }
+                } else {
+                    warningNofity("No Data found for Cash Credit.");
                 }
             }
             else {
-                warningNofity("No Data")
+                warningNofity("Invalid operation selected.");
             }
+        } catch (error) {
+            warningNofity("Something went wrong. Please try again later.");
         }
-        else {
-            warningNofity("Select Any Date")
-        }
-    }, [queryClient])
+    }, [queryClient]);
+
+
+    //  const uploadData = useCallback(async (fromdate, todate, opslno) => {
+    //     if (todate) {
+    //         // const formattedFromDate = format(startOfDay(addDays(fromdate, 1)), 'dd-MMM-yyyy HH:mm:ss');
+    //         // const formattedToDate = format(endOfDay(todate), 'dd-MMM-yyyy HH:mm:ss');
+    //         // const tDate = format(todate, 'yyyy-MM-dd');
+    //         const formattedFromDate = format(startOfDay(addDays(fromdate, 1)), 'dd/MM/yyyy 00:00:00');
+    //         const formattedToDate = format(endOfDay(todate), 'dd/MM/yyyy 23:59:59');
+    //         const tDate = format(todate, 'yyyy-MM-dd');
+    //         const payload = {
+    //             fromdate: formattedFromDate,
+    //             todate: formattedToDate,
+    //         };
+    //         const getOracleData = await axiosellider_kmc.post("/bisElliderData/opcount", payload)
+    //         const { data, success } = getOracleData.data;
+    //         if (opslno === 1 && success === 2 && data.length !== 0) {
+    //             const enrichedData = data?.map(item => ({
+    //                 ...item,
+    //                 tDate,
+    //                 c_name: 2
+    //             }));
+    //             // console.log("enrichedData", enrichedData);
+
+    //             const insertData = await axiosApi.post("/bisKmcDataPush/insertOpcount", enrichedData);
+    //             const { success: insertSuccess, message } = insertData.data;
+    //             if (insertSuccess === 1) {
+    //                 setFirstUpdate_ststus(1)
+    //                 setUpdateDate({})
+    //                 queryClient.invalidateQueries('opModuleDetails')
+    //                 succesNofity(message)
+    //             } else {
+    //                 warningNofity(message)
+    //             }
+    //         }
+    //         else if (opslno === 2 && success === 2 && data.length !== 0) {
+    //             const updateData = data?.map(item => ({
+    //                 ...item,
+    //                 tDate
+    //             }));
+    //             //update to OP Table
+    //             const UpdateData = await axiosApi.post("/bisKmcDataPush/updatOpCount", updateData)
+    //             const { success, message } = UpdateData.data;
+    //             if (success === 1) {
+    //                 queryClient.invalidateQueries('opModuleDetails')
+    //                 succesNofity(message)
+    //             }
+    //             else {
+    //                 warningNofity(message)
+    //             }
+    //         }
+    //         else if (opslno === 4) {
+    //             const getCashcredit = await axiosellider_kmc.post("/bisElliderData/cashcredit", payload)
+    //             const { data, success } = getCashcredit.data;
+
+    //             if (success === 2 && data.length !== 0) {
+    //                 const enrichedData = data?.map(item => ({
+    //                     ...item,
+    //                     tDate,
+    //                     c_name: 2
+    //                 }));
+
+    //                 const insertData = await axiosApi.patch("/bisKmcDataPush/updateCashcredit", enrichedData);
+    //                 const { success: insertSuccess, message } = insertData.data;
+    //                 if (insertSuccess === 1) {
+    //                     setUpdateDate({})
+    //                     queryClient.invalidateQueries('opModuleDetails')
+    //                     succesNofity(message)
+    //                 } else {
+    //                     warningNofity(message)
+    //                 }
+    //             }
+    //         }
+    //         else {
+    //             warningNofity("No Data")
+    //         }
+    //     }
+    //     else {
+    //         warningNofity("Select Any Date")
+    //     }
+    // }, [queryClient]) 
+
 
     const mapArrs = [
         { opslno: 1, label: "Total OP", id: 1 },
@@ -128,65 +227,162 @@ const KmchLoadDatas = () => {
 
 
 
+    // const uploadIpData = useCallback(async (fromdate, todate, opslno) => {
+    //     if (todate) {
+    //         const formattedFromDate = format(startOfDay(addDays(fromdate, 1)), 'dd/MM/yyyy 00:00:00');
+    //         const formattedToDate = format(endOfDay(todate), 'dd/MM/yyyy 23:59:59');
+    //         const tDate = format(todate, 'yyyy-MM-dd');
+    //         const payload = {
+    //             fromdate: formattedFromDate,
+    //             todate: formattedToDate,
+    //         };
+    //         const getOracleIPData = await axiosellider_kmc.post("/bisElliderData/ipAddmissioncount", payload)
+    //         const { data, success } = getOracleIPData.data;
+    //         if (opslno === 1 && success === 2 && data.length !== 0) {
+    //             const InserteData = data?.map(item => ({
+    //                 ...item,
+    //                 tDate,
+    //                 c_name: 2
+    //             }));
+    //             const insertData = await axiosApi.post("/bisKmcDataPush/insertIpAdmission", InserteData);
+    //             const { success: insertSuccess, message } = insertData.data;
+
+    //             if (insertSuccess === 1) {
+    //                 setFirstUpdate_ststus(1)
+    //                 setUpdateDate({})
+    //                 queryClient.invalidateQueries('ipkmcModuleDetails')
+    //                 succesNofity(message)
+    //             } else {
+    //                 warningNofity(message)
+    //             }
+    //         }
+    //         else if (opslno === 2) {
+    //             const getCashcredit = await axiosellider_kmc.post("/bisElliderData/getDischargeCount", payload)
+    //             const { data, success } = getCashcredit.data;
+    //             if (success === 2 && data.length !== 0) {
+    //                 const DischageData = data?.map(item => ({
+    //                     ...item,
+    //                     tDate,
+    //                     c_name: 2,
+    //                 }));
+
+    //                 // console.log("getDischargeCount", DischageData);
+
+    //                 const insertData = await axiosApi.patch("/bisKmcDataPush/updateDischargeCount", DischageData);
+    //                 const { success: insertSuccess, message } = insertData.data;
+    //                 // console.log("insertSuccess", insertSuccess);
+    //                 if (insertSuccess === 1) {
+    //                     setUpdateDate({})
+    //                     queryClient.invalidateQueries('ipkmcModuleDetails')
+    //                     succesNofity(message)
+    //                 } else {
+    //                     warningNofity(message)
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     else {
+    //         warningNofity("Select Any Date")
+    //     }
+
+    // }, [queryClient])
+
+
     const uploadIpData = useCallback(async (fromdate, todate, opslno) => {
-        if (todate) {
-            const formattedFromDate = format(startOfDay(addDays(fromdate, 1)), 'dd/MM/yyyy 00:00:00');
-            const formattedToDate = format(endOfDay(todate), 'dd/MM/yyyy 23:59:59');
-            const tDate = format(todate, 'yyyy-MM-dd');
+        try {
+            // Convert inputs to Date objects
+            const fromDateObj = new Date(fromdate);
+            const toDateObj = new Date(todate);
+
+            // Validate fromdate
+            if (!(fromDateObj instanceof Date) || isNaN(fromDateObj.getTime())) {
+                warningNofity("Invalid From Date");
+                return;
+            }
+
+            // Validate todate
+            if (!(toDateObj instanceof Date) || isNaN(toDateObj.getTime())) {
+                warningNofity("Invalid To Date");
+                return;
+            }
+
+            // Validate opslno
+            if (typeof opslno !== "number" || isNaN(opslno)) {
+                warningNofity("Invalid Operation Slno");
+                return;
+            }
+
+            // Format Dates
+            const formattedFromDate = format(startOfDay(addDays(fromDateObj, 1)), 'dd/MM/yyyy 00:00:00');
+            const formattedToDate = format(endOfDay(toDateObj), 'dd/MM/yyyy 23:59:59');
+            const tDate = format(toDateObj, 'yyyy-MM-dd');
+
             const payload = {
                 fromdate: formattedFromDate,
                 todate: formattedToDate,
             };
-            const getOracleIPData = await axiosellider_kmc.post("/bisElliderData/ipAddmissioncount", payload)
-            const { data, success } = getOracleIPData.data;
-            if (opslno === 1 && success === 2 && data.length !== 0) {
-                const InserteData = data?.map(item => ({
-                    ...item,
-                    tDate,
-                    c_name: 2
-                }));
-                const insertData = await axiosApi.post("/bisKmcDataPush/insertIpAdmission", InserteData);
-                const { success: insertSuccess, message } = insertData.data;
 
-                if (insertSuccess === 1) {
-                    setFirstUpdate_ststus(1)
-                    setUpdateDate({})
-                    queryClient.invalidateQueries('ipkmcModuleDetails')
-                    succesNofity(message)
-                } else {
-                    warningNofity(message)
+            // Admission Count
+            if (opslno === 1) {
+                const getOracleIPData = await axiosellider_kmc.post("/bisElliderData/ipAddmissioncount", payload);
+                const { data, success } = getOracleIPData.data;
+
+                if (success === 2 && data.length !== 0) {
+                    const InserteData = data.map(item => ({
+                        ...item,
+                        tDate,
+                        c_name: 2
+                    }));
+
+                    const insertData = await axiosApi.post("/bisKmcDataPush/insertIpAdmission", InserteData);
+                    const { success: insertSuccess, message } = insertData.data;
+
+                    if (insertSuccess === 1) {
+                        setFirstUpdate_ststus(1);
+                        setUpdateDate({});
+                        queryClient.invalidateQueries('ipkmcModuleDetails');
+                        succesNofity(message);
+                    } else {
+                        warningNofity(message);
+                    }
                 }
             }
+
+            // Discharge Count
             else if (opslno === 2) {
-                const getCashcredit = await axiosellider_kmc.post("/bisElliderData/getDischargeCount", payload)
+                const getCashcredit = await axiosellider_kmc.post("/bisElliderData/getDischargeCount", payload);
                 const { data, success } = getCashcredit.data;
+
                 if (success === 2 && data.length !== 0) {
-                    const DischageData = data?.map(item => ({
+                    const DischageData = data.map(item => ({
                         ...item,
                         tDate,
                         c_name: 2,
                     }));
 
-                    // console.log("getDischargeCount", DischageData);
-
                     const insertData = await axiosApi.patch("/bisKmcDataPush/updateDischargeCount", DischageData);
                     const { success: insertSuccess, message } = insertData.data;
-                    // console.log("insertSuccess", insertSuccess);
+
                     if (insertSuccess === 1) {
-                        setUpdateDate({})
-                        queryClient.invalidateQueries('ipkmcModuleDetails')
-                        succesNofity(message)
+                        setUpdateDate({});
+                        queryClient.invalidateQueries('ipkmcModuleDetails');
+                        succesNofity(message);
                     } else {
-                        warningNofity(message)
+                        warningNofity(message);
                     }
                 }
             }
-        }
-        else {
-            warningNofity("Select Any Date")
-        }
 
-    }, [queryClient])
+            // Unknown opslno
+            else {
+                warningNofity("Unknown Operation Slno");
+            }
+
+        } catch (error) {
+            warningNofity("Something went wrong while uploading IP data.");
+        }
+    }, [queryClient]);
+
 
     const IpArrs = [
         { opslno: 1, label: "Total IP" },
@@ -333,96 +529,6 @@ const KmchLoadDatas = () => {
                         );
                     })}
 
-
-                    {/* {
-                        mapArrs?.map((item, index) => {
-                            const matchData = OpModuleDatas?.find(val => val?.opslno === item?.opslno);
-                            const lastday = format(subDays(new Date(), 1), "yyyy-MM-dd");
-                            const firstOpsDate = OpModuleDatas?.find(d => d?.opslno === 1)?.date || lastday;
-                            return (
-                                <Box
-                                    key={index}
-                                    sx={{
-                                        mt: 0.5,
-                                        display: "flex",
-                                        flexDirection: "row",
-                                        justifyContent: "space-between",
-                                        border: 1,
-                                        borderRadius: 5,
-                                        p: 0.5,
-                                        borderColor: 'rgba(194, 182, 182, 0.57)',
-                                    }}
-                                >
-                                    <Box sx={{ width: "30%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                        <Typography sx={{ color: 'rgba(var(--font-light))', fontSize: 13 }}>
-                                            {item?.label}
-                                        </Typography>
-                                    </Box>
-
-                                    <Box sx={{ width: "24%", display: "flex", alignItems: "center", justifyContent: "center", p: 0.2, flexDirection: "column" }}>
-                                        <Typography sx={{ fontSize: 9, color: 'rgba(var(--font-light))', }}>Last Update Date</Typography>
-                                        <Typography sx={{ fontSize: 11, mt: 0.5, color: "rosybrown", }}>
-                                            {matchData?.date}
-                                        </Typography>
-                                    </Box>
-                                    <Box sx={{ width: "30%", display: "flex", alignItems: "center", justifyContent: "center", p: 0.2 }}>
-                                        <Input
-                                            type="date"
-                                            disabled={matchData?.date === format(subDays(new Date(), 1), "yyyy-MM-dd")}
-                                            value={updateDate[item?.opslno] || ''}
-                                            onChange={(e) => handleDateChange(item?.opslno, e.target.value)}
-                                            slotProps={{
-                                                input: {
-                                                    min: matchData?.date,
-                                                    max:
-                                                        // matchData?.opslno !== 1 && firstUpdate_ststus === 1
-                                                        matchData?.opslno !== 1
-                                                            ? firstOpsDate
-                                                            : lastday,
-                                                },
-                                            }}
-                                            size="sm"
-                                            sx={{
-                                                color: 'rgba(var(--font-light))',
-                                                width: "100%",
-                                                p: 0.2,
-                                                px: 1,
-                                                fontSize: 13,
-                                            }}
-                                        />
-                                    </Box>
-                                    <Box
-                                        onClick={() => uploadData(matchData?.date, updateDate[item?.opslno], item?.opslno)
-                                        }
-                                        sx={{
-                                            width: "30%",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            gap: 1,
-                                            border: 1,
-                                            borderRadius: 10,
-                                            borderColor: matchData?.opslno === 1 || firstUpdate_ststus === 1 ? 'rgba(43, 142, 159, 0.66)' : 'rgba(43, 142, 159, 0.66)',
-                                            cursor: "pointer",
-                                            opacity: lastday === firstOpsDate || lastday > firstOpsDate ? 1 : 0.5,
-
-                                        }}
-                                    >
-                                        <UnarchiveIcon
-                                            sx={{
-                                                color: 'rgba(43, 142, 159, 0.66)',
-                                            }}
-                                        />
-                                        <Typography
-                                            sx={{
-                                                color: 'rgba(var(--font-light))',
-                                                fontSize: 13,
-                                            }}>Uploads</Typography>
-                                    </Box>
-                                </Box>
-                            )
-                        })
-                    } */}
                 </Box>
 
                 <Box sx={{ mt: 1, flex: 1, p: 1, border: 1, borderColor: "#EBD3F8" }}>

@@ -14,6 +14,7 @@ import CustomBackDropWithOutState from '../../Components/CustomBackDropWithOutSt
 import { PlusCircleSolid, PlusCircle } from "iconoir-react";
 import axiosApi from '../../Axios/Axios';
 import { infoNofity, succesNofity, warningNofity } from '../../Constant/Constant';
+import { ensureNumber } from '../BISModule/BIS_CommoCode/CommonDateRange/ChartCommonFuns/ChartCommonFun';
 
 const GraphicalViewMaster = () => {
     const navigation = useNavigate()
@@ -24,7 +25,7 @@ const GraphicalViewMaster = () => {
     const [filteredSubMenus, setFilteredSubMenus] = useState([]);
     const [viewtable, setViewTable] = useState(0)
     const [tableData, setTableData] = useState([])
-    // ✅ state stores the whole selected employee option
+    //  state stores the whole selected employee option
     const [UserGroupRights, setUserGroupRights] = useState({
         employee: null,       // { value, label }
         user_type_slno: 0,
@@ -70,10 +71,6 @@ const GraphicalViewMaster = () => {
         }
     }, [getSubMenuName])
 
-    // console.log(filteredSubMenus);
-
-    // bis_sub_menu_slno, bis_sub_menu_name, bis_mod_slno, bis_menu_slno, bis_sub_menu_status
-
     // Convert API data into dropdown-friendly options
     const employeeOptions = AllUserList.map(user => ({
         value: user.user_slno,
@@ -91,11 +88,16 @@ const GraphicalViewMaster = () => {
 
     // handle employee dropdown change
     const handleEmployeeChange = (e, val) => {
-        setUserGroupRights(prev => ({
-            ...prev,
-            employee: val || null   // store whole object or null if cleared
-        }))
-    }
+        try {
+            setUserGroupRights(prev => ({
+                ...prev,
+                employee: val || null   // store whole object or null if cleared
+            }));
+        } catch (error) {
+            warningNofity("Something went wrong while selecting employee.");
+        }
+    };
+
 
     const viewuserList = useCallback(() => {
         // console.log("Viewing user list...");
@@ -103,49 +105,66 @@ const GraphicalViewMaster = () => {
 
     const postData = useMemo(() => {
         return {
-            emp_no: parseInt(employee),
-            menu_slno: parseInt(menuName)
+            emp_no: ensureNumber(employee),
+            menu_slno: ensureNumber(menuName)
         }
     }, [employee, menuName])
 
 
     const handleSubmitUserManagment = useCallback(async (e) => {
         e.preventDefault();
-        if (employee === null && menuName === 0) {
-            infoNofity("Select Employee Name & Menu Name")
-        } else {
-            const result = await axiosApi.post('/bisGraphicalViewMast', postData)
-            const { success, data } = result.data
-
-            if (success === 1) {
-                setTableData(data)
+        try {
+            if (employee === null && menuName === 0) {
+                infoNofity("Select Employee Name & Menu Name");
             } else {
-                setTableData([])
-                warningNofity("Menus Not Available")
+                const result = await axiosApi.post('/bisGraphicalViewMast', postData);
+                const { success, data } = result.data;
+
+                if (success === 1) {
+                    setTableData(data);
+                } else {
+                    setTableData([]);
+                    warningNofity("Menus Not Available");
+                }
             }
+        } catch (error) {
+            warningNofity("Something went wrong. Please try again later.");
+            setTableData([]);
         }
-    }, [postData, employee, menuName])
+    }, [postData, employee, menuName]);
+
 
     const groupRightUpdateDetl = useCallback(async (val) => {
-        const { view_emp_no, sub_menu_view_rights, view_menu_slno, view_mast_slno } = val;
-        console.log(val);
+        try {
+            if (!val || !val.view_emp_no || !val.view_menu_slno || !val.view_mast_slno) {
+                warningNofity("Invalid data. Please try again.");
+                return;
+            }
 
-        const postData = {
-            menu_view: sub_menu_view_rights === 0 ? 1 : 0,
-            emp_no: view_emp_no,
-            menu_slno: view_menu_slno,
-            view_mast_slno: view_mast_slno
+            const { view_emp_no, sub_menu_view_rights, view_menu_slno, view_mast_slno } = val;
+
+            const postData = {
+                menu_view: sub_menu_view_rights === 0 ? 1 : 0,
+                emp_no: view_emp_no,
+                menu_slno: view_menu_slno,
+                view_mast_slno: view_mast_slno
+            };
+
+            const result = await axiosApi.patch('/bisGraphicalViewMast', postData);
+            const { success, message, data } = result.data;
+
+            if (success === 1) {
+                succesNofity(message);
+                setTableData(data);
+            } else {
+                setTableData([]);
+                warningNofity(message);
+            }
+        } catch (error) {
+            warningNofity("Something went wrong. Please try again later.");
+            setTableData([]);
         }
-        const result = await axiosApi.patch('/bisGraphicalViewMast', postData)
-        const { success, message, data } = result.data
-        if (success === 1) {
-            succesNofity(message)
-            setTableData(data)
-        } else {
-            setTableData([])
-            warningNofity(message)
-        }
-    }, [])
+    }, []);
 
     return (
         <DefaultPageLayout label="Graphical View Rights Master" >

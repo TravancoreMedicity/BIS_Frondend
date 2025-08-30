@@ -49,67 +49,77 @@ const UserTypeMaster = () => {
 
     const handleSubmitUserManagment = useCallback(async (e) => {
         e.preventDefault();
-        if (editData === 0) {
-            if (UserTypeDetals.user_type === '') {
-                warningNofity('Name Of the Module cannot be empty');
-                return;
-            }
-            const postdata = {
-                user_type: UserTypeDetals?.user_type,
-                user_type_status: UserTypeDetals?.user_type_status,
-                create_user: Number(loggedUser),
-                create_date: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
-            }
-            const response = await axiosApi.post('/UserTypeMaster/insertUserType', postdata)
-            const { message, success } = response.data;
-            if (success === 1) {
-                queryClient.invalidateQueries(['userType'])
-                succesNofity(message)
-                setUserTypeDetals({
-                    user_type_slno: 0,
-                    user_type: '',
-                    user_type_status: 0
-                });
-            }
-            else {
-                warningNofity(message)
-            }
-        }
-        else {
-            const postdata = {
-                user_type_slno: UserTypeDetals?.user_type_slno,
-                user_type: UserTypeDetals?.user_type,
-                user_type_status: UserTypeDetals?.user_type_status,
 
+        try {
+            if (editData === 0) {
+                if (UserTypeDetals.user_type === '') {
+                    warningNofity('Name Of the Module cannot be empty');
+                    return;
+                }
+
+                const postdata = {
+                    user_type: UserTypeDetals?.user_type,
+                    user_type_status: UserTypeDetals?.user_type_status,
+                    create_user: Number(loggedUser),
+                    create_date: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+                };
+
+                const response = await axiosApi.post('/UserTypeMaster/insertUserType', postdata);
+                const { message, success } = response.data;
+
+                if (success === 1) {
+                    queryClient.invalidateQueries(['userType']);
+                    succesNofity(message);
+                    setUserTypeDetals({
+                        user_type_slno: 0,
+                        user_type: '',
+                        user_type_status: 0,
+                    });
+                } else {
+                    warningNofity(message);
+                }
+            } else {
+                const postdata = {
+                    user_type_slno: UserTypeDetals?.user_type_slno,
+                    user_type: UserTypeDetals?.user_type,
+                    user_type_status: UserTypeDetals?.user_type_status,
+                };
+
+                const response = await axiosApi.patch('/UserTypeMaster/editUserType', postdata);
+                const { message, success } = response.data;
+
+                if (success === 1) {
+                    queryClient.invalidateQueries(['userType']);
+                    succesNofity(message);
+                    setUserTypeDetals({
+                        user_type_slno: 0,
+                        user_type: '',
+                        user_type_status: 0,
+                    });
+                } else {
+                    warningNofity(message);
+                }
             }
-            const response = await axiosApi.patch('/UserTypeMaster/editUserType', postdata)
-            const { message, success } = response.data;
-            if (success === 1) {
-                queryClient.invalidateQueries(['userType'])
-                succesNofity(message)
-                setUserTypeDetals({
-                    user_type_slno: 0,
-                    user_type: '',
-                    user_type_status: 0
-                });
-            }
-            else {
-                warningNofity(message)
-            }
+        } catch (error) {
+            warningNofity("Something went wrong. Please try again later.");
         }
-    }, [UserTypeDetals, editData, queryClient, loggedUser])
+    }, [UserTypeDetals, editData, queryClient, loggedUser]);
 
     const viewuserList = useCallback(() => {
         setViewTable(1)
     }, [])
 
     const EditBtn = useCallback((item) => {
-        setEditData(1);
-        setUserTypeDetals({
-            user_type_slno: item.user_type_slno,
-            user_type: item.user_type,
-            user_type_status: item.use_type_status
-        });
+        try {
+            setEditData(1);
+            setUserTypeDetals({
+                user_type_slno: item.user_type_slno,
+                user_type: item.user_type,
+                user_type_status: item.use_type_status
+            });
+        } catch (error) {
+            warningNofity("Something went wrong while editing.");
+        }
     }, []);
 
     return (

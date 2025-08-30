@@ -1,6 +1,6 @@
 import { Box, Button, Input, Sheet, Table, Tooltip } from '@mui/joy';
 import { Typography } from '@mui/material';
-import { format } from 'date-fns';
+import { format, isValid } from 'date-fns';
 import React, { Fragment, memo, useCallback, useState } from 'react';
 import SearchIcon from '@mui/icons-material/Search';
 import { succesNofity, warningNofity } from '../../../Constant/Constant';
@@ -15,26 +15,77 @@ const TmcQuotationMian = () => {
     const [showTbl, setShowTbl] = useState(0);
 
     const SearchBtn = useCallback(async () => {
-        setShowTbl(1)
-        if (qtnNo && qtnDate) {
-            const payloadVal = {
-                qtnNo,
-                qtnDate: format(new Date(qtnDate), 'dd-MMM-yyyy')
-            };
-            try {
-                const { data: mastRes } = await axiosellider_tmc.post("/bisQuotationData/qtnMastDetails", payloadVal);
-                setMastData(mastRes.successVal === 2 && mastRes.MastData?.length > 0 ? mastRes.MastData[0] : null);
-                const { data: detailRes } = await axiosellider_tmc.post("/bisQuotationData/qtnDetailDetails", payloadVal);
-                setDetailData(detailRes.success === 2 ? detailRes.DetailData : []);
-            } catch (error) {
-                warningNofity("Failed to fetch quotation data. Please try again.");
-                setMastData(null);
-                setDetailData([]);
+        try {
+            setShowTbl(1);
+            // Validate qtnNo (must be a number and not empty)
+            if (!qtnNo || isNaN(Number(qtnNo))) {
+                warningNofity("Quotation number must be a valid number");
+                return;
             }
-        } else {
-            warningNofity("Quotation number and date are required");
+
+            //  Validate qtnDate (must be a valid date)
+            const parsedQtnDate = new Date(qtnDate);
+            if (!(parsedQtnDate instanceof Date) || isNaN(parsedQtnDate.getTime()) || !isValid(parsedQtnDate)) {
+                warningNofity("Quotation date is invalid");
+                return;
+            }
+
+            const payloadVal = {
+                qtnNo: Number(qtnNo),
+                qtnDate: format(parsedQtnDate, "dd-MMM-yyyy"),
+            };
+
+            //  API Calls inside try/catch
+            const { data: mastRes } = await axiosellider_tmc.post(
+                "/bisQuotationData/qtnMastDetails",
+                payloadVal
+            );
+
+            setMastData(
+                mastRes.successVal === 2 && mastRes.MastData?.length > 0
+                    ? mastRes.MastData[0]
+                    : null
+            );
+
+            const { data: detailRes } = await axiosellider_tmc.post(
+                "/bisQuotationData/qtnDetailDetails",
+                payloadVal
+            );
+
+            setDetailData(
+                detailRes.success === 2 ? detailRes.DetailData : []
+            );
+        } catch (error) {
+            warningNofity("Failed to fetch quotation data. Please try again.");
+            setMastData(null);
+            setDetailData([]);
         }
     }, [qtnNo, qtnDate]);
+
+
+    // const SearchBtn = useCallback(async () => {
+    //     setShowTbl(1)
+    //     if (qtnNo && qtnDate) {
+    //         const payloadVal = {
+    //             qtnNo,
+    //             qtnDate: format(new Date(qtnDate), 'dd-MMM-yyyy')
+    //         };
+    //         try {
+    //             const { data: mastRes } = await axiosellider_tmc.post("/bisQuotationData/qtnMastDetails", payloadVal);
+    //             setMastData(mastRes.successVal === 2 && mastRes.MastData?.length > 0 ? mastRes.MastData[0] : null);
+    //             const { data: detailRes } = await axiosellider_tmc.post("/bisQuotationData/qtnDetailDetails", payloadVal);
+    //             setDetailData(detailRes.success === 2 ? detailRes.DetailData : []);
+    //         } catch (error) {
+    //             warningNofity("Failed to fetch quotation data. Please try again.");
+    //             setMastData(null);
+    //             setDetailData([]);
+    //         }
+    //     } else {
+    //         warningNofity("Quotation number and date are required");
+    //     }
+    // }, [qtnNo, qtnDate]);
+
+
 
 
     const InsertData = useCallback(async () => {

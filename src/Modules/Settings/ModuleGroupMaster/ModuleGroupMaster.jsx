@@ -68,60 +68,67 @@ const ModuleGroupMaster = () => {
 
     const handleSubmitUserManagment = useCallback(async (e) => {
         e.preventDefault();
-        if (editData === 0) {
-            if (moduleGrpDetails.user_type?.length === 0) {
-                warningNofity('Name Of the Module cannot be empty');
-                return;
+        try {
+            if (editData === 0) {
+                if (moduleGrpDetails.user_type?.length === 0) {
+                    warningNofity('Name Of the Module cannot be empty');
+                    return;
+                }
+
+                const postdata = {
+                    module_user_type: Number(moduleGrpDetails?.user_type),
+                    module_grp_status: Number(moduleGrpDetails?.module_grp_status),
+                    module_slno: selectedModules
+                };
+
+                const response = await axiosApi.post('/ModuleGroupMaster/insertModuleGroup', postdata);
+                const { message, success } = response.data;
+
+                if (success === 1) {
+                    queryClient.invalidateQueries(['moduleMast']);
+                    succesNofity(message);
+                    setModuleGrpDetails({
+                        module_grp_slno: 0,
+                        user_type: 0,
+                        module_grp_status: 0
+                    });
+                    setSelectedModules({});
+                } else {
+                    warningNofity(message);
+                }
+            } else {
+                if (moduleGrpDetails.user_type?.length === 0) {
+                    warningNofity('Name Of the Module cannot be empty');
+                    return;
+                }
+
+                const patchdata = {
+                    module_grp_slno: moduleGrpDetails?.module_grp_slno,
+                    module_user_type: Number(moduleGrpDetails?.user_type),
+                    module_grp_status: Number(moduleGrpDetails?.module_grp_status),
+                    module_slno: selectedModules
+                };
+
+                const response = await axiosApi.patch('/ModuleGroupMaster/editModuleGroup', patchdata);
+                const { message, success } = response.data;
+
+                if (success === 1) {
+                    queryClient.invalidateQueries(['moduleMast']);
+                    succesNofity(message);
+                    setModuleGrpDetails({
+                        module_grp_slno: 0,
+                        user_type: 0,
+                        module_grp_status: 0,
+                    });
+                    setSelectedModules({});
+                } else {
+                    warningNofity(message);
+                }
             }
-            const postdata = {
-                module_user_type: Number(moduleGrpDetails?.user_type),
-                module_grp_status: Number(moduleGrpDetails?.module_grp_status),
-                module_slno: selectedModules
-            }
-            const response = await axiosApi.post('/ModuleGroupMaster/insertModuleGroup', postdata)
-            const { message, success } = response.data;
-            if (success === 1) {
-                queryClient.invalidateQueries(['moduleMast'])
-                succesNofity(message)
-                setModuleGrpDetails({
-                    module_grp_slno: 0,
-                    user_type: 0,
-                    module_grp_status: 0
-                });
-                setSelectedModules({})
-            }
-            else {
-                warningNofity(message)
-            }
+        } catch (error) {
+            warningNofity("Something went wrong. Please try again later.");
         }
-        else {
-            if (moduleGrpDetails.user_type?.length === 0) {
-                warningNofity('Name Of the Module cannot be empty');
-                return;
-            }
-            const patchdata = {
-                module_grp_slno: moduleGrpDetails?.module_grp_slno,
-                module_user_type: Number(moduleGrpDetails?.user_type),
-                module_grp_status: Number(moduleGrpDetails?.module_grp_status),
-                module_slno: selectedModules
-            }
-            const response = await axiosApi.patch('/ModuleGroupMaster/editModuleGroup', patchdata)
-            const { message, success } = response.data;
-            if (success === 1) {
-                queryClient.invalidateQueries(['moduleMast'])
-                succesNofity(message)
-                setModuleGrpDetails({
-                    module_grp_slno: 0,
-                    user_type: 0,
-                    module_grp_status: 0,
-                });
-                setSelectedModules({})
-            }
-            else {
-                warningNofity(message)
-            }
-        }
-    }, [moduleGrpDetails, editData, queryClient, selectedModules])
+    }, [moduleGrpDetails, editData, queryClient, selectedModules]);
 
     const viewuserList = useCallback(() => {
         setViewTable(1)

@@ -2,13 +2,14 @@ import React, { memo, useMemo, useState } from "react";
 import { Box, Typography } from "@mui/joy";
 import { useQuery } from '@tanstack/react-query';
 import { endOfMonth, format, startOfMonth } from "date-fns";
-import OverallSalesProgress from "../../BIS_CommoCode/SalesProgress/OverallSalesProgress"
+// import OverallSalesProgress from "../../BIS_CommoCode/SalesProgress/OverallSalesProgress"
 import KMCHeader from "../../BIS_CommoCode/KMCHeader"
 import { getIpDetails } from "../../../../api/commonAPI"
 import Tmc_IPYearWise from "./Tmc_IPYearWise";
 import Tmc_IpDeptWise from "./Tmc_IpDeptWise";
 import Tmc_IpDrWise from "./Tmc_IpDrWise";
 import Tmc_AllIpDeptWise from "./Tmc_AllIpDeptWise";
+import OverallSalesProgress from "../../BIS_CommoCode/OverallSalesProgress";
 
 const Kmch_Ip_Statistics = () => {
 
