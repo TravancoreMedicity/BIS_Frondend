@@ -24,12 +24,40 @@ const Kmch_Patient_Statiatics = () => {
     const [dept_fromDate, setdept_FromDate] = useState(format(startOfMonth(new Date()), "yyyy-MM-dd"));
     const [dept_toDate, setdept_ToDate] = useState(format(endOfMonth(new Date()), "yyyy-MM-dd"));
 
+    // const payloadDatas = useMemo(() => {
+    //     return {
+    //         fromDate: fromDate,
+    //         toDate: toDate
+    //     }
+    // }, [fromDate, toDate])
+
     const payloadDatas = useMemo(() => {
-        return {
-            fromDate: fromDate,
-            toDate: toDate
+        try {
+            if (!fromDate || isNaN(new Date(fromDate))) {
+                throw new Error("Invalid or missing fromDate");
+            }
+
+            if (!toDate || isNaN(new Date(toDate))) {
+                throw new Error("Invalid or missing toDate");
+            }
+
+            if (new Date(fromDate) > new Date(toDate)) {
+                throw new Error("fromDate cannot be after toDate");
+            }
+
+            return {
+                fromDate,
+                toDate
+            };
+        } catch (error) {
+            console.error("Error generating payloadDatas:", error.message);
+            return {
+                fromDate: '',
+                toDate: ''
+            };
         }
-    }, [fromDate, toDate])
+    }, [fromDate, toDate]);
+
 
     //usequery
     const { data: OpDetails } = useQuery({

@@ -1,11 +1,12 @@
 import { Box, Button, ButtonGroup, Card, CardContent, Chip, Divider, Typography } from '@mui/joy'
 import React, { Fragment, memo, useCallback, useEffect, useMemo, useState } from 'react'
 import KMCHeader from '../../BIS_CommoCode/KMCHeader'
-import QuotationDetails from './QuotationDetails'
+// import QuotationDetails from './QuotationDetails'
 // import { Bar } from 'react-chartjs-2'
 import { format, startOfMonth, startOfYear, subMonths } from 'date-fns'
 import { getActiveItems, getKMCFinalizedQtn, getKMCLinkedItems, getKMCTotalQtn } from '../../../../api/commonAPI'
 import { useQuery } from '@tanstack/react-query';
+import { ensureNumber } from '../../BIS_CommoCode/CommonDateRange/ChartCommonFuns/ChartCommonFun'
 
 const Qtn_Statistics = () => {
 
@@ -14,10 +15,12 @@ const Qtn_Statistics = () => {
     // const [toDate, setToDate] = useState(format(new Date(), 'yyyy-MM-dd'));
     // const [category, setCategory] = useState('');
 
+
     const { data: ActiveItems } = useQuery({
         queryKey: ["qtnActiveItems"],
         queryFn: () => getActiveItems(),
     })
+
     //linked item wise
     const { data: LinkedItems } = useQuery({
         queryKey: ["qtnLinkedItems"],
@@ -33,6 +36,8 @@ const Qtn_Statistics = () => {
         queryKey: ["getFinalizedQtn"],
         queryFn: () => getKMCFinalizedQtn(),
     })
+
+    // console.log("ActiveItems:", ActiveItems);
 
 
     // { ST_CODE: '0124', ITEM_COUNT: 10642 }
@@ -61,46 +66,107 @@ const Qtn_Statistics = () => {
         '0037': 'Project Store'
     };
 
+    // const { categories: activeCategories, totalCount: activeTotal } = useMemo(() => {
+    //     const itemMap = {};
+    //     let total = 0;
+
+    //     // Only include ST_CODEs that exist in categoryMap
+    //     (ActiveItems || []).map(item => {
+    //         if (categoryMap[item.ST_CODE]) {
+    //             itemMap[item.ST_CODE] = item.ITEM_COUNT;
+    //             total += item.ITEM_COUNT;
+    //         }
+    //     });
+
+    //     // Ensure all categories from categoryMap are present in the UI
+    //     const categories = Object.entries(categoryMap).map(([ST_CODE, name]) => ({
+    //         name,
+    //         count: itemMap[ST_CODE] || 0
+    //     }));
+
+    //     return { categories, totalCount: total };
+    // }, [ActiveItems]);
+
     const { categories: activeCategories, totalCount: activeTotal } = useMemo(() => {
-        const itemMap = {};
-        let total = 0;
+        try {
+            // Build an array of valid items with ST_CODE present in categoryMap
+            const validItems = (ActiveItems || []).map(item => {
+                if (categoryMap[item.ST_CODE]) {
+                    return { ST_CODE: item.ST_CODE, count: item.ITEM_COUNT };
+                }
+                return null; // mark invalid ones
+            }).filter(Boolean); // remove nulls
 
-        // Only include ST_CODEs that exist in categoryMap
-        (ActiveItems || []).map(item => {
-            if (categoryMap[item.ST_CODE]) {
-                itemMap[item.ST_CODE] = item.ITEM_COUNT;
-                total += item.ITEM_COUNT;
-            }
-        });
+            // Build itemMap from valid items
+            const itemMap = Object.fromEntries(
+                validItems.map(({ ST_CODE, count }) => [ST_CODE, count])
+            );
 
-        // Ensure all categories from categoryMap are present in the UI
-        const categories = Object.entries(categoryMap).map(([ST_CODE, name]) => ({
-            name,
-            count: itemMap[ST_CODE] || 0
-        }));
+            // Total count
+            const total = validItems
+                .map(item => item.count)
+                .reduce((sum, count) => sum + count, 0);
 
-        return { categories, totalCount: total };
-    }, [ActiveItems]);
+            // Ensure all categories from categoryMap are present in the UI
+            const categories = Object.entries(categoryMap).map(([ST_CODE, name]) => ({
+                name,
+                count: itemMap[ST_CODE] || 0
+            }));
+
+            return { categories, totalCount: total };
+        } catch (error) {
+            console.error("Error computing active categories:", error);
+            return { categories: [], totalCount: 0 };
+        }
+    }, [ActiveItems, categoryMap]);
 
 
     // For Linked Items
+    // const { categories: linkedCategories, totalCount: linkedTotal } = useMemo(() => {
+    //     const itemMap = {};
+    //     let total = 0;
+    //     // Build map only for items that match categoryMap keys
+    //     (LinkedItems || []).map(item => {
+    //         if (categoryMap[item.su_code]) {
+    //             itemMap[item.su_code] = item.item_count;
+    //             total += item.item_count;
+    //         }
+    //     });
+    //     // Ensure all categories from categoryMap are returned
+    //     const categories = Object.entries(categoryMap).map(([su_code, name]) => ({
+    //         name,
+    //         count: itemMap[su_code] || 0
+    //     }));
+    //     return { categories, totalCount: total };
+    // }, [LinkedItems]);
+
     const { categories: linkedCategories, totalCount: linkedTotal } = useMemo(() => {
-        const itemMap = {};
-        let total = 0;
-        // Build map only for items that match categoryMap keys
-        (LinkedItems || []).map(item => {
-            if (categoryMap[item.su_code]) {
-                itemMap[item.su_code] = item.item_count;
-                total += item.item_count;
-            }
-        });
-        // Ensure all categories from categoryMap are returned
-        const categories = Object.entries(categoryMap).map(([su_code, name]) => ({
-            name,
-            count: itemMap[su_code] || 0
-        }));
-        return { categories, totalCount: total };
-    }, [LinkedItems]);
+        try {
+            const itemMap = {};
+            let total = 0;
+
+            // Build map only for items that match categoryMap keys
+            (LinkedItems || []).map(item => {
+                if (categoryMap[item.su_code]) {
+                    itemMap[item.su_code] = item.item_count;
+                    total += item.item_count;
+                }
+                return null; // to satisfy map's return
+            });
+
+            // Ensure all categories from categoryMap are returned
+            const categories = Object.entries(categoryMap).map(([su_code, name]) => ({
+                name,
+                count: itemMap[su_code] || 0
+            }));
+
+            return { categories, totalCount: total };
+        } catch (error) {
+            console.error("Error computing linked categories:", error);
+            return { categories: [], totalCount: 0 };
+        }
+    }, [LinkedItems, categoryMap]);
+
 
     const CategoryCard = ({ title, total, categories }) => (
         <Card sx={{ flex: 1, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', background: '#fefefe', p: 2 }}>
@@ -149,34 +215,73 @@ const Qtn_Statistics = () => {
 
 
     // fetching data from ellider
+    // const computeCategoryCounts = (totalQtn = [], FinalizedQtn = []) => {
+    //     const categoryCounts = {};
+
+    //     // Step 1: Initialize all categories with 0 count
+    //     Object.values(categoryMap).map(category => {
+    //         categoryCounts[category] = { total: 0, finalized: 0 };
+    //     });
+
+    //     // Step 2: Count total quotations per category
+    //     totalQtn?.map(qtn => {
+    //         const category = categoryMap[qtn.SU_CODE];
+    //         if (category) {
+    //             categoryCounts[category].total += 1;
+    //         }
+    //     });
+
+    //     // Step 3: Count finalized quotations per category
+    //     FinalizedQtn?.map(qtn => {
+    //         const category = categoryMap[qtn.su_code];
+    //         if (category) {
+    //             categoryCounts[category].finalized += 1;
+    //         }
+    //     });
+    //     return Object.entries(categoryCounts).map(([category, counts]) => ({
+    //         category,
+    //         finalized: counts.finalized,
+    //         notFinalized: Math.max(0, counts.total - counts.finalized)
+    //     }));
+    // };
+
     const computeCategoryCounts = (totalQtn = [], FinalizedQtn = []) => {
-        const categoryCounts = {};
+        try {
+            const categoryCounts = {};
 
-        // Step 1: Initialize all categories with 0 count
-        Object.values(categoryMap).map(category => {
-            categoryCounts[category] = { total: 0, finalized: 0 };
-        });
+            // Step 1: Initialize all categories with 0 count
+            Object.values(categoryMap).map(category => {
+                categoryCounts[category] = { total: 0, finalized: 0 };
+                return null; // to satisfy map return
+            });
 
-        // Step 2: Count total quotations per category
-        totalQtn?.map(qtn => {
-            const category = categoryMap[qtn.SU_CODE];
-            if (category) {
-                categoryCounts[category].total += 1;
-            }
-        });
+            // Step 2: Count total quotations per category
+            totalQtn?.map(qtn => {
+                const category = categoryMap[qtn.SU_CODE];
+                if (category) {
+                    categoryCounts[category].total += 1;
+                }
+                return null;
+            });
 
-        // Step 3: Count finalized quotations per category
-        FinalizedQtn?.map(qtn => {
-            const category = categoryMap[qtn.su_code];
-            if (category) {
-                categoryCounts[category].finalized += 1;
-            }
-        });
-        return Object.entries(categoryCounts).map(([category, counts]) => ({
-            category,
-            finalized: counts.finalized,
-            notFinalized: Math.max(0, counts.total - counts.finalized)
-        }));
+            // Step 3: Count finalized quotations per category
+            FinalizedQtn?.map(qtn => {
+                const category = categoryMap[qtn.su_code];
+                if (category) {
+                    categoryCounts[category].finalized += 1;
+                }
+                return null;
+            });
+
+            return Object.entries(categoryCounts).map(([category, counts]) => ({
+                category,
+                finalized: counts.finalized,
+                notFinalized: Math.max(0, counts.total - counts.finalized)
+            }));
+        } catch (error) {
+            console.error("Error computing category counts:", error);
+            return []; // safe fallback
+        }
     };
 
     const categoryList = computeCategoryCounts(totalQtn, FinalizedQtn);
@@ -184,49 +289,97 @@ const Qtn_Statistics = () => {
 
     const [selectedRange, setSelectedRange] = useState(1); // 1 = This Month
 
-    // ✅ Filter items based on selected date range
-    const filteredItems = useMemo(() => {
-        const today = new Date();
-        let fromDate;
-        switch (selectedRange) {
-            case 1:
-                fromDate = format(startOfMonth(today), "yyyy-MM-dd");
-                break;
-            case 2:
-                fromDate = format(subMonths(today, 6), "yyyy-MM-dd");
-                break;
-            case 3:
-                fromDate = format(startOfYear(today), "yyyy-MM-dd");
-                break;
-            default:
-                fromDate = format(startOfMonth(today), "yyyy-MM-dd");
-        }
-        return (LinkedItems || []).filter(item => {
-            if (!item.update_date) return false;
+    //  Filter items based on selected date range
+    // const filteredItems = useMemo(() => {
+    //     const today = new Date();
+    //     let fromDate;
+    //     switch (selectedRange) {
+    //         case 1:
+    //             fromDate = format(startOfMonth(today), "yyyy-MM-dd");
+    //             break;
+    //         case 2:
+    //             fromDate = format(subMonths(today, 6), "yyyy-MM-dd");
+    //             break;
+    //         case 3:
+    //             fromDate = format(startOfYear(today), "yyyy-MM-dd");
+    //             break;
+    //         default:
+    //             fromDate = format(startOfMonth(today), "yyyy-MM-dd");
+    //     }
+    //     return (LinkedItems || []).filter(item => {
+    //         if (!item.update_date) return false;
 
-            const itemDate = format(new Date(item.update_date), "yyyy-MM-dd");
-            return itemDate >= fromDate;
-        });
+    //         const itemDate = format(new Date(item.update_date), "yyyy-MM-dd");
+    //         return itemDate >= fromDate;
+    //     });
+    // }, [LinkedItems, selectedRange]);
+    const filteredItems = useMemo(() => {
+        try {
+            const today = new Date();
+            let fromDate = format(startOfMonth(today), "yyyy-MM-dd");
+
+            if (selectedRange === 2) {
+                fromDate = format(subMonths(today, 6), "yyyy-MM-dd");
+            } else if (selectedRange === 3) {
+                fromDate = format(startOfYear(today), "yyyy-MM-dd");
+            }
+
+            return (LinkedItems || []).filter(item => {
+                if (!item.update_date) return false;
+
+                const itemDate = format(new Date(item.update_date), "yyyy-MM-dd");
+                return itemDate >= fromDate;
+            });
+        } catch (error) {
+            console.error("Error filtering items:", error);
+            return [];
+        }
     }, [LinkedItems, selectedRange]);
 
-    // ✅ Categorize and sum item counts
-    const categorizedCounts = useMemo(() => {
-        const counts = {
-            ...Object.values(categoryMap).reduce((acc, name) => {
-                acc[name] = 0;
-                return acc;
-            }, {}),
-        };
-        filteredItems.forEach(item => {
-            const category = categoryMap[item.su_code];
-            if (category) {
-                counts[category] += item.item_count || 0;
-            }
-        });
-        return counts;
-    }, [filteredItems]);
 
-    // ✅ Total item count across all categories
+    //  Categorize and sum item counts
+    // const categorizedCounts = useMemo(() => {
+    //     const counts = {
+    //         ...Object.values(categoryMap).reduce((acc, name) => {
+    //             acc[name] = 0;
+    //             return acc;
+    //         }, {}),
+    //     };
+    //     filteredItems.forEach(item => {
+    //         const category = categoryMap[item.su_code];
+    //         if (category) {
+    //             counts[category] += item.item_count || 0;
+    //         }
+    //     });
+    //     return counts;
+    // }, [filteredItems]);
+
+    const categorizedCounts = useMemo(() => {
+        try {
+            const counts = {
+                ...Object.values(categoryMap).reduce((acc, name) => {
+                    acc[name] = 0;
+                    return acc;
+                }, {}),
+            };
+
+            (filteredItems || []).map(item => {
+                const category = categoryMap[item.su_code];
+                if (category) {
+                    counts[category] += item.item_count || 0;
+                }
+                return null; // map expects a return, so we return null
+            });
+
+            return counts;
+        } catch (error) {
+            console.error("Error computing categorized counts:", error);
+            return {}; // safe fallback
+        }
+    }, [filteredItems, categoryMap]);
+
+
+    //  Total item count across all categories
     const totalItemCount = useMemo(() => {
         return Object.values(categorizedCounts).reduce((sum, val) => sum + val, 0);
     }, [categorizedCounts]);
@@ -248,33 +401,90 @@ const Qtn_Statistics = () => {
     const [filteredSuppliers, setFilteredSuppliers] = useState([]);
     const [supplierRange, setSupplierRange] = useState(1);
 
-    const getFilteredSuppliers = useCallback((type) => {
-        const today = new Date();
-        let fromDate;
-        switch (type) {
-            case 1: // This Month
-                fromDate = startOfMonth(today);
-                break;
-            case 2: // Last 6 Months
-                fromDate = subMonths(today, 6);
-                break;
-            case 3: // This Year
-                fromDate = new Date(today.getFullYear(), 0, 1);
-                break;
-            default:
-                fromDate = startOfMonth(today);
-        }
-        const formattedFrom = format(fromDate, 'yyyy-MM-dd');
-        const formattedTo = format(today, 'yyyy-MM-dd');
+    // const getFilteredSuppliers = useCallback((type) => {
+    //     const today = new Date();
+    //     let fromDate;
+    //     switch (type) {
+    //         case 1: // This Month
+    //             fromDate = startOfMonth(today);
+    //             break;
+    //         case 2: // Last 6 Months
+    //             fromDate = subMonths(today, 6);
+    //             break;
+    //         case 3: // This Year
+    //             fromDate = new Date(today.getFullYear(), 0, 1);
+    //             break;
+    //         default:
+    //             fromDate = startOfMonth(today);
+    //     }
+    //     const formattedFrom = format(fromDate, 'yyyy-MM-dd');
+    //     const formattedTo = format(today, 'yyyy-MM-dd');
 
-        const filtered = supplierDetails.filter(supplier => {
-            if (!supplier.FirstCommitDate) return false;
-            const date = format(new Date(supplier.FirstCommitDate), 'yyyy-MM-dd');
-            return date >= formattedFrom && date <= formattedTo;
-        });
-        setSupplierRange(type);
-        setFilteredSuppliers(filtered);
-    }, [])
+    //     const filtered = supplierDetails.filter(supplier => {
+    //         if (!supplier.FirstCommitDate) return false;
+    //         const date = format(new Date(supplier.FirstCommitDate), 'yyyy-MM-dd');
+    //         return date >= formattedFrom && date <= formattedTo;
+    //     });
+    //     setSupplierRange(type);
+    //     setFilteredSuppliers(filtered);
+    // }, [])
+
+
+    const getFilteredSuppliers = useCallback((type) => {
+        try {
+            // ensure type is a number
+
+            if (!ensureNumber(type)) {
+                console.error("Invalid type: must be a number");
+                setSupplierRange(null);
+                setFilteredSuppliers([]);
+                return;
+            }
+
+            const today = new Date();
+            let fromDate;
+
+            if (type === 1) {
+                // This Month
+                fromDate = startOfMonth(today);
+            } else if (type === 2) {
+                // Last 6 Months
+                fromDate = subMonths(today, 6);
+            } else if (type === 3) {
+                // This Year
+                fromDate = new Date(today.getFullYear(), 0, 1);
+            } else {
+                // Default → This Month
+                fromDate = startOfMonth(today);
+            }
+
+            const formattedFrom = format(fromDate, "yyyy-MM-dd");
+            const formattedTo = format(today, "yyyy-MM-dd");
+
+            const filtered = supplierDetails.filter((supplier) => {
+                if (!supplier.FirstCommitDate) {
+                    return false;
+                }
+
+                try {
+                    const date = format(new Date(supplier.FirstCommitDate), "yyyy-MM-dd");
+                    return date >= formattedFrom && date <= formattedTo;
+                } catch (err) {
+                    console.error("Invalid FirstCommitDate:", supplier.FirstCommitDate, err);
+                    return false;
+                }
+            });
+
+            setSupplierRange(type);
+            setFilteredSuppliers(filtered);
+        } catch (error) {
+            console.error("Error in getFilteredSuppliers:", error);
+            setSupplierRange(type);
+            setFilteredSuppliers([]); // fallback to empty list
+        }
+    }, [supplierDetails]);
+
+
 
     useEffect(() => {
         getFilteredSuppliers(1); // default to "This Month"
@@ -284,46 +494,99 @@ const Qtn_Statistics = () => {
     const [filteredQtns, setFilteredQtns] = useState([]);
 
     const handleNewQuotation = useCallback((type) => {
-        const today = new Date();
-        let fromDate;
+        try {
+            const today = new Date();
+            let fromDate = startOfMonth(today); // default
 
-        switch (type) {
-            case 1: fromDate = startOfMonth(today); break;
-            case 2: fromDate = subMonths(today, 6); break;
-            case 3: fromDate = new Date(today.getFullYear(), 0, 1); break;
-            default: fromDate = startOfMonth(today);
+            if (type === 1) {
+                fromDate = startOfMonth(today);
+            } else if (type === 2) {
+                fromDate = subMonths(today, 6);
+            } else if (type === 3) {
+                fromDate = new Date(today.getFullYear(), 0, 1);
+            }
+
+            const fromStr = format(fromDate, "yyyy-MM-dd");
+            const toStr = format(today, "yyyy-MM-dd");
+
+            const filtered = (FinalizedQtn || []).filter((qtn) => {
+                const dateStr = format(new Date(qtn.qtn_date), "yyyy-MM-dd");
+                return dateStr >= fromStr && dateStr <= toStr;
+            });
+
+            setSelectedQuotationRange(type);
+            setFilteredQtns(filtered);
+        } catch (error) {
+            console.error("Error in handleNewQuotation:", error);
+            setFilteredQtns([]); // fallback
         }
-
-        const fromStr = format(fromDate, 'yyyy-MM-dd');
-        const toStr = format(today, 'yyyy-MM-dd');
-
-        const filtered = (FinalizedQtn || []).filter(qtn => {
-            const dateStr = format(new Date(qtn.qtn_date), 'yyyy-MM-dd');
-            return dateStr >= fromStr && dateStr <= toStr;
-        });
-
-        setSelectedQuotationRange(type);
-        setFilteredQtns(filtered);
     }, [FinalizedQtn]);
+
+    // const handleNewQuotation = useCallback((type) => {
+    //     const today = new Date();
+    //     let fromDate;
+
+    //     switch (type) {
+    //         case 1: fromDate = startOfMonth(today); break;
+    //         case 2: fromDate = subMonths(today, 6); break;
+    //         case 3: fromDate = new Date(today.getFullYear(), 0, 1); break;
+    //         default: fromDate = startOfMonth(today);
+    //     }
+
+    //     const fromStr = format(fromDate, 'yyyy-MM-dd');
+    //     const toStr = format(today, 'yyyy-MM-dd');
+
+    //     const filtered = (FinalizedQtn || []).filter(qtn => {
+    //         const dateStr = format(new Date(qtn.qtn_date), 'yyyy-MM-dd');
+    //         return dateStr >= fromStr && dateStr <= toStr;
+    //     });
+
+    //     setSelectedQuotationRange(type);
+    //     setFilteredQtns(filtered);
+    // }, [FinalizedQtn]);
 
     useEffect(() => {
         handleNewQuotation(1);
     }, [handleNewQuotation]);
 
+    // const categorizedQuotationCounts = useMemo(() => {
+    //     const counts = {};
+
+    //     Object.values(categoryMap).forEach(cat => {
+    //         counts[cat] = 0;
+    //     });
+
+    //     filteredQtns.forEach(qtn => {
+    //         const category = categoryMap[qtn.su_code] || "Others";
+    //         counts[category] += 1;
+    //     });
+
+    //     return counts;
+    // }, [filteredQtns]);
+
     const categorizedQuotationCounts = useMemo(() => {
-        const counts = {};
+        try {
+            const counts = {};
 
-        Object.values(categoryMap).forEach(cat => {
-            counts[cat] = 0;
-        });
+            // Initialize all categories with 0
+            Object.values(categoryMap).map(cat => {
+                counts[cat] = 0;
+                return null; // map expects a return
+            });
 
-        filteredQtns.forEach(qtn => {
-            const category = categoryMap[qtn.su_code] || "Others";
-            counts[category] += 1;
-        });
+            // Count quotations per category
+            (filteredQtns || []).map(qtn => {
+                const category = categoryMap[qtn.su_code] || "Others";
+                counts[category] = (counts[category] || 0) + 1;
+                return null; // map expects a return
+            });
 
-        return counts;
-    }, [filteredQtns]);
+            return counts;
+        } catch (error) {
+            console.error("Error computing categorized quotation counts:", error);
+            return {}; // safe fallback
+        }
+    }, [filteredQtns, categoryMap]);
 
     return (
         <Fragment>

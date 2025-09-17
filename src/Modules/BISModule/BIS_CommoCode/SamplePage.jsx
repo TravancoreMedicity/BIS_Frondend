@@ -2591,5 +2591,25 @@ export default memo(SamplePage);
 
 
 
+
+// export const userWiseSettingsRights = async (loggedUser) => {
+//   return await axiosApi.get(`/UserGroupRightMaster/userWiseSettingsRights/${loggedUser}`).then((res) => {
+//     const { success, data } = res.data;
+//     if (success === 2) {
+//       return data ? data : [];
+//     }
+//   });
+// };
+
+
+// export const getgraphicalViewRights = async authNo => {
+//   return axiosApi.get(`/bisGraphicalViewMast/fetchGraphicalviewRights/${authNo}`).then(res => {
+//     const { success, data } = res.data
+//     if (success === 2) {
+//       return data
+//     }
+//   })
+// }
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

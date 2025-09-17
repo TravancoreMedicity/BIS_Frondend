@@ -1,5 +1,5 @@
 import { Box } from '@mui/joy';
-import React, { memo, useState, useMemo } from 'react';
+import React, { memo, useState } from 'react';
 import { Bar, Line, PolarArea } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
@@ -14,6 +14,8 @@ import {
 } from 'chart.js';
 import GraphicalRep from '../../BIS_CommoCode/GraphicalRep';
 import { useNavigate } from 'react-router-dom';
+import { barOptions } from '../../BIS_CommoCode/CommonDateRange/ChartCommonFuns/ChartCommonFun';
+import CommonGraphRep from '../../BIS_CommoCode/CommonGraphRep';
 
 ChartJS.register(
     CategoryScale,
@@ -42,7 +44,7 @@ const YearlyCount = [
 
 ]
 
-const Kmc_IPYearWise = () => {
+const Tmc_IPYearWise = () => {
     const defaultStyle = 1; // 1 = Bar, 3 = PolarArea
     const [Chartlayout, seChartlayout] = useState(defaultStyle);
 
@@ -96,7 +98,7 @@ const Kmc_IPYearWise = () => {
                     size: 10,
                     family: "'Roboto', sans-serif"
                 },
-                rotation: -90, // 🔄 This rotates the label
+                rotation: -90, //  This rotates the label
                 formatter: (value) => {
                     return value; // Customize label display if needed
                 }
@@ -151,13 +153,13 @@ const Kmc_IPYearWise = () => {
             },
         },
     };
-    const lineOptions = {
-        ...options,
-        elements: {
-            line: { tension: 0.4, borderWidth: 2 },
-            point: { radius: 4, backgroundColor: 'rgba(96, 94, 163, 1)' }
-        }
-    };
+    // const lineOptions = {
+    //     ...options,
+    //     elements: {
+    //         line: { tension: 0.4, borderWidth: 2 },
+    //         point: { radius: 4, backgroundColor: 'rgba(96, 94, 163, 1)' }
+    //     }
+    // };
 
     return (
         <Box sx={{ width: { xs: '100%', md: 700, lg: '100%' }, overflow: "auto" }}>
@@ -168,18 +170,12 @@ const Kmc_IPYearWise = () => {
                     </Box>
                 </Box>
             </Box>
-            <Box sx={{ mt: 2, width: '100%', height: 350 }}>
-                {Chartlayout === 1 && <Bar data={singleValuePolarData} options={options} height={350} />}
-                {Chartlayout === 2 && <Line data={singleValuePolarData} options={lineOptions} height={350} />}
-                {Chartlayout === 3 && (
-                    <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: '100%' }}>
-                        <PolarArea data={singleValuePolarData} options={polarOptions} height={300} width={300} />
-                    </Box>
-                )}
-            </Box>
+
+            <CommonGraphRep Chartlayout={Chartlayout} chartData={singleValuePolarData} options={barOptions} polarData={singleValuePolarData} polarOptions={polarOptions} />
+
         </Box>
     );
 };
 
-export default memo(Kmc_IPYearWise);
+export default memo(Tmc_IPYearWise);
 

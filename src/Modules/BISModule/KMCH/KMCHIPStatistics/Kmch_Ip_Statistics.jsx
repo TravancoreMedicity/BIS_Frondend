@@ -10,6 +10,7 @@ import Kmc_IpDeptWise from "./Kmc_IpDeptWise";
 import Kmc_IpDrWise from "./Kmc_IpDrWise";
 import Kmc_AllIpDeptWise from "./Kmc_AllIpDeptWise";
 import OverallSalesProgress from "../../BIS_CommoCode/OverallSalesProgress";
+import { barOptions, lineOptions } from "../../BIS_CommoCode/CommonDateRange/ChartCommonFuns/ChartCommonFun";
 
 const Kmch_Ip_Statistics = () => {
 
@@ -92,7 +93,10 @@ const Kmch_Ip_Statistics = () => {
                 }}
             >
                 <DashboardCard title="Inpatient Count">
-                    <OverallSalesProgress Graphicaldata={data} Displaystyle={1} fromDate={fromDate} setFromDate={setFromDate} toDate={toDate} setToDate={setToDate} />
+                    {/* <OverallSalesProgress Graphicaldata={data} Displaystyle={1} fromDate={fromDate} setFromDate={setFromDate} toDate={toDate} setToDate={setToDate} /> */}
+
+                    <OverallSalesProgress Graphicaldata={data} Displaystyle={1} fromDate={fromDate} setFromDate={setFromDate} toDate={toDate} setToDate={setToDate} barOptions={barOptions}
+                        lineOptions={lineOptions} />
                 </DashboardCard>
                 <DashboardCard title="Inpatient Count (Year Wise)">
                     <Kmc_IPYearWise />

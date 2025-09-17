@@ -13,6 +13,7 @@ import {
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { useNavigate } from 'react-router-dom';
 import GraphicalRep from '../../BIS_CommoCode/GraphicalRep';
+import CommonDateComp from '../../BIS_CommoCode/CommonDateRange/CommonDateComp';
 
 ChartJS.register(
     CategoryScale,
@@ -80,12 +81,11 @@ const departmentDetails = [
 ];
 
 
-
-
-const OP_IP_Deptwise = ({ fromDate, setFromDate, toDate, setToDate }) => {
+const Tmc_OP_IP_Deptwise = ({ fromDate, setFromDate, toDate, setToDate }) => {
     const [Chartlayout, seChartlayout] = useState(1);
     const [chartData, setChartData] = useState(null);
     const [deptMapList, setDeptMapList] = useState([]);
+    const [dayCount, setDayCount] = useState(2);
     const navigate = useNavigate();
 
     const today = new Date();
@@ -93,68 +93,184 @@ const OP_IP_Deptwise = ({ fromDate, setFromDate, toDate, setToDate }) => {
     const startOfLastWeek = subWeeks(startOfThisWeek, 1);
     const endOfLastWeek = addDays(startOfLastWeek, 6);
 
+    // const filterAndAggregate = useCallback((rangeStart, rangeEnd) => {
+    //     const filtered = departmentDetails.filter(({ visit_date }) => {
+    //         const date = new Date(visit_date);
+    //         return date >= rangeStart && date <= rangeEnd;
+    //     });
+
+    //     const deptMap = {};
+    //     const deptList = [];
+
+    //     filtered.forEach(({ dept_name, dept_id, TotalOP, TotalIp }) => {
+    //         if (!deptMap[dept_name]) {
+    //             deptMap[dept_name] = { TotalOP: 0, TotalIp: 0, id: dept_id };
+    //             deptList.push({ name: dept_name, id: dept_id });
+    //         }
+    //         deptMap[dept_name].TotalOP += TotalOP;
+    //         deptMap[dept_name].TotalIp += TotalIp;
+    //     });
+
+    //     const labels = Object.keys(deptMap);
+    //     const opData = labels.map(dept => deptMap[dept].TotalOP);
+    //     const ipData = labels.map(dept => deptMap[dept].TotalIp);
+
+    //     setDeptMapList(deptList);
+
+    //     return {
+    //         labels,
+    //         datasets: [
+    //             {
+    //                 label: 'Total OP',
+    //                 data: opData,
+    //                 backgroundColor: 'rgba(96, 94, 163, 0.6)',
+    //                 borderColor: 'rgba(96, 94, 163, 1)',
+    //                 borderWidth: 1
+    //             },
+    //             {
+    //                 label: 'Total IP',
+    //                 data: ipData,
+    //                 backgroundColor: 'rgba(12, 132, 162, 0.6)',
+    //                 borderColor: 'rgba(12, 132, 162, 1)',
+    //                 borderWidth: 1
+    //             }
+    //         ]
+    //     };
+    // }, []);
+
     const filterAndAggregate = useCallback((rangeStart, rangeEnd) => {
-        const filtered = departmentDetails.filter(({ visit_date }) => {
-            const date = new Date(visit_date);
-            return date >= rangeStart && date <= rangeEnd;
-        });
-
-        const deptMap = {};
-        const deptList = [];
-
-        filtered.forEach(({ dept_name, dept_id, TotalOP, TotalIp }) => {
-            if (!deptMap[dept_name]) {
-                deptMap[dept_name] = { TotalOP: 0, TotalIp: 0, id: dept_id };
-                deptList.push({ name: dept_name, id: dept_id });
+        try {
+            // Input validation
+            if (!(rangeStart instanceof Date) || isNaN(rangeStart)) {
+                console.error("Invalid rangeStart:", rangeStart);
+                return null;
             }
-            deptMap[dept_name].TotalOP += TotalOP;
-            deptMap[dept_name].TotalIp += TotalIp;
-        });
+            if (!(rangeEnd instanceof Date) || isNaN(rangeEnd)) {
+                console.error("Invalid rangeEnd:", rangeEnd);
+                return null;
+            }
 
-        const labels = Object.keys(deptMap);
-        const opData = labels.map(dept => deptMap[dept].TotalOP);
-        const ipData = labels.map(dept => deptMap[dept].TotalIp);
+            if (!Array.isArray(departmentDetails)) {
+                console.error("departmentDetails is not an array");
+                return null;
+            }
 
-        setDeptMapList(deptList);
-
-        return {
-            labels,
-            datasets: [
-                {
-                    label: 'Total OP',
-                    data: opData,
-                    backgroundColor: 'rgba(96, 94, 163, 0.6)',
-                    borderColor: 'rgba(96, 94, 163, 1)',
-                    borderWidth: 1
-                },
-                {
-                    label: 'Total IP',
-                    data: ipData,
-                    backgroundColor: 'rgba(12, 132, 162, 0.6)',
-                    borderColor: 'rgba(12, 132, 162, 1)',
-                    borderWidth: 1
+            const filtered = departmentDetails.filter(({ visit_date }) => {
+                const date = new Date(visit_date);
+                if (isNaN(date)) {
+                    console.warn(`Invalid visit_date encountered: ${visit_date}`);
+                    return false;
                 }
-            ]
-        };
+                return date >= rangeStart && date <= rangeEnd;
+            });
+
+            const deptMap = {};
+            const deptList = [];
+
+            filtered.forEach(({ dept_name, dept_id, TotalOP, TotalIp }) => {
+                if (!deptMap[dept_name]) {
+                    deptMap[dept_name] = { TotalOP: 0, TotalIp: 0, id: dept_id };
+                    deptList.push({ name: dept_name, id: dept_id });
+                }
+                deptMap[dept_name].TotalOP += Number(TotalOP) || 0;
+                deptMap[dept_name].TotalIp += Number(TotalIp) || 0;
+            });
+
+            const labels = Object.keys(deptMap);
+            const opData = labels.map(dept => deptMap[dept].TotalOP);
+            const ipData = labels.map(dept => deptMap[dept].TotalIp);
+
+            setDeptMapList(deptList);
+
+            return {
+                labels,
+                datasets: [
+                    {
+                        label: 'Total OP',
+                        data: opData,
+                        backgroundColor: 'rgba(96, 94, 163, 0.6)',
+                        borderColor: 'rgba(96, 94, 163, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Total IP',
+                        data: ipData,
+                        backgroundColor: 'rgba(12, 132, 162, 0.6)',
+                        borderColor: 'rgba(12, 132, 162, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            };
+        } catch (error) {
+            console.error("Error in filterAndAggregate:", error);
+            return null;
+        }
     }, []);
 
+    // const handlePeriodChange = useCallback((period) => {
+    //     setDayCount(period)
+    //     const now = new Date();
+    //     const ranges = {
+    //         2: () => [startOfLastWeek, endOfLastWeek],
+    //         3: () => [startOfMonth(now), now],
+    //         4: () => [startOfMonth(subMonths(now, 5)), now],
+    //         5: () => [new Date(now.getFullYear(), 0, 1), now],
+    //     };
+
+    //     if (!ranges[period]) return;
+
+    //     const [start, end] = ranges[period]();
+    //     setFromDate(format(start, 'yyyy-MM-dd'));
+    //     setToDate(format(end, 'yyyy-MM-dd'));
+    //     const chart = filterAndAggregate(start, end);
+    //     setChartData(chart);
+    // }, [filterAndAggregate, setFromDate, setToDate]);
+
     const handlePeriodChange = useCallback((period) => {
-        const now = new Date();
-        const ranges = {
-            2: () => [startOfLastWeek, endOfLastWeek],
-            3: () => [startOfMonth(now), now],
-            4: () => [startOfMonth(subMonths(now, 5)), now],
-            5: () => [new Date(now.getFullYear(), 0, 1), now],
-        };
+        try {
+            // Validate period input
+            const validPeriods = [2, 3, 4, 5];
+            if (!validPeriods.includes(period)) {
+                console.warn(`Invalid period selected: ${period}`);
+                return;
+            }
 
-        if (!ranges[period]) return;
+            setDayCount(period);
 
-        const [start, end] = ranges[period]();
-        setFromDate(format(start, 'yyyy-MM-dd'));
-        setToDate(format(end, 'yyyy-MM-dd'));
-        const chart = filterAndAggregate(start, end);
-        setChartData(chart);
+            const now = new Date();
+
+            const ranges = {
+                2: () => [startOfLastWeek, endOfLastWeek],
+                3: () => [startOfMonth(now), now],
+                4: () => [startOfMonth(subMonths(now, 5)), now],
+                5: () => [new Date(now.getFullYear(), 0, 1), now],
+            };
+
+            const getRange = ranges[period];
+
+            if (!getRange) {
+                console.warn(`No date range found for period: ${period}`);
+                return;
+            }
+
+            const [start, end] = getRange();
+
+            if (!(start instanceof Date) || isNaN(start) || !(end instanceof Date) || isNaN(end)) {
+                console.error("Invalid date range generated.");
+                return;
+            }
+
+            setFromDate(format(start, 'yyyy-MM-dd'));
+            setToDate(format(end, 'yyyy-MM-dd'));
+
+            const chart = filterAndAggregate(start, end);
+            setChartData(chart);
+
+        } catch (error) {
+            console.error("Error in handlePeriodChange:", error);
+        }
     }, [filterAndAggregate, setFromDate, setToDate]);
+
 
     useEffect(() => {
         handlePeriodChange(2); // Default: Last Week
@@ -193,7 +309,7 @@ const OP_IP_Deptwise = ({ fromDate, setFromDate, toDate, setToDate }) => {
                 anchor: 'end',
                 align: 'top',
                 color: '#333',
-                font: { size: 10 },
+                font: { size: 11 },
                 formatter: (value) => value,
             },
         },
@@ -247,44 +363,24 @@ const OP_IP_Deptwise = ({ fromDate, setFromDate, toDate, setToDate }) => {
 
     return (
         <Box sx={{ width: '100%', overflow: 'auto' }}>
-            <ButtonGroup sx={{ flexWrap: 'wrap', mt: 1 }}>
-                {['Last Week', 'This Month', 'Last 6 months', 'This Year', 'Custom'].map((label, index) => (
-                    <Button key={label} onClick={() => index < 4 && handlePeriodChange(index + 2)}>
-                        {index === 4 ? (
-                            <Box sx={{ display: "flex", gap: 1 }}>
-                                <Input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} size='xs' />
-                                <Input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} size='xs' />
-                            </Box>
-                        ) : (
-                            <Typography sx={{ fontSize: 11 }}>{label}</Typography>
-                        )}
-                    </Button>
-                ))}
-            </ButtonGroup>
+            <Box sx={{ flexWrap: "wrap", mt: 0.5, flex: 1 }}>
+                <CommonDateComp
+                    onPeriodChange={handlePeriodChange}
+                    fromDate={fromDate}
+                    setFromDate={setFromDate}
+                    toDate={toDate}
+                    setToDate={setToDate}
+                    Graphicaldata={chartData}
+                    dayCount={dayCount}
+                    setDayCount={setDayCount}
+                    chartData={chartData}
+                    setChartData={setChartData}
+                />
+            </Box>
 
             <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
                 <GraphicalRep Chartlayout={Chartlayout} seChartlayout={seChartlayout} />
             </Box>
-
-
-            {/* <Box sx={{
-                overflow: "auto", '&::-webkit-scrollbar': {
-                    height: 5,
-                    cursor: "pointer"
-                }, gap: 2,
-            }}>
-                {Chartlayout === 1 && chartData && (
-                    <Bar data={chartData} options={barOptions} height={350} />
-                )}
-                {Chartlayout === 2 && chartData && (
-                    <Line data={transformToLineChartData(chartData)} options={barOptions} height={350} />
-                )}
-                {Chartlayout === 3 && chartData && (
-                    <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: '100%' }}>
-                        <PolarArea data={transformToPolarData(chartData)} height={300} width={300} />
-                    </Box>
-                )}
-            </Box> */}
 
             <Box sx={{
                 overflow: "auto", '&::-webkit-scrollbar': {
@@ -304,9 +400,9 @@ const OP_IP_Deptwise = ({ fromDate, setFromDate, toDate, setToDate }) => {
                     </Box>
                 )}
             </Box>
-        </Box>
+        </Box >
     );
 };
 
 
-export default memo(OP_IP_Deptwise) 
+export default memo(Tmc_OP_IP_Deptwise) 

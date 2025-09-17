@@ -9,6 +9,7 @@ import Kmc_OpDeptWise from "./Kmc_OpDeptWise";
 import Kmc_DrWise from "./Kmc_DrWise";
 import Kmc_AllOpDeptWise from "./Kmc_AllOpDeptWise";
 import OverallSalesProgress from "../../BIS_CommoCode/OverallSalesProgress";
+import { barOptions, lineOptions } from "../../BIS_CommoCode/CommonDateRange/ChartCommonFuns/ChartCommonFun";
 
 const Kmch_Op_statistics = () => {
 
@@ -21,12 +22,32 @@ const Kmch_Op_statistics = () => {
     const [dept_fromDate, setdept_FromDate] = useState(format(startOfMonth(new Date()), "yyyy-MM-dd"));
     const [dept_toDate, setdept_ToDate] = useState(format(endOfMonth(new Date()), "yyyy-MM-dd"));
 
+    // const payloadDatas = useMemo(() => {
+    //     return {
+    //         fromDate: fromDate,
+    //         toDate: toDate
+    //     }
+    // }, [fromDate, toDate])
     const payloadDatas = useMemo(() => {
-        return {
-            fromDate: fromDate,
-            toDate: toDate
+        try {
+            // Check if fromDate and toDate are valid date objects or valid date strings
+            const from = new Date(fromDate);
+            const to = new Date(toDate);
+
+            // Check if dates are valid
+            if (isNaN(from.getTime()) || isNaN(to.getTime())) {
+                throw new Error("Invalid date format");
+            }
+
+            return {
+                fromDate: from,
+                toDate: to
+            };
+        } catch (error) {
+            console.error("Error creating payloadDatas:", error.message);
+            return null;
         }
-    }, [fromDate, toDate])
+    }, [fromDate, toDate]);
 
     //usequery
     const { data: OpDetails } = useQuery({
@@ -69,7 +90,6 @@ const Kmch_Op_statistics = () => {
 
     //Doctorwise OP Count
 
-
     return (
         <Box
             sx={{
@@ -91,7 +111,8 @@ const Kmch_Op_statistics = () => {
                 }}
             >
                 <DashboardCard title="Out Patient Count">
-                    <OverallSalesProgress Graphicaldata={data} Displaystyle={1} fromDate={fromDate} setFromDate={setFromDate} toDate={toDate} setToDate={setToDate} />
+                    <OverallSalesProgress Graphicaldata={data} Displaystyle={1} fromDate={fromDate} setFromDate={setFromDate} toDate={toDate} setToDate={setToDate} barOptions={barOptions}
+                        lineOptions={lineOptions} />
                 </DashboardCard>
                 <DashboardCard title="Out Patient Count (Year Wise)">
                     <Kmc_OPYearWise />

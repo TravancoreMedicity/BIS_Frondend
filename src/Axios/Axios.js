@@ -8,7 +8,7 @@ let userCredential = null;
 const createAxiosInstance = (baseURL) => {
     const instance = Axios.create({
         baseURL,
-        withCredentials: true,
+        // withCredentials: true,
         headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
@@ -55,6 +55,8 @@ const axiosApi = Axios.create({
     },
     timeout: 10000
 });
+
+
 
 // Axios instancce for Ellider to KMC  and TMC
 const axiosellider_tmc = createAxiosInstance(ELLIDER_TMC_API_URL)

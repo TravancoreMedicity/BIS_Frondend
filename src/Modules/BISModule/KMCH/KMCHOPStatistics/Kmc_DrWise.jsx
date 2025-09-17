@@ -44,7 +44,7 @@ for (let dr_code = 1; dr_code <= 150; dr_code++) {
     const numEntries = Math.floor(Math.random() * 3) + 3;
 
     while (visitDates.size < numEntries) {
-        visitDates.add(getRandomDate(new Date('2025-01-01'), new Date('2025-06-26')));
+        visitDates.add(getRandomDate(new Date('2025-01-01'), new Date('2025-09-12')));
     }
 
     Array.from(visitDates).forEach(date => {
@@ -75,68 +75,141 @@ const Kmc_DrWise = () => {
     const endOfLastWeek = addDays(startOfLastWeek, 6);
 
     const filterDoctorData = useCallback((rangeStart, rangeEnd) => {
-        const filtered = doctorWiseOp.filter(({ Opvisit_date }) => {
-            const visitDate = parseISO(Opvisit_date);
-            return isWithinInterval(visitDate, { start: rangeStart, end: rangeEnd });
-        });
-
-        const grouped = filtered.reduce((acc, item) => {
-            if (!acc[item.dr_code]) {
-                acc[item.dr_code] = {
-                    dr_name: item.dr_name,
-                    dr_dept: item.dr_dept,
-                    total_op: 0
-                };
+        try {
+            // Validate dates
+            if (!(rangeStart instanceof Date) || isNaN(rangeStart.getTime())) {
+                throw new Error("Invalid rangeStart date");
             }
-            acc[item.dr_code].total_op += item.Total_op || 0;
-            return acc;
-        }, {});
+            if (!(rangeEnd instanceof Date) || isNaN(rangeEnd.getTime())) {
+                throw new Error("Invalid rangeEnd date");
+            }
 
-        const sorted = Object.values(grouped).sort((a, b) => b.total_op - a.total_op).slice(0, 20); // Top 20 doctors
+            const filtered = doctorWiseOp.filter(({ Opvisit_date }) => {
+                const visitDate = parseISO(Opvisit_date);
+                if (isNaN(visitDate.getTime())) return false; // skip invalid dates
+                return isWithinInterval(visitDate, { start: rangeStart, end: rangeEnd });
+            });
 
-        return {
-            labels: sorted.map(d => d.total_op.toString()), // Show OP count at X-axis
-            datasets: [
-                {
-                    label: "Total OP Count",
-                    data: sorted.map(d => d.total_op),
-                    backgroundColor: 'rgba(96, 94, 163, 0.7)',
-                    datalabels: {
-                        formatter: (_, context) => sorted[context.dataIndex].dr_name,
-                        color: 'black',
-                        anchor: 'center',
-                        align: 'end',
-                        font: { size: 11, weight: 'bold' }
-                    }
+            const grouped = filtered.reduce((acc, item) => {
+                if (!acc[item.dr_code]) {
+                    acc[item.dr_code] = {
+                        dr_name: item.dr_name,
+                        dr_dept: item.dr_dept,
+                        total_op: 0
+                    };
                 }
-            ]
-        };
-    }, []);
+                acc[item.dr_code].total_op += item.Total_op || 0;
+                return acc;
+            }, {});
 
-    const handlePeriodChange = (period) => {
-        setSelectedPeriod(period);
-        let rangeStart, rangeEnd;
+            const sorted = Object.values(grouped)
+                .sort((a, b) => b.total_op - a.total_op)
+                .slice(0, 20); // Top 20 doctors
 
-        if (period === 2) {
-            rangeStart = startOfLastWeek;
-            rangeEnd = endOfLastWeek;
-        } else if (period === 3) {
-            rangeStart = startOfMonth(now);
-            rangeEnd = now;
-        } else if (period === 4) {
-            rangeStart = startOfMonth(subMonths(now, 5));
-            rangeEnd = now;
-        } else if (period === 5) {
-            rangeStart = new Date(now.getFullYear(), 0, 1);
-            rangeEnd = now;
+            return {
+                labels: sorted.map(d => d.total_op.toString()), // Show OP count at X-axis
+                datasets: [
+                    {
+                        label: "Total OP Count",
+                        data: sorted.map(d => d.total_op),
+                        backgroundColor: 'rgba(96, 94, 163, 0.7)',
+                        datalabels: {
+                            formatter: (_, context) => sorted[context.dataIndex].dr_name,
+                            color: 'black',
+                            anchor: 'center',
+                            align: 'end',
+                            font: { size: 11, weight: 'bold' }
+                        }
+                    }
+                ]
+            };
+        } catch (error) {
+            console.error("Error filtering doctor data:", error.message);
+            return {
+                labels: [],
+                datasets: []
+            };
         }
+    }, [doctorWiseOp]);
 
-        if (rangeStart && rangeEnd) {
+    // const filterDoctorData = useCallback((rangeStart, rangeEnd) => {
+    //     const filtered = doctorWiseOp.filter(({ Opvisit_date }) => {
+    //         const visitDate = parseISO(Opvisit_date);
+    //         return isWithinInterval(visitDate, { start: rangeStart, end: rangeEnd });
+    //     });
+
+    //     const grouped = filtered.reduce((acc, item) => {
+    //         if (!acc[item.dr_code]) {
+    //             acc[item.dr_code] = {
+    //                 dr_name: item.dr_name,
+    //                 dr_dept: item.dr_dept,
+    //                 total_op: 0
+    //             };
+    //         }
+    //         acc[item.dr_code].total_op += item.Total_op || 0;
+    //         return acc;
+    //     }, {});
+
+    //     const sorted = Object.values(grouped).sort((a, b) => b.total_op - a.total_op).slice(0, 20); // Top 20 doctors
+
+    //     return {
+    //         labels: sorted.map(d => d.total_op.toString()), // Show OP count at X-axis
+    //         datasets: [
+    //             {
+    //                 label: "Total OP Count",
+    //                 data: sorted.map(d => d.total_op),
+    //                 backgroundColor: 'rgba(96, 94, 163, 0.7)',
+    //                 datalabels: {
+    //                     formatter: (_, context) => sorted[context.dataIndex].dr_name,
+    //                     color: 'black',
+    //                     anchor: 'center',
+    //                     align: 'end',
+    //                     font: { size: 11, weight: 'bold' }
+    //                 }
+    //             }
+    //         ]
+    //     };
+    // }, []);
+
+    const handlePeriodChange = useCallback((period) => {
+        try {
+            if (![2, 3, 4, 5].includes(period)) {
+                throw new Error("Invalid period value");
+            }
+            setSelectedPeriod(period);
+            let rangeStart, rangeEnd;
+
+            if (period === 2) {
+                rangeStart = startOfLastWeek;
+                rangeEnd = endOfLastWeek;
+            } else if (period === 3) {
+                rangeStart = startOfMonth(now);
+                rangeEnd = now;
+            } else if (period === 4) {
+                rangeStart = startOfMonth(subMonths(now, 5));
+                rangeEnd = now;
+            } else if (period === 5) {
+                rangeStart = new Date(now.getFullYear(), 0, 1);
+                rangeEnd = now;
+            }
+
+            // Validate computed dates
+            if (!(rangeStart instanceof Date) || isNaN(rangeStart.getTime())) {
+                throw new Error("Invalid rangeStart date computed");
+            }
+            if (!(rangeEnd instanceof Date) || isNaN(rangeEnd.getTime())) {
+                throw new Error("Invalid rangeEnd date computed");
+            }
+
             setFromDate(format(rangeStart, 'yyyy-MM-dd'));
             setToDate(format(rangeEnd, 'yyyy-MM-dd'));
             setChartData(filterDoctorData(rangeStart, rangeEnd));
+        } catch (error) {
+            console.error("Error handling period change:", error.message);
+            // Optionally handle UI fallback here
         }
-    };
+    }, [now, setSelectedPeriod, setFromDate, setToDate, setChartData, filterDoctorData]);
+
 
     useEffect(() => {
         const rangeStart = parseISO(fromDate);

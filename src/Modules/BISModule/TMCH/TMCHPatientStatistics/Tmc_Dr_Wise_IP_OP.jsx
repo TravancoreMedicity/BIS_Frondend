@@ -1,5 +1,5 @@
 import {
-    Box, Button, ButtonGroup, Input, Typography
+    Box
 } from '@mui/joy';
 import React, { memo, useCallback, useState, useEffect } from 'react';
 import {
@@ -7,7 +7,6 @@ import {
     parseISO, startOfMonth, startOfWeek, subMonths, subWeeks
 } from 'date-fns';
 
-import { Bar, Line, PolarArea } from 'react-chartjs-2';
 import {
     Chart as ChartJS, CategoryScale, LinearScale, BarElement,
     PointElement, LineElement, RadialLinearScale, ArcElement,
@@ -15,6 +14,9 @@ import {
 } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import GraphicalRep from '../../BIS_CommoCode/GraphicalRep';
+import CommonDateComp from '../../BIS_CommoCode/CommonDateRange/CommonDateComp';
+import CommonGraphRep from '../../BIS_CommoCode/CommonGraphRep';
+
 
 ChartJS.register(
     CategoryScale, LinearScale, BarElement,
@@ -57,7 +59,7 @@ const doctorWiseOp = Array.from({ length: 150 }, (_, i) => i + 1).flatMap(dr_cod
     }));
 });
 
-const Dr_Wise_IP_OP = () => {
+const Tmc_Dr_Wise_IP_OP = () => {
     const now = new Date();
     const thisMonthStart = startOfMonth(now);
     const [Chartlayout, seChartlayout] = useState(1);
@@ -71,73 +73,169 @@ const Dr_Wise_IP_OP = () => {
     const endOfLastWeek = addDays(startOfLastWeek, 6);
 
     const filterDoctorData = useCallback((rangeStart, rangeEnd) => {
-        const filtered = doctorWiseOp.filter(({ Opvisit_date }) => {
-            const visitDate = parseISO(Opvisit_date);
-            return isWithinInterval(visitDate, { start: rangeStart, end: rangeEnd });
-        });
-
-        const grouped = filtered.reduce((acc, item) => {
-            if (!acc[item.dr_code]) {
-                acc[item.dr_code] = {
-                    dr_name: item.dr_name,
-                    dr_dept: item.dr_dept,
-                    total_op: 0,
-                    total_ip: 0
-                };
+        try {
+            // Validate date inputs
+            if (!(rangeStart instanceof Date) || isNaN(rangeStart)) {
+                throw new Error("Invalid rangeStart date.");
             }
-            acc[item.dr_code].total_op += item.Total_op || 0;
-            acc[item.dr_code].total_ip += item.Total_ip || 0;
-            return acc;
-        }, {});
+            if (!(rangeEnd instanceof Date) || isNaN(rangeEnd)) {
+                throw new Error("Invalid rangeEnd date.");
+            }
 
-        const sorted = Object.values(grouped)
-            .sort((a, b) => (b.total_op + b.total_ip) - (a.total_op + a.total_ip))
-            .slice(0, 20);
+            // Validate data source
+            if (!Array.isArray(doctorWiseOp)) {
+                throw new Error("doctorWiseOp must be an array.");
+            }
 
-        return {
-            labels: sorted.map(d => d.dr_name),
-            datasets: [
-                {
-                    label: "Total IP",
-                    data: sorted.map(d => d.total_ip),
-                    backgroundColor: 'rgba(161, 207, 217, 0.8)',
-                    stack: 'stack1'
-                },
-                {
-                    label: "Total OP",
-                    data: sorted.map(d => d.total_op),
-                    backgroundColor: 'rgba(10, 132, 153, 0.8)',
-                    stack: 'stack1'
-                },
-            ],
-            doctorNames: sorted.map(d => d.dr_name)
-        };
-    }, []);
+            //Filter by date range
+            const filtered = doctorWiseOp.filter(({ Opvisit_date }) => {
+                const visitDate = parseISO(Opvisit_date);
+                return (
+                    visitDate instanceof Date &&
+                    !isNaN(visitDate) &&
+                    isWithinInterval(visitDate, { start: rangeStart, end: rangeEnd })
+                );
+            });
 
-    const handlePeriodChange = (period) => {
-        setSelectedPeriod(period);
-        let rangeStart, rangeEnd;
+            // Group by doctor code
+            const grouped = filtered.reduce((acc, item) => {
+                const drCode = item.dr_code;
+                if (!drCode) return acc;
 
-        if (period === 2) {
-            rangeStart = startOfLastWeek;
-            rangeEnd = endOfLastWeek;
-        } else if (period === 3) {
-            rangeStart = startOfMonth(now);
-            rangeEnd = now;
-        } else if (period === 4) {
-            rangeStart = startOfMonth(subMonths(now, 5));
-            rangeEnd = now;
-        } else if (period === 5) {
-            rangeStart = new Date(now.getFullYear(), 0, 1);
-            rangeEnd = now;
+                if (!acc[drCode]) {
+                    acc[drCode] = {
+                        dr_name: item.dr_name || "Unknown",
+                        dr_dept: item.dr_dept || "N/A",
+                        total_op: 0,
+                        total_ip: 0
+                    };
+                }
+
+                acc[drCode].total_op += Number(item.Total_op) || 0;
+                acc[drCode].total_ip += Number(item.Total_ip) || 0;
+
+                return acc;
+            }, {});
+
+            //  Sort and take top 20
+            const sorted = Object.values(grouped)
+                .sort((a, b) => (b.total_op + b.total_ip) - (a.total_op + a.total_ip))
+                .slice(0, 20);
+
+            //  Build chart data
+            return {
+                labels: sorted.map(d => d.dr_name),
+                datasets: [
+                    {
+                        label: "Total IP",
+                        data: sorted.map(d => d.total_ip),
+                        backgroundColor: 'rgba(161, 207, 217, 0.8)',
+                        stack: 'stack1'
+                    },
+                    {
+                        label: "Total OP",
+                        data: sorted.map(d => d.total_op),
+                        backgroundColor: 'rgba(10, 132, 153, 0.8)',
+                        stack: 'stack1'
+                    }
+                ],
+                doctorNames: sorted.map(d => d.dr_name)
+            };
+
+        } catch (error) {
+            console.error("Error in filterDoctorData:", error);
+            return {
+                labels: [],
+                datasets: [],
+                doctorNames: []
+            };
         }
+    }, [doctorWiseOp]);
 
-        if (rangeStart && rangeEnd) {
+
+    // const handlePeriodChange = (period) => {
+    //     setSelectedPeriod(period);
+    //     let rangeStart, rangeEnd;
+
+    //     if (period === 2) {
+    //         rangeStart = startOfLastWeek;
+    //         rangeEnd = endOfLastWeek;
+    //     } else if (period === 3) {
+    //         rangeStart = startOfMonth(now);
+    //         rangeEnd = now;
+    //     } else if (period === 4) {
+    //         rangeStart = startOfMonth(subMonths(now, 5));
+    //         rangeEnd = now;
+    //     } else if (period === 5) {
+    //         rangeStart = new Date(now.getFullYear(), 0, 1);
+    //         rangeEnd = now;
+    //     }
+
+    //     if (rangeStart && rangeEnd) {
+    //         setFromDate(format(rangeStart, 'yyyy-MM-dd'));
+    //         setToDate(format(rangeEnd, 'yyyy-MM-dd'));
+    //         setChartData(filterDoctorData(rangeStart, rangeEnd));
+    //     }
+    // };
+    const handlePeriodChange = useCallback((period) => {
+        try {
+            const validPeriods = [2, 3, 4, 5];
+            if (!validPeriods.includes(period)) {
+                console.warn(`Invalid period: ${period}`);
+                return;
+            }
+
+            setSelectedPeriod(period);
+
+            const now = new Date();
+            let rangeStart = null;
+            let rangeEnd = null;
+
+            if (period === 2) {
+                if (!(startOfLastWeek instanceof Date) || isNaN(startOfLastWeek) ||
+                    !(endOfLastWeek instanceof Date) || isNaN(endOfLastWeek)) {
+                    throw new Error("Invalid last week date range.");
+                }
+                rangeStart = startOfLastWeek;
+                rangeEnd = endOfLastWeek;
+
+            } else if (period === 3) {
+                rangeStart = startOfMonth(now);
+                rangeEnd = now;
+
+            } else if (period === 4) {
+                rangeStart = startOfMonth(subMonths(now, 5));
+                rangeEnd = now;
+
+            } else if (period === 5) {
+                rangeStart = new Date(now.getFullYear(), 0, 1);
+                rangeEnd = now;
+            }
+
+            // Validate date range
+            if (!(rangeStart instanceof Date) || isNaN(rangeStart) ||
+                !(rangeEnd instanceof Date) || isNaN(rangeEnd)) {
+                console.error("Invalid date range.");
+                return;
+            }
+
+            // Format dates and update state
             setFromDate(format(rangeStart, 'yyyy-MM-dd'));
             setToDate(format(rangeEnd, 'yyyy-MM-dd'));
-            setChartData(filterDoctorData(rangeStart, rangeEnd));
+
+            // Process and set chart data
+            const chart = filterDoctorData(rangeStart, rangeEnd);
+            if (chart) {
+                setChartData(chart);
+            } else {
+                console.warn("No chart data returned from filterDoctorData.");
+            }
+
+        } catch (error) {
+            console.error("Error in handlePeriodChange:", error);
         }
-    };
+    }, [setSelectedPeriod, setFromDate, setToDate, setChartData, filterDoctorData]);
+
 
     useEffect(() => {
         const rangeStart = parseISO(fromDate);
@@ -196,49 +294,26 @@ const Dr_Wise_IP_OP = () => {
         <Box sx={{ width: '100%', overflow: 'auto' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
                 <Box sx={{ flexWrap: "wrap", mt: 0.5, flex: 1 }}>
-                    <ButtonGroup aria-label="date range selector" sx={{
-                        '--ButtonGroup-radius': '30px', display: "flex",
-                        flexWrap: { sm: "wrap", xl: 'nowrap' }, p: 0, size: "sm"
-                    }}>
-                        {['Last Week', 'This Month', 'Last 6 months', 'This Year', 'Custom'].map((label, index) => (
-                            <Button key={label} onClick={() => handlePeriodChange(index + 2)}>
-                                {index === 4 ? (
-                                    <Box sx={{ display: "flex", flexDirection: "row", gap: 1 }}>
-                                        <Input
-                                            type="date"
-                                            value={fromDate}
-                                            onChange={(e) => setFromDate(e.target.value)}
-                                            size='xs'
-                                            sx={{ p: 0.5, color: 'grey' }}
-                                        />
-                                        <Input
-                                            type="date"
-                                            value={toDate}
-                                            onChange={(e) => setToDate(e.target.value)}
-                                            size='xs'
-                                            sx={{ p: 0.5, color: 'grey' }}
-                                            slotProps={{ input: { min: fromDate } }}
-                                        />
-                                    </Box>
-                                ) : (
-                                    <Typography sx={{
-                                        fontSize: 11,
-                                        color: "rgba(var(--input-font-color))",
-                                        '&:hover': {
-                                            color: 'rgba(var(--font-black))',
-                                            backgroundColor: 'transparent',
-                                        }
-                                    }}>{label}</Typography>
-                                )}
-                            </Button>
-                        ))}
-                    </ButtonGroup>
+                    <CommonDateComp
+                        onPeriodChange={handlePeriodChange}
+                        fromDate={fromDate}
+                        setFromDate={setFromDate}
+                        toDate={toDate}
+                        setToDate={setToDate}
+                        Graphicaldata={chartData}
+                        dayCount={selectedPeriod}
+                        setDayCount={setSelectedPeriod}
+                        chartData={chartData}
+                        setChartData={setChartData}
+                    />
                 </Box>
 
                 <GraphicalRep Chartlayout={Chartlayout} seChartlayout={seChartlayout} />
             </Box>
 
-            <Box sx={{ mt: 2, width: '100%', height: 350 }}>
+            <CommonGraphRep Chartlayout={Chartlayout} chartData={chartData} options={options} polarData={chartData} polarOptions={options} />
+
+            {/* <Box sx={{ mt: 2, width: '100%', height: 350 }}>
                 {Chartlayout === 1 && <Bar data={chartData} options={options} />}
                 {Chartlayout === 2 && <Line data={chartData} options={options} height={350} />}
                 {Chartlayout === 3 && (
@@ -264,9 +339,9 @@ const Dr_Wise_IP_OP = () => {
                         </Box>
                     </Box>
                 )}
-            </Box>
+            </Box> */}
         </Box>
     );
 };
 
-export default memo(Dr_Wise_IP_OP);
+export default memo(Tmc_Dr_Wise_IP_OP);

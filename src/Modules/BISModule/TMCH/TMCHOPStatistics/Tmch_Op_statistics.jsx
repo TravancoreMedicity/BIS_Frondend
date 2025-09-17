@@ -2,16 +2,16 @@ import React, { memo, useMemo, useState } from "react";
 import { Box, Typography } from "@mui/joy";
 import { useQuery } from '@tanstack/react-query';
 import { endOfMonth, format, startOfMonth } from "date-fns";
-// import OverallSalesProgress from "../../BIS_CommoCode/SalesProgress/OverallSalesProgress"
-import KMCHeader from "../../BIS_CommoCode/KMCHeader"
 import { getkmcOpDetails } from "../../../../api/commonAPI"
 import Tmc_OPYearWise from "./Tmc_OPYearWise";
 import Tmc_OpDeptWise from "./Tmc_OpDeptWise";
 import Tmc_DrWise from "./Tmc_DrWise";
 import Tmc_AllOpDeptWise from "./Tmc_AllOpDeptWise";
 import OverallSalesProgress from "../../BIS_CommoCode/OverallSalesProgress";
+import CommonHeader from "../../BIS_CommoCode/CommonHeader";
+import { barOptions, lineOptions } from "../../BIS_CommoCode/CommonDateRange/ChartCommonFuns/ChartCommonFun";
 
-const Kmch_Op_statistics = () => {
+const Tmch_Op_statistics = () => {
 
     const [fromDate, setFromDate] = useState(format(startOfMonth(new Date()), "yyyy-MM-dd"));
     const [toDate, setToDate] = useState(format(endOfMonth(new Date()), "yyyy-MM-dd"));
@@ -23,11 +23,24 @@ const Kmch_Op_statistics = () => {
     const [dept_toDate, setdept_ToDate] = useState(format(endOfMonth(new Date()), "yyyy-MM-dd"));
 
     const payloadDatas = useMemo(() => {
-        return {
-            fromDate: fromDate,
-            toDate: toDate
+        try {
+            const isValidDate = (date) => {
+                return date instanceof Date && !isNaN(date.getTime());
+            };
+
+            return {
+                fromDate: isValidDate(fromDate) ? fromDate : null,
+                toDate: isValidDate(toDate) ? toDate : null
+            };
+        } catch (error) {
+            console.error('Error validating dates in payloadDatas:', error);
+            return {
+                fromDate: null,
+                toDate: null
+            };
         }
-    }, [fromDate, toDate])
+    }, [fromDate, toDate]);
+
 
     //usequery
     const { data: OpDetails } = useQuery({
@@ -68,9 +81,6 @@ const Kmch_Op_statistics = () => {
             : [],
     };
 
-    //Doctorwise OP Count
-
-
     return (
         <Box
             sx={{
@@ -79,7 +89,7 @@ const Kmch_Op_statistics = () => {
                 overflow: "auto",
             }}
         >
-            <KMCHeader />
+            <CommonHeader />
             {/* Row 1 */}
             <Box
                 sx={{
@@ -92,7 +102,9 @@ const Kmch_Op_statistics = () => {
                 }}
             >
                 <DashboardCard title="Out Patient Count">
-                    <OverallSalesProgress Graphicaldata={data} Displaystyle={1} fromDate={fromDate} setFromDate={setFromDate} toDate={toDate} setToDate={setToDate} />
+                    {/* <OverallSalesProgress Graphicaldata={data} Displaystyle={1} fromDate={fromDate} setFromDate={setFromDate} toDate={toDate} setToDate={setToDate} /> */}
+                    <OverallSalesProgress Graphicaldata={data} Displaystyle={1} fromDate={fromDate} setFromDate={setFromDate} toDate={toDate} setToDate={setToDate} barOptions={barOptions}
+                        lineOptions={lineOptions} />
                 </DashboardCard>
                 <DashboardCard title="Out Patient Count (Year Wise)">
                     <Tmc_OPYearWise />
@@ -174,7 +186,7 @@ const DashboardCard = ({ title, children }) => (
     </Box>
 );
 
-export default memo(Kmch_Op_statistics);
+export default memo(Tmch_Op_statistics);
 
 
 

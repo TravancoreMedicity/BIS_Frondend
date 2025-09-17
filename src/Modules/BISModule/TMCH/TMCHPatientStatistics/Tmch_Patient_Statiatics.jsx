@@ -1,7 +1,7 @@
 import React, { memo, useMemo, useState } from "react";
 import { Box, Typography } from "@mui/joy";
 import { useQuery } from '@tanstack/react-query';
-import { endOfMonth, format, startOfMonth } from "date-fns";
+import { endOfMonth, format, isValid, parseISO, startOfMonth } from "date-fns";
 import { getOpDetails } from "../../../../api/commonAPI";
 import Tmch_OP_IP_Statistics from "./Tmc_OP_IP_Statistics";
 import Tmch_OP_IP_Deptwise from "./Tmc_OP_IP_Deptwise";
@@ -25,11 +25,33 @@ const Tmch_Patient_Statiatics = () => {
     const [dept_toDate, setdept_ToDate] = useState(format(endOfMonth(new Date()), "yyyy-MM-dd"));
 
     const payloadDatas = useMemo(() => {
-        return {
-            fromDate: fromDate,
-            toDate: toDate
+        try {
+            if (!fromDate || !toDate) {
+                throw new Error("Missing fromDate or toDate");
+            }
+
+            const parsedFrom = parseISO(fromDate);
+            const parsedTo = parseISO(toDate);
+
+            if (!isValid(parsedFrom)) {
+                throw new Error("Invalid fromDate format");
+            }
+            if (!isValid(parsedTo)) {
+                throw new Error("Invalid toDate format");
+            }
+
+            return {
+                fromDate,
+                toDate
+            };
+        } catch (error) {
+            console.error("Error creating payloadDatas:", error.message);
+            return {
+                fromDate: null,
+                toDate: null
+            };
         }
-    }, [fromDate, toDate])
+    }, [fromDate, toDate]);
 
     //usequery
     const { data: OpDetails } = useQuery({

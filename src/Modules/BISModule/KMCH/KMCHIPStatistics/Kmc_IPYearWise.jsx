@@ -14,6 +14,8 @@ import {
 } from 'chart.js';
 import GraphicalRep from '../../BIS_CommoCode/GraphicalRep';
 import { useNavigate } from 'react-router-dom';
+import { barOptions, ensureNumber } from '../../BIS_CommoCode/CommonDateRange/ChartCommonFuns/ChartCommonFun';
+import CommonGraphRep from '../../BIS_CommoCode/CommonGraphRep';
 
 ChartJS.register(
     CategoryScale,
@@ -168,18 +170,52 @@ const Kmc_IPYearWise = () => {
                     </Box>
                 </Box>
             </Box>
-            <Box sx={{ mt: 2, width: '100%', height: 350 }}>
-                {Chartlayout === 1 && <Bar data={singleValuePolarData} options={options} height={350} />}
-                {Chartlayout === 2 && <Line data={singleValuePolarData} options={lineOptions} height={350} />}
-                {Chartlayout === 3 && (
-                    <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: '100%' }}>
-                        <PolarArea data={singleValuePolarData} options={polarOptions} height={300} width={300} />
+
+            {/* <Box
+                sx={{
+                    mt: 2,
+                    width: "100%",
+                    height: 400,
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    bgcolor: "background.level1",
+                    borderRadius: 3,
+                    boxShadow: "sm",
+                    p: 2,
+                    overflow: "auto",
+                    '&::-webkit-scrollbar': { height: 5 },
+                }}
+            >
+                {ensureNumber(Chartlayout) === 1 && (
+                    <Bar
+                        data={{
+                            ...singleValuePolarData,
+                            datasets: singleValuePolarData.datasets.map(ds => ({
+                                ...ds,
+                                barPercentage: 0.9,
+                                categoryPercentage: 0.8,
+                                barThickness: "flex",
+                            }))
+                        }}
+                        options={barOptions}
+                    />
+                )}
+
+                {ensureNumber(Chartlayout) === 2 && (
+                    <Line data={singleValuePolarData} options={lineOptions} />
+                )}
+
+                {ensureNumber(Chartlayout) === 3 && (
+                    <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: 400, width: "100%" }}>
+                        <PolarArea data={singleValuePolarData} options={polarOptions} height={500} width={300} />
                     </Box>
                 )}
-            </Box>
+            </Box> */}
+            <CommonGraphRep Chartlayout={Chartlayout} chartData={singleValuePolarData} options={barOptions} polarData={singleValuePolarData} polarOptions={polarOptions} />
         </Box>
     );
-};
+}
 
 export default memo(Kmc_IPYearWise);
 

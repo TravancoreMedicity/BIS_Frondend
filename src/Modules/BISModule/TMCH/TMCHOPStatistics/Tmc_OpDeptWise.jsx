@@ -1,4 +1,4 @@
-import { Box, Button, ButtonGroup, Input, Typography } from '@mui/joy';
+import { Box } from '@mui/joy';
 import React, { memo, useState, useCallback, useEffect } from 'react';
 import {
     addDays, format, isWithinInterval, parseISO,
@@ -13,6 +13,8 @@ import {
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { useNavigate } from 'react-router-dom';
 import GraphicalRep from '../../BIS_CommoCode/GraphicalRep';
+import CommonDateComp from '../../BIS_CommoCode/CommonDateRange/CommonDateComp';
+import { ensureNumber } from '../../BIS_CommoCode/CommonDateRange/ChartCommonFuns/ChartCommonFun';
 
 ChartJS.register(
     CategoryScale,
@@ -52,12 +54,14 @@ const departmentDetails = [
 
 const now = new Date();
 
-const Kmc_OpDeptWise = () => {
+const Tmc_OpDeptWise = () => {
     const [Chartlayout, seChartlayout] = useState(1);
     const [fromDate, setFromDate] = useState(format(startOfMonth(now), 'yyyy-MM-dd'));
     const [toDate, setToDate] = useState(format(now, 'yyyy-MM-dd'));
     const [chartData, setChartData] = useState({ labels: [], datasets: [] });
     const [polarData, setPolarData] = useState({ labels: [], datasets: [] });
+    const [dayCount, setDayCount] = useState(2);
+
     const navigate = useNavigate();
 
     const startOfThisWeek = startOfWeek(now, { weekStartsOn: 1 });
@@ -107,30 +111,76 @@ const Kmc_OpDeptWise = () => {
         };
     }, []);
 
-    const handlePeriodChange = (period) => {
-        let rangeStart, rangeEnd;
+    // const handlePeriodChange = (period) => {
+    //     let rangeStart, rangeEnd;
 
-        if (period === 2) {
-            rangeStart = startOfLastWeek;
-            rangeEnd = endOfLastWeek;
-        } else if (period === 3) {
-            rangeStart = startOfMonth(now);
-            rangeEnd = now;
-        } else if (period === 4) {
-            rangeStart = startOfMonth(subMonths(now, 5));
-            rangeEnd = now;
-        } else if (period === 5) {
-            rangeStart = new Date(now.getFullYear(), 0, 1);
-            rangeEnd = now;
-        }
+    //     if (period === 2) {
+    //         rangeStart = startOfLastWeek;
+    //         rangeEnd = endOfLastWeek;
+    //     } else if (period === 3) {
+    //         rangeStart = startOfMonth(now);
+    //         rangeEnd = now;
+    //     } else if (period === 4) {
+    //         rangeStart = startOfMonth(subMonths(now, 5));
+    //         rangeEnd = now;
+    //     } else if (period === 5) {
+    //         rangeStart = new Date(now.getFullYear(), 0, 1);
+    //         rangeEnd = now;
+    //     }
 
-        if (rangeStart && rangeEnd) {
-            setFromDate(format(rangeStart, 'yyyy-MM-dd'));
-            setToDate(format(rangeEnd, 'yyyy-MM-dd'));
-            const data = filterDeptData(rangeStart, rangeEnd);
-            setChartData(data);
+    //     if (rangeStart && rangeEnd) {
+    //         setFromDate(format(rangeStart, 'yyyy-MM-dd'));
+    //         setToDate(format(rangeEnd, 'yyyy-MM-dd'));
+    //         const data = filterDeptData(rangeStart, rangeEnd);
+    //         setChartData(data);
+    //     }
+    // };
+    const handlePeriodChange = useCallback((period) => {
+        try {
+            const numericPeriod = ensureNumber(period);
+            if (numericPeriod === 0) {
+                console.warn("Invalid period value:", period);
+                return;
+            }
+
+            let rangeStart, rangeEnd;
+            setDayCount(period);
+
+            //  Step 2: Choose ranges based on valid period
+            if (period === 2) {
+                rangeStart = startOfLastWeek;
+                rangeEnd = endOfLastWeek;
+            } else if (period === 3) {
+                rangeStart = startOfMonth(now);
+                rangeEnd = now;
+            } else if (period === 4) {
+                rangeStart = startOfMonth(subMonths(now, 5));
+                rangeEnd = now;
+            } else if (period === 5) {
+                rangeStart = new Date(now.getFullYear(), 0, 1);
+                rangeEnd = now;
+            }
+
+            // Step 3: Validate ranges
+            if (rangeStart instanceof Date && rangeEnd instanceof Date && !isNaN(rangeStart) && !isNaN(rangeEnd)) {
+                setFromDate(format(rangeStart, "yyyy-MM-dd"));
+                setToDate(format(rangeEnd, "yyyy-MM-dd"));
+
+                const data = filterDeptData(rangeStart, rangeEnd);
+                setChartData(data);
+            } else {
+                console.warn("Invalid date range for period:", period);
+                setFromDate(null);
+                setToDate(null);
+                setChartData([]);
+            }
+        } catch (error) {
+            console.error("Error in handlePeriodChange:", error);
+            setFromDate(null);
+            setToDate(null);
+            setChartData([]);
         }
-    };
+    }, [now, startOfLastWeek, endOfLastWeek, setDayCount, setFromDate, setToDate, filterDeptData, setChartData]);
 
     useEffect(() => {
         const rangeStart = parseISO(fromDate);
@@ -145,7 +195,7 @@ const Kmc_OpDeptWise = () => {
             legend: { position: 'top' },
             datalabels: {
                 color: 'black',
-                font: { weight: 'bold', size: 10 },
+                font: { size: 11.5 },
                 formatter: (value, ctx) => {
                     const datasetLabel = ctx.dataset.label;
                     if (datasetLabel === 'Follow-up') return ctx.chart.data.labels[ctx.dataIndex];
@@ -195,47 +245,21 @@ const Kmc_OpDeptWise = () => {
     };
 
     return (
-
         <Box sx={{ width: '100%', overflow: 'auto' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
                 <Box sx={{ flexWrap: "wrap", mt: 0.5, flex: 1 }}>
-                    <ButtonGroup aria-label="date range selector" sx={{
-                        '--ButtonGroup-radius': '30px', display: "flex",
-                        flexWrap: { sm: "wrap", xl: 'nowrap' }, p: 0, size: "sm"
-                    }}>
-                        {['Last Week', 'This Month', 'Last 6 months', 'This Year', 'Custom'].map((label, index) => (
-                            <Button key={label} onClick={() => handlePeriodChange(index + 2)}>
-                                {index === 4 ? (
-                                    <Box sx={{ display: "flex", flexDirection: "row", gap: 1 }}>
-                                        <Input
-                                            type="date"
-                                            value={fromDate}
-                                            onChange={(e) => setFromDate(e.target.value)}
-                                            size='xs'
-                                            sx={{ p: 0.5, color: 'grey' }}
-                                        />
-                                        <Input
-                                            type="date"
-                                            value={toDate}
-                                            onChange={(e) => setToDate(e.target.value)}
-                                            size='xs'
-                                            sx={{ p: 0.5, color: 'grey' }}
-                                            slotProps={{ input: { min: fromDate } }}
-                                        />
-                                    </Box>
-                                ) : (
-                                    <Typography sx={{
-                                        fontSize: 11,
-                                        color: "rgba(var(--input-font-color))",
-                                        '&:hover': {
-                                            color: 'rgba(var(--font-black))',
-                                            backgroundColor: 'transparent',
-                                        }
-                                    }}>{label}</Typography>
-                                )}
-                            </Button>
-                        ))}
-                    </ButtonGroup>
+                    <CommonDateComp
+                        onPeriodChange={handlePeriodChange}
+                        fromDate={fromDate}
+                        setFromDate={setFromDate}
+                        toDate={toDate}
+                        setToDate={setToDate}
+                        Graphicaldata={chartData}
+                        dayCount={dayCount}
+                        setDayCount={setDayCount}
+                        chartData={chartData}
+                        setChartData={setChartData}
+                    />
                 </Box>
                 <GraphicalRep Chartlayout={Chartlayout} seChartlayout={seChartlayout} />
             </Box>
@@ -277,4 +301,4 @@ const Kmc_OpDeptWise = () => {
     );
 };
 
-export default memo(Kmc_OpDeptWise);
+export default memo(Tmc_OpDeptWise);

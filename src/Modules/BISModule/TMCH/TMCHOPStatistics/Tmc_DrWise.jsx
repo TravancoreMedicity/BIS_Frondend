@@ -15,6 +15,7 @@ import {
 } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import GraphicalRep from '../../BIS_CommoCode/GraphicalRep';
+import CommonDateComp from '../../BIS_CommoCode/CommonDateRange/CommonDateComp';
 
 ChartJS.register(
     CategoryScale, LinearScale, BarElement,
@@ -194,48 +195,92 @@ const Kmc_DrWise = () => {
     };
 
     return (
+        // <Box sx={{ width: '100%', overflow: 'auto' }}>
+        //     <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+        //         <Box sx={{ flexWrap: "wrap", mt: 0.5, flex: 1 }}>
+        //             <ButtonGroup aria-label="date range selector" sx={{
+        //                 '--ButtonGroup-radius': '30px', display: "flex",
+        //                 flexWrap: { sm: "wrap", xl: 'nowrap' }, p: 0, size: "sm"
+        //             }}>
+        //                 {['Last Week', 'This Month', 'Last 6 months', 'This Year', 'Custom'].map((label, index) => (
+        //                     <Button key={label} onClick={() => handlePeriodChange(index + 2)}>
+        //                         {index === 4 ? (
+        //                             <Box sx={{ display: "flex", flexDirection: "row", gap: 1 }}>
+        //                                 <Input
+        //                                     type="date"
+        //                                     value={fromDate}
+        //                                     onChange={(e) => setFromDate(e.target.value)}
+        //                                     size='xs'
+        //                                     sx={{ p: 0.5, color: 'grey' }}
+        //                                 />
+        //                                 <Input
+        //                                     type="date"
+        //                                     value={toDate}
+        //                                     onChange={(e) => setToDate(e.target.value)}
+        //                                     size='xs'
+        //                                     sx={{ p: 0.5, color: 'grey' }}
+        //                                     slotProps={{ input: { min: fromDate } }}
+        //                                 />
+        //                             </Box>
+        //                         ) : (
+        //                             <Typography sx={{
+        //                                 fontSize: 11,
+        //                                 color: "rgba(var(--input-font-color))",
+        //                                 '&:hover': {
+        //                                     color: 'rgba(var(--font-black))',
+        //                                     backgroundColor: 'transparent',
+        //                                 }
+        //                             }}>{label}</Typography>
+        //                         )}
+        //                     </Button>
+        //                 ))}
+        //             </ButtonGroup>
+        //         </Box>
+
+        //         <GraphicalRep Chartlayout={Chartlayout} seChartlayout={seChartlayout} />
+        //     </Box>
+
+        //     <Box sx={{ mt: 2, width: '100%', height: 350 }}>
+        //         {Chartlayout === 1 && <Bar data={chartData} options={chartOptions} height={350} />}
+        //         {Chartlayout === 2 && <Line data={chartData} options={chartOptions} height={350} />}
+        //         {Chartlayout === 3 && (
+        //             // <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: '100%' }}>
+        //             //     <PolarArea data={chartData} options={chartOptions} height={300} width={300} />
+        //             // </Box>
+        //             <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: 500 }}>
+        //                 <Box sx={{ width: 600, height: 600 }}>
+        //                     <PolarArea
+        //                         data={chartData}
+        //                         options={{
+        //                             responsive: true,
+        //                             maintainAspectRatio: false,
+        //                             plugins: {
+        //                                 legend: { position: 'right' }
+        //                             }
+        //                         }}
+        //                     />
+        //                 </Box>
+        //             </Box>
+        //         )}
+        //     </Box>
+        // </Box>
+
         <Box sx={{ width: '100%', overflow: 'auto' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
                 <Box sx={{ flexWrap: "wrap", mt: 0.5, flex: 1 }}>
-                    <ButtonGroup aria-label="date range selector" sx={{
-                        '--ButtonGroup-radius': '30px', display: "flex",
-                        flexWrap: { sm: "wrap", xl: 'nowrap' }, p: 0, size: "sm"
-                    }}>
-                        {['Last Week', 'This Month', 'Last 6 months', 'This Year', 'Custom'].map((label, index) => (
-                            <Button key={label} onClick={() => handlePeriodChange(index + 2)}>
-                                {index === 4 ? (
-                                    <Box sx={{ display: "flex", flexDirection: "row", gap: 1 }}>
-                                        <Input
-                                            type="date"
-                                            value={fromDate}
-                                            onChange={(e) => setFromDate(e.target.value)}
-                                            size='xs'
-                                            sx={{ p: 0.5, color: 'grey' }}
-                                        />
-                                        <Input
-                                            type="date"
-                                            value={toDate}
-                                            onChange={(e) => setToDate(e.target.value)}
-                                            size='xs'
-                                            sx={{ p: 0.5, color: 'grey' }}
-                                            slotProps={{ input: { min: fromDate } }}
-                                        />
-                                    </Box>
-                                ) : (
-                                    <Typography sx={{
-                                        fontSize: 11,
-                                        color: "rgba(var(--input-font-color))",
-                                        '&:hover': {
-                                            color: 'rgba(var(--font-black))',
-                                            backgroundColor: 'transparent',
-                                        }
-                                    }}>{label}</Typography>
-                                )}
-                            </Button>
-                        ))}
-                    </ButtonGroup>
+                    <CommonDateComp
+                        onPeriodChange={handlePeriodChange}
+                        fromDate={fromDate}
+                        setFromDate={setFromDate}
+                        toDate={toDate}
+                        setToDate={setToDate}
+                        Graphicaldata={chartData}
+                        dayCount={selectedPeriod}
+                        setDayCount={setSelectedPeriod}
+                        chartData={chartData}
+                        setChartData={setChartData}
+                    />
                 </Box>
-
                 <GraphicalRep Chartlayout={Chartlayout} seChartlayout={seChartlayout} />
             </Box>
 
@@ -243,9 +288,6 @@ const Kmc_DrWise = () => {
                 {Chartlayout === 1 && <Bar data={chartData} options={chartOptions} height={350} />}
                 {Chartlayout === 2 && <Line data={chartData} options={chartOptions} height={350} />}
                 {Chartlayout === 3 && (
-                    // <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: '100%' }}>
-                    //     <PolarArea data={chartData} options={chartOptions} height={300} width={300} />
-                    // </Box>
                     <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: 500 }}>
                         <Box sx={{ width: 600, height: 600 }}>
                             <PolarArea

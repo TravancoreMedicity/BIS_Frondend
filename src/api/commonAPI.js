@@ -1,5 +1,6 @@
 import { format, isValid } from "date-fns";
 import axiosApi, { axiosellider_kmc, axiosellider_tmc } from "../Axios/Axios";
+import { ensureNumber } from "../Modules/BISModule/BIS_CommoCode/CommonDateRange/ChartCommonFuns/ChartCommonFun";
 
 const getActionApiFunc = async (apiStringName) => {
   try {
@@ -311,7 +312,7 @@ const postApiData = async (url, payload, validateArray = false) => {
     const { success, data } = response.data;
 
     if (success !== 1) {
-      console.error("API Error:", response.data);
+      // console.error("API Error:", response.data);
       return [];
     }
 
@@ -322,7 +323,7 @@ const postApiData = async (url, payload, validateArray = false) => {
 
     return data ?? [];
   } catch (error) {
-    console.error("API Exception:", error.message || error);
+    // console.error("API Exception:", error.message || error);
     return [];
   }
 };
@@ -365,33 +366,6 @@ export const getKmclabDetails = (payloadDatas) =>
 
 export const getKmcradiologyDetails = (payloadDatas) =>
   postApiData("/bisKmcradiologyDetails/getDetails", payloadDatas);
-
-
-
-
-// dfjhkldjhkdjjklfgjhkdlghklllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllll
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// ********************************************************************************************
-
-
 
 
 
@@ -452,21 +426,24 @@ const fetchGetApi = async (axiosInstance, url) => {
   try {
     const res = await axiosInstance.get(url, { timeout: 10000 }); //  10 sec
     const { success, data } = res.data;
+    // console.log("success:", success, "data:", data);
 
     if (success === 2) {
       return data ?? [];
     } else {
-      console.error(`API Error [${url}]:`, res.data);
+      // console.error(`API Error [${url}]:`, res.data);
       return [];
     }
   } catch (error) {
-    console.error(`Error fetching API [${url}]:`, error);
+    // console.log("error", error);
+
+    // console.error(`Error fetching API [${url}]:`, error);
     return [];
   }
 };
 
 
-// 🔹 Using the common function
+// Using the common function
 export const getActiveItems = async () => { return await fetchGetApi(axiosellider_kmc, "/bisQuotationData/getActiveItems"); };
 export const getTmcActiveItems = async () => { return await fetchGetApi(axiosellider_tmc, "/bisQuotationData/getActiveItems"); };
 export const getKMCTotalQtn = async () => { return await fetchGetApi(axiosellider_kmc, "/bisQuotationData/getTotalQtn"); };
@@ -480,58 +457,55 @@ export const getTmcFinalizedQtn = async () => { return await fetchGetApi(axiosAp
 export const GetstoreMaster = async () => { return await fetchGetApi(axiosApi, "/bisQuotation/TMCFinalizedQtn"); };
 export const GetTmcStoreMaster = async () => { return await fetchGetApi(axiosApi, "/bisQuotation/getTmcStoreData"); };
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-// *************************************************************************************************************************************
-
-
-
-
-
-
-
-
-
-// 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 export const userWiseSettingsRights = async (loggedUser) => {
-  return await axiosApi.get(`/UserGroupRightMaster/userWiseSettingsRights/${loggedUser}`).then((res) => {
+
+  // console.log("loggedUser", ensureNumber(loggedUser));
+
+  // if (ensureNumber(loggedUser)) {
+  //   console.warn("Invalid loggedUser:", loggedUser, "is not a number.");
+  //   return [];
+  // }
+  try {
+    const res = await axiosApi.get(
+      `/UserGroupRightMaster/userWiseSettingsRights/${loggedUser}`
+    );
+
     const { success, data } = res.data;
+
     if (success === 2) {
-      return data ? data : [];
+      return data ?? [];
+    } else {
+      console.warn("API responded with no success:", res.data);
+      return [];
     }
-  });
+  } catch (error) {
+    console.error("Error in userWiseSettingsRights API:", error);
+    return [];
+  }
 };
 
 
+export const getgraphicalViewRights = async (authNo) => {
+  // if (ensureNumber(authNo)) {
+  //   console.warn("Invalid loggedUser:", authNo, "is not a number.");
+  //   return [];
+  // }
+  try {
+    const res = await axiosApi.get(
+      `/bisGraphicalViewMast/fetchGraphicalviewRights/${authNo}`
+    );
+    const { success, data } = res.data;
+    // console.log("getgraphicalViewRights", data);
 
-
-
-
-
-export const getgraphicalViewRights = async authNo => {
-  return axiosApi.get(`/bisGraphicalViewMast/fetchGraphicalviewRights/${authNo}`).then(res => {
-    const { success, data } = res.data
     if (success === 2) {
-      return data
+      return data ?? [];
+    } else {
+      console.warn("API did not return success:", res.data);
+      return [];
     }
-  })
-}
+  } catch (error) {
+    console.error("Error in getgraphicalViewRights API:", error);
+    return [];
+  }
+};

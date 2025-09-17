@@ -59,46 +59,101 @@ const Tmc_Quotation_Statics = () => {
         '0037': 'Project Store'
     };
 
+    // const { categories: activeCategories, totalCount: activeTotal } = useMemo(() => {
+    //     const itemMap = {};
+    //     let total = 0;
+
+    //     // Only include ST_CODEs that exist in categoryMap
+    //     (ActiveItems || []).map(item => {
+    //         if (categoryMap[item.ST_CODE]) {
+    //             itemMap[item.ST_CODE] = item.ITEM_COUNT;
+    //             total += item.ITEM_COUNT;
+    //         }
+    //     });
+
+    //     // Ensure all categories from categoryMap are present in the UI
+    //     const categories = Object.entries(categoryMap).map(([ST_CODE, name]) => ({
+    //         name,
+    //         count: itemMap[ST_CODE] || 0
+    //     }));
+
+    //     return { categories, totalCount: total };
+    // }, [ActiveItems]);
+
     const { categories: activeCategories, totalCount: activeTotal } = useMemo(() => {
-        const itemMap = {};
-        let total = 0;
+        try {
+            const itemMap = {};
+            let total = 0;
 
-        // Only include ST_CODEs that exist in categoryMap
-        (ActiveItems || []).map(item => {
-            if (categoryMap[item.ST_CODE]) {
-                itemMap[item.ST_CODE] = item.ITEM_COUNT;
-                total += item.ITEM_COUNT;
-            }
-        });
+            // Only include ST_CODEs that exist in categoryMap
+            (ActiveItems || []).map(item => {
+                if (categoryMap[item.ST_CODE]) {
+                    itemMap[item.ST_CODE] = item.ITEM_COUNT;
+                    total += item.ITEM_COUNT;
+                }
+                return null; // map expects a return value
+            });
 
-        // Ensure all categories from categoryMap are present in the UI
-        const categories = Object.entries(categoryMap).map(([ST_CODE, name]) => ({
-            name,
-            count: itemMap[ST_CODE] || 0
-        }));
+            // Ensure all categories from categoryMap are present in the UI
+            const categories = Object.entries(categoryMap).map(([ST_CODE, name]) => ({
+                name,
+                count: itemMap[ST_CODE] || 0
+            }));
 
-        return { categories, totalCount: total };
-    }, [ActiveItems]);
+            return { categories, totalCount: total };
+        } catch (error) {
+            console.error("Error computing active categories:", error);
+            return { categories: [], totalCount: 0 }; // safe fallback
+        }
+    }, [ActiveItems, categoryMap]);
 
 
     // For Linked Items
+    // const { categories: linkedCategories, totalCount: linkedTotal } = useMemo(() => {
+    //     const itemMap = {};
+    //     let total = 0;
+    //     // Build map only for items that match categoryMap keys
+    //     (LinkedItems || []).map(item => {
+    //         if (categoryMap[item.su_code]) {
+    //             itemMap[item.su_code] = item.item_count;
+    //             total += item.item_count;
+    //         }
+    //     });
+    //     // Ensure all categories from categoryMap are returned
+    //     const categories = Object.entries(categoryMap).map(([su_code, name]) => ({
+    //         name,
+    //         count: itemMap[su_code] || 0
+    //     }));
+    //     return { categories, totalCount: total };
+    // }, [LinkedItems]);
+
     const { categories: linkedCategories, totalCount: linkedTotal } = useMemo(() => {
-        const itemMap = {};
-        let total = 0;
-        // Build map only for items that match categoryMap keys
-        (LinkedItems || []).map(item => {
-            if (categoryMap[item.su_code]) {
-                itemMap[item.su_code] = item.item_count;
-                total += item.item_count;
-            }
-        });
-        // Ensure all categories from categoryMap are returned
-        const categories = Object.entries(categoryMap).map(([su_code, name]) => ({
-            name,
-            count: itemMap[su_code] || 0
-        }));
-        return { categories, totalCount: total };
-    }, [LinkedItems]);
+        try {
+            const itemMap = {};
+            let total = 0;
+
+            // Build map only for items that match categoryMap keys
+            (LinkedItems || []).map(item => {
+                if (categoryMap[item.su_code]) {
+                    itemMap[item.su_code] = item.item_count;
+                    total += item.item_count;
+                }
+                return null; // map expects a return
+            });
+
+            // Ensure all categories from categoryMap are returned
+            const categories = Object.entries(categoryMap).map(([su_code, name]) => ({
+                name,
+                count: itemMap[su_code] || 0
+            }));
+
+            return { categories, totalCount: total };
+        } catch (error) {
+            console.error("Error computing linked categories:", error);
+            return { categories: [], totalCount: 0 }; // safe fallback
+        }
+    }, [LinkedItems, categoryMap]);
+
 
     const CategoryCard = ({ title, total, categories }) => (
         <Card sx={{ flex: 1, borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', background: '#fefefe', p: 2 }}>

@@ -1,3 +1,4 @@
+
 import { Box, Button, ButtonGroup, Input, Typography } from '@mui/joy';
 import React, { memo, useState, useCallback, useEffect, useMemo } from 'react';
 import {
@@ -12,6 +13,7 @@ import {
 } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import GraphicalRep from '../../BIS_CommoCode/GraphicalRep';
+import DateFieldCommonComp from '../../BIS_CommoCode/DateFieldCommonComp';
 
 ChartJS.register(
     CategoryScale,
@@ -62,119 +64,184 @@ const Pharmacy_Statistics = () => {
     };
 
     const filterAndAggregate = useCallback((rangeStart, rangeEnd, period) => {
-        const filtered = labDetails.filter(({ testdate }) => {
-            const date = new Date(testdate);
-            return date >= rangeStart && date <= rangeEnd;
-        });
+        try {
+            // Input Validation
+            if (!(rangeStart instanceof Date) || isNaN(rangeStart)) {
+                throw new Error("Invalid rangeStart date.");
+            }
+            if (!(rangeEnd instanceof Date) || isNaN(rangeEnd)) {
+                throw new Error("Invalid rangeEnd date.");
+            }
+            if (![2, 3, 4, 5, 6].includes(period)) {
+                throw new Error("Invalid period.");
+            }
+            if (!Array.isArray(labDetails)) {
+                throw new Error("labDetails must be an array.");
+            }
 
-        let labels = [];
-        let totalTestData = [];
-        let totalOPData = [];
-        let totalIPData = [];
-
-        if (period === 4 || period === 5) {
-            const monthMap = {};
-            filtered.map(({ testdate, totalTest, totalOP, totalIP }) => {
-                const date = parseISO(testdate);
-                const key = format(date, 'yyyy-MM');
-                if (!monthMap[key]) {
-                    monthMap[key] = { totalTest: 0, totalOP: 0, totalIP: 0 };
-                }
-                monthMap[key].totalTest += totalTest;
-                monthMap[key].totalOP += totalOP;
-                monthMap[key].totalIP += totalIP;
+            //Filter data by date range
+            const filtered = labDetails.filter(({ testdate }) => {
+                const date = new Date(testdate);
+                return date >= rangeStart && date <= rangeEnd;
             });
 
-            const sortedKeys = Object.keys(monthMap).sort();
-            labels = sortedKeys.map(key => {
-                const [year, month] = key.split('-');
-                return format(new Date(year, month - 1), period === 4 ? 'MMM yyyy' : 'MMM yyyy');
+            let labels = [];
+            let totalTestData = [];
+            let totalOPData = [];
+            let totalIPData = [];
+
+            //Monthly grouping for periods 4 & 5
+            if (period === 4 || period === 5) {
+                const monthMap = {};
+
+                filtered.forEach(({ testdate, totalTest, totalOP, totalIP }) => {
+                    const date = parseISO(testdate);
+                    const key = format(date, 'yyyy-MM');
+
+                    if (!monthMap[key]) {
+                        monthMap[key] = { totalTest: 0, totalOP: 0, totalIP: 0 };
+                    }
+
+                    monthMap[key].totalTest += totalTest ?? 0;
+                    monthMap[key].totalOP += totalOP ?? 0;
+                    monthMap[key].totalIP += totalIP ?? 0;
+                });
+
+                const sortedKeys = Object.keys(monthMap).sort();
+                labels = sortedKeys.map(key => {
+                    const [year, month] = key.split('-');
+                    return format(new Date(year, month - 1), 'MMM yyyy');
+                });
+
+                totalTestData = sortedKeys.map(key => monthMap[key].totalTest);
+                totalOPData = sortedKeys.map(key => monthMap[key].totalOP);
+                totalIPData = sortedKeys.map(key => monthMap[key].totalIP);
+
+            } else {
+                //Daily grouping
+                const dateMap = {};
+
+                filtered.forEach(({ testdate, totalTest, totalOP, totalIP }) => {
+                    if (!dateMap[testdate]) {
+                        dateMap[testdate] = { totalTest: 0, totalOP: 0, totalIP: 0 };
+                    }
+
+                    dateMap[testdate].totalTest += totalTest ?? 0;
+                    dateMap[testdate].totalOP += totalOP ?? 0;
+                    dateMap[testdate].totalIP += totalIP ?? 0;
+                });
+
+                const sortedDates = Object.keys(dateMap).sort((a, b) => new Date(a) - new Date(b));
+                labels = sortedDates.map(date => formatLabel(date, period));
+                totalTestData = sortedDates.map(date => dateMap[date].totalTest);
+                totalOPData = sortedDates.map(date => dateMap[date].totalOP);
+                totalIPData = sortedDates.map(date => dateMap[date].totalIP);
+            }
+
+            // Update Polar Chart Data
+            setPolarData({
+                labels,
+                datasets: [
+                    {
+                        label: 'Total Bill Count',
+                        data: totalTestData,
+                        backgroundColor: [
+                            '#FF6384', '#36A2EB', '#FFCE56',
+                            '#4BC0C0', '#9966FF', '#FF9F40'
+                        ],
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    },
+                ]
             });
 
-            totalTestData = sortedKeys.map(key => monthMap[key].totalTest);
-            totalOPData = sortedKeys.map(key => monthMap[key].totalOP);
-            totalIPData = sortedKeys.map(key => monthMap[key].totalIP);
+            return {
+                labels,
+                datasets: [
+                    {
+                        label: 'Total Bill Count ',
+                        data: totalTestData,
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Total OP Bill',
+                        data: totalOPData,
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Total IP Bill',
+                        data: totalIPData,
+                        backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            };
 
-        } else {
-            const dateMap = {};
-            filtered.forEach(({ testdate, totalTest, totalOP, totalIP }) => {
-                if (!dateMap[testdate]) {
-                    dateMap[testdate] = { totalTest: 0, totalOP: 0, totalIP: 0 };
-                }
-                dateMap[testdate].totalTest += totalTest;
-                dateMap[testdate].totalOP += totalOP;
-                dateMap[testdate].totalIP += totalIP;
-            });
-
-            const sortedDates = Object.keys(dateMap).sort((a, b) => new Date(a) - new Date(b));
-            labels = sortedDates.map(date => formatLabel(date, period));
-            totalTestData = sortedDates.map(date => dateMap[date].totalTest);
-            totalOPData = sortedDates.map(date => dateMap[date].totalOP);
-            totalIPData = sortedDates.map(date => dateMap[date].totalIP);
+        } catch (error) {
+            console.error("Error in filterAndAggregate:", error.message);
+            return {
+                labels: [],
+                datasets: []
+            };
         }
-
-        setPolarData({
-            labels,
-            datasets: [
-                {
-                    label: 'Total Bill Count',
-                    data: totalTestData,
-                    backgroundColor: [
-                        '#FF6384', '#36A2EB', '#FFCE56',
-                        '#4BC0C0', '#9966FF', '#FF9F40'
-                    ],
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
-                },
-            ]
-        });
-
-        return {
-            labels,
-            datasets: [
-                {
-                    label: 'Total Bill Count',
-                    data: totalTestData,
-                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
-                },
-                {
-                    label: 'OP Bill Count',
-                    data: totalOPData,
-                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1
-                },
-                {
-                    label: 'IP Bill Count',
-                    data: totalIPData,
-                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    borderWidth: 1
-                }
-            ]
-        };
     }, []);
 
     const handlePeriodChange = useCallback((period) => {
-        const now = new Date();
-        const ranges = {
-            2: () => [startOfLastWeek, endOfLastWeek],
-            3: () => [startOfMonth(now), now],
-            4: () => [startOfMonth(subMonths(now, 5)), now],
-            5: () => [new Date(now.getFullYear(), 0, 1), now],
-        };
+        try {
+            const now = new Date();
 
-        if (!ranges[period]) return;
+            // Validate period input
+            if (![2, 3, 4, 5].includes(period)) {
+                console.error("Invalid period:", period);
+                return;
+            }
 
-        const [start, end] = ranges[period]();
-        setCurrentPeriod(period);
-        setFromDate(format(start, 'yyyy-MM-dd'));
-        setToDate(format(end, 'yyyy-MM-dd'));
-        const chart = filterAndAggregate(start, end, period);
-        setChartData(chart);
+            const ranges = {
+                2: () => [startOfLastWeek, endOfLastWeek],
+                3: () => [startOfMonth(now), now],
+                4: () => [startOfMonth(subMonths(now, 5)), now],
+                5: () => [new Date(now.getFullYear(), 0, 1), now],
+            };
+
+            const rangeFunc = ranges[period];
+            if (typeof rangeFunc !== 'function') {
+                throw new Error("Invalid range function for period: " + period);
+            }
+
+            const [start, end] = rangeFunc();
+
+            // Validate dates
+            if (!(start instanceof Date) || isNaN(start)) {
+                throw new Error("Invalid start date.");
+            }
+            if (!(end instanceof Date) || isNaN(end)) {
+                throw new Error("Invalid end date.");
+            }
+
+            setCurrentPeriod(period);
+            setFromDate(format(start, 'yyyy-MM-dd'));
+            setToDate(format(end, 'yyyy-MM-dd'));
+
+            const chart = filterAndAggregate(start, end, period);
+
+            if (!chart || !Array.isArray(chart.labels) || !Array.isArray(chart.datasets)) {
+                throw new Error("Invalid chart data returned.");
+            }
+
+            setChartData(chart);
+
+        } catch (error) {
+            console.error("handlePeriodChange error:", error.message);
+            // Optionally show toast/snackbar here
+        }
     }, [filterAndAggregate]);
+
+
 
     useEffect(() => {
         handlePeriodChange(2); // Default
@@ -234,7 +301,7 @@ const Pharmacy_Statistics = () => {
     return (
         <Box sx={{ width: '100%', overflow: 'auto', p: 2 }}>
             <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                <ButtonGroup sx={{ flexWrap: 'wrap', mt: 1 }}>
+                {/* <ButtonGroup sx={{ flexWrap: 'wrap', mt: 1 }}>
                     {['Last Week', 'This Month', 'Last 6 months', 'This Year', 'Custom'].map((label, index) => (
                         <Button key={label} onClick={() => index < 4 && handlePeriodChange(index + 2)}>
                             {index === 4 ? (
@@ -263,7 +330,17 @@ const Pharmacy_Statistics = () => {
                             )}
                         </Button>
                     ))}
-                </ButtonGroup>
+                </ButtonGroup> */}
+
+                <DateFieldCommonComp
+                    onPeriodChange={handlePeriodChange}
+                    fromDate={fromDate}
+                    setFromDate={setFromDate}
+                    toDate={toDate}
+                    setToDate={setToDate}
+                    currentPeriod={currentPeriod}
+                    setCurrentPeriod={setCurrentPeriod}
+                />
                 <Box sx={{ mt: 1 }}>
                     <GraphicalRep Chartlayout={Chartlayout} seChartlayout={seChartlayout} />
                 </Box>
@@ -305,4 +382,5 @@ const Pharmacy_Statistics = () => {
     );
 };
 
-export default memo(Pharmacy_Statistics) 
+export default memo(Pharmacy_Statistics);
+

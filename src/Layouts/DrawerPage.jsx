@@ -42,20 +42,20 @@ const DrawerWindow = memo(({ drawerWidth, handleDrawerClose }) => {
         () => ({
             TMC: [
                 { menu_slno: 1, menu: "Dashboard", text: "/Home/Dashboard", icon: <DashboardIcon /> },
-                // { menu_slno: 2, menu: "Quotation Statistics", text: "/Home/Tmc_Quotation_Statics", icon: <ReceiptIcon /> },
-                // { menu_slno: 3, menu: "IP Statistics", text: "/Home/Tmch_Ip_Statistics", icon: <BarChartIcon /> },
-                // { menu_slno: 4, menu: "OP Statistics", text: "/Home/Tmch_Op_statistics", icon: <TimelineIcon /> },
-                // { menu_slno: 5, menu: "Patient Statistics", text: "/Home/Tmch_Patient_Statiatics", icon: <BarChartIcon /> },
-                // { menu_slno: 21, menu: "Inventory Matrix", text: "/Home/TMCH_InventoryMatrix", icon: <AccountTreeIcon /> },
+                { menu_slno: 2, menu: "Quotation Statistics", text: "/Home/Tmc_Quotation_Statics", icon: <ReceiptIcon /> },
+                { menu_slno: 3, menu: "IP Statistics", text: "/Home/Tmch_Ip_Statistics", icon: <BarChartIcon /> },
+                { menu_slno: 4, menu: "OP Statistics", text: "/Home/Tmch_Op_statistics", icon: <TimelineIcon /> },
+                { menu_slno: 5, menu: "Patient Statistics", text: "/Home/Tmch_Patient_Statiatics", icon: <BarChartIcon /> },
+                { menu_slno: 21, menu: "Inventory Matrix", text: "/Home/TMCH_InventoryMatrix", icon: <AccountTreeIcon /> },
             ],
             KMC: [
                 { menu_slno: 8, menu: "Dashboard", text: "/Home/KMCDashboard", icon: <DashboardIcon /> },
-                // { menu_slno: 9, menu: "Quotation Statistics", text: "/Home/QtnStatistics", icon: <ReceiptIcon /> },
-                // { menu_slno: 11, menu: "OP Statistics", text: "/Home/Kmch_Op_statistics", icon: <BarChartIcon /> },
-                // { menu_slno: 10, menu: "IP Statistics", text: "/Home/Kmch_Ip_Statistics", icon: <TimelineIcon /> },
-                // { menu_slno: 12, menu: "Patient Statistics", text: "/Home/Kmch_Patient_Statiatics", icon: <BarChartIcon /> },
-                // { menu_slno: 24, menu: "Inventory Matrix", text: "/Home/Inventory_matrix_main", icon: <AccountTreeIcon /> },
-                // { menu_slno: 23, menu: "OP Billing Statistics", text: "/Home/Kmch_billingInventory_main", icon: <InsightsIcon /> },
+                { menu_slno: 9, menu: "Quotation Statistics", text: "/Home/QtnStatistics", icon: <ReceiptIcon /> },
+                { menu_slno: 11, menu: "OP Statistics", text: "/Home/Kmch_Op_statistics", icon: <BarChartIcon /> },
+                { menu_slno: 10, menu: "IP Statistics", text: "/Home/Kmch_Ip_Statistics", icon: <TimelineIcon /> },
+                { menu_slno: 12, menu: "Patient Statistics", text: "/Home/Kmch_Patient_Statiatics", icon: <BarChartIcon /> },
+                { menu_slno: 24, menu: "Inventory Matrix", text: "/Home/Inventory_matrix_main", icon: <AccountTreeIcon /> },
+                { menu_slno: 23, menu: "OP Billing Statistics", text: "/Home/Kmch_billingInventory_main", icon: <InsightsIcon /> },
             ],
             Settings: [
                 { menu_slno: 5, menu: "Settings", text: "/Home/Settings", icon: <Settings /> },
@@ -82,10 +82,10 @@ const DrawerWindow = memo(({ drawerWidth, handleDrawerClose }) => {
     const filteredMenus = useMemo(() => {
         // if (!allmoduleitem?.length) return allMenus;
 
-        // ✅ Step 1: collect allowed menu_slno from allmoduleitem
+        // Step 1: collect allowed menu_slno from allmoduleitem
         const allowedSlno = new Set(allmoduleitem.map(item => item.bis_menu_slno));
 
-        // ✅ Step 2: loop through allMenus groups and filter
+        // Step 2: loop through allMenus groups and filter
         const result = {};
 
         Object.entries(allMenus).forEach(([group, menus]) => {
@@ -288,7 +288,7 @@ export default memo(DrawerWindow);
 
 //     console.log("userDrawer", userDrawer);
 
-//     // 🔹 1. Master Menu List (define once)
+//     //  1. Master Menu List (define once)
 // const allMenus = useMemo(() => ({
 //     TMC: [
 //         { menu_slno: 1, menu: "Dashboard", text: "/Home/Dashboard", icon: <DashboardIcon /> },
@@ -316,7 +316,7 @@ export default memo(DrawerWindow);
 //     ]
 // }), []);
 
-//     // 🔹 2. Filter menus by API response (userDrawer)
+//     //  2. Filter menus by API response (userDrawer)
 //     const filterMenus = (menus, userDrawer) => {
 //         if (!userDrawer) return [];
 //         return menus.filter(item =>
@@ -328,7 +328,7 @@ export default memo(DrawerWindow);
 //     const KMCFiltered = filterMenus(allMenus.KMC, userDrawer);
 //     const SettingFiltered = filterMenus(allMenus.Settings, userDrawer);
 
-//     // 🔹 3. Render Drawer Section
+//     //  3. Render Drawer Section
 //     const renderDrawerSection = (sectionTitle, menuItems, sectionKey) => {
 //         if (!menuItems.length) return null; // hide empty sections
 

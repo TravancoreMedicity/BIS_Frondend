@@ -1,4 +1,4 @@
-import { Box, Button, ButtonGroup, Input, Typography } from '@mui/joy';
+import { Box } from '@mui/joy';
 import React, { memo, useCallback, useState, useEffect, useMemo } from 'react';
 import {
     addDays,
@@ -27,6 +27,7 @@ import {
     ArcElement
 } from 'chart.js';
 import GraphicalRep from '../../BIS_CommoCode/GraphicalRep';
+import CommonDateComp from '../../BIS_CommoCode/CommonDateRange/CommonDateComp';
 
 ChartJS.register(
     CategoryScale,
@@ -52,7 +53,7 @@ const OP_IP_Statistics = ({ Displaystyle, fromDate, setFromDate, toDate, setToDa
     const startOfLastWeek = subWeeks(startOfThisWeek, 1);
     const endOfLastWeek = addDays(startOfLastWeek, 6);
 
-    // ✅ Generate random data
+    // Generate random data
     const data = useMemo(() => {
         return Array.from({ length: 50 }, (_, i) => {
             const date = new Date();
@@ -65,110 +66,222 @@ const OP_IP_Statistics = ({ Displaystyle, fromDate, setFromDate, toDate, setToDa
         });
     }, []);
 
-    const Graphicaldata = useMemo(() => ({
-        labels: data.map(val => val.visit_date),
-        datasets: [
-            {
-                label: 'Total OP',
-                data: data.map(val => val.total_op),
-                borderColor: 'rgba(96, 94, 163, 1)',
-                backgroundColor: 'rgba(96, 94, 163, 0.5)'
-            },
-            {
-                label: 'Total IP',
-                data: data.map(val => val.total_ip),
-                borderColor: 'rgba(12, 132, 162, 1)',
-                backgroundColor: 'rgba(12, 132, 162, 0.5)'
+    const Graphicaldata = useMemo(() => {
+        try {
+            if (!Array.isArray(data)) {
+                throw new Error("Invalid data format: expected an array.");
             }
-        ]
-    }), [data]);
+
+            const labels = data.map(val => val.visit_date);
+            const totalOpData = data.map(val => val.total_op ?? 0);
+            const totalIpData = data.map(val => val.total_ip ?? 0);
+
+            return {
+                labels,
+                datasets: [
+                    {
+                        label: 'Total OP',
+                        data: totalOpData,
+                        borderColor: 'rgba(96, 94, 163, 1)',
+                        backgroundColor: 'rgba(96, 94, 163, 0.5)'
+                    },
+                    {
+                        label: 'Total IP',
+                        data: totalIpData,
+                        borderColor: 'rgba(12, 132, 162, 1)',
+                        backgroundColor: 'rgba(12, 132, 162, 0.5)'
+                    }
+                ]
+            };
+        } catch (error) {
+            console.error("Error generating Graphicaldata:", error.message);
+
+            // Return empty structure on failure to prevent component crash
+            return {
+                labels: [],
+                datasets: []
+            };
+        }
+    }, [data]);
 
     const filterDataByDateRange = useCallback((labels, datasets, dateRange) => {
-        if (dateRange.isRange) {
-            const { rangeStart, rangeEnd } = dateRange;
+        try {
+            if (!Array.isArray(labels) || !Array.isArray(datasets)) {
+                throw new Error("Labels and datasets must be arrays");
+            }
 
-            if (dayCount === 4 || dayCount === 5) {
-                const months = eachMonthOfInterval({ start: rangeStart, end: rangeEnd });
-                const monthLabels = months.map(month => format(month, 'MMM yyyy'));
+            if (!dateRange) {
+                throw new Error("dateRange is required");
+            }
 
-                const monthlySums = datasets.map(dataset =>
-                    months.map(month => {
-                        const start = startOfMonth(month);
-                        const end = endOfMonth(month);
-                        return labels.reduce((sum, label, index) => {
-                            const labelDate = new Date(label);
-                            return isWithinInterval(labelDate, { start, end })
-                                ? sum + (dataset.data[index] || 0)
-                                : sum;
-                        }, 0);
+            if (dateRange.isRange) {
+                const { rangeStart, rangeEnd } = dateRange;
+
+                if (!(rangeStart instanceof Date) || isNaN(rangeStart.getTime())) {
+                    throw new Error("Invalid rangeStart date");
+                }
+                if (!(rangeEnd instanceof Date) || isNaN(rangeEnd.getTime())) {
+                    throw new Error("Invalid rangeEnd date");
+                }
+
+                if (dayCount === 4 || dayCount === 5) {
+                    const months = eachMonthOfInterval({ start: rangeStart, end: rangeEnd });
+                    const monthLabels = months.map(month => format(month, 'MMM yyyy'));
+
+                    const monthlySums = datasets.map(dataset =>
+                        months.map(month => {
+                            const start = startOfMonth(month);
+                            const end = endOfMonth(month);
+                            return labels.reduce((sum, label, index) => {
+                                const labelDate = new Date(label);
+                                return isWithinInterval(labelDate, { start, end })
+                                    ? sum + (dataset.data[index] || 0)
+                                    : sum;
+                            }, 0);
+                        })
+                    );
+
+                    return {
+                        labels: monthLabels,
+                        datasets: datasets.map((ds, i) => ({
+                            ...ds,
+                            data: monthlySums[i]
+                        }))
+                    };
+                }
+
+                const indices = labels
+                    .map((label, i) => {
+                        const d = new Date(label);
+                        return d >= rangeStart && d <= rangeEnd ? i : null;
                     })
-                );
+                    .filter(i => i !== null);
 
                 return {
-                    labels: monthLabels,
-                    datasets: datasets.map((ds, i) => ({ ...ds, data: monthlySums[i] }))
+                    labels: indices.map(i => format(new Date(labels[i]), 'dd EEE')),
+                    datasets: datasets.map(ds => ({
+                        ...ds,
+                        data: indices.map(i => ds.data[i])
+                    }))
                 };
             }
 
+            // If not a range, treat dateRange as an array of dates to match
+            if (!Array.isArray(dateRange)) {
+                throw new Error("Expected dateRange to be an array when isRange is false");
+            }
+
             const indices = labels
-                .map((label, i) => {
-                    const d = new Date(label);
-                    return d >= rangeStart && d <= rangeEnd ? i : null;
-                })
+                .map((label, i) => (dateRange.includes(label) ? i : null))
                 .filter(i => i !== null);
 
             return {
                 labels: indices.map(i => format(new Date(labels[i]), 'dd EEE')),
-                datasets: datasets.map(ds => ({ ...ds, data: indices.map(i => ds.data[i]) }))
+                datasets: datasets.map(ds => ({
+                    ...ds,
+                    data: indices.map(i => ds.data[i])
+                }))
+            };
+        } catch (error) {
+            console.error("Error in filterDataByDateRange:", error.message);
+            return {
+                labels: [],
+                datasets: []
             };
         }
-
-        const indices = labels
-            .map((label, i) => (dateRange.includes(label) ? i : null))
-            .filter(i => i !== null);
-
-        return {
-            labels: indices.map(i => format(new Date(labels[i]), 'dd EEE')),
-            datasets: datasets.map(ds => ({ ...ds, data: indices.map(i => ds.data[i]) }))
-        };
     }, [dayCount]);
 
+
     const handlePeriodChange = useCallback((period) => {
-        setDayCount(period);
-        const now = new Date();
-
-        const dateRanges = {
-            2: () => {
-                setFromDate(format(startOfLastWeek, 'yyyy-MM-dd'));
-                setToDate(format(endOfLastWeek, 'yyyy-MM-dd'));
-                return eachDayOfInterval({ start: startOfLastWeek, end: endOfLastWeek }).map(d => format(d, 'yyyy-MM-dd'));
-            },
-            3: () => {
-                const start = startOfMonth(now);
-                setFromDate(format(start, 'yyyy-MM-dd'));
-                setToDate(format(now, 'yyyy-MM-dd'));
-                return eachDayOfInterval({ start, end: now }).map(d => format(d, 'yyyy-MM-dd'));
-            },
-            4: () => {
-                const start = startOfMonth(subMonths(now, 5));
-                setFromDate(format(start, 'yyyy-MM-dd'));
-                setToDate(format(now, 'yyyy-MM-dd'));
-                return { rangeStart: start, rangeEnd: now, isRange: true };
-            },
-            5: () => {
-                const yearStart = new Date(now.getFullYear(), 0, 1);
-                setFromDate(format(yearStart, 'yyyy-MM-dd'));
-                setToDate(format(now, 'yyyy-MM-dd'));
-                return { rangeStart: yearStart, rangeEnd: now, isRange: true };
+        try {
+            if (![2, 3, 4, 5].includes(period)) {
+                throw new Error("Invalid period selected.");
             }
-        };
+            setDayCount(period);
+            const now = new Date();
 
-        const selectedRange = dateRanges[period]?.();
-        if (selectedRange) {
-            const filtered = filterDataByDateRange(Graphicaldata.labels, Graphicaldata.datasets, selectedRange);
-            setChartData(prev => JSON.stringify(prev) !== JSON.stringify(filtered) ? filtered : prev);
+            const dateRanges = {
+                2: () => {
+                    if (!startOfLastWeek || !endOfLastWeek) {
+                        throw new Error("Last week date range not defined.");
+                    }
+
+                    setFromDate(format(startOfLastWeek, 'yyyy-MM-dd'));
+                    setToDate(format(endOfLastWeek, 'yyyy-MM-dd'));
+
+                    return eachDayOfInterval({ start: startOfLastWeek, end: endOfLastWeek })
+                        .map(d => format(d, 'yyyy-MM-dd'));
+                },
+                3: () => {
+                    const start = startOfMonth(now);
+
+                    if (isNaN(start.getTime()) || isNaN(now.getTime())) {
+                        throw new Error("Invalid current month range.");
+                    }
+
+                    setFromDate(format(start, 'yyyy-MM-dd'));
+                    setToDate(format(now, 'yyyy-MM-dd'));
+
+                    return eachDayOfInterval({ start, end: now })
+                        .map(d => format(d, 'yyyy-MM-dd'));
+                },
+                4: () => {
+                    const start = startOfMonth(subMonths(now, 5));
+                    if (isNaN(start.getTime())) throw new Error("Invalid start date for last 6 months.");
+
+                    setFromDate(format(start, 'yyyy-MM-dd'));
+                    setToDate(format(now, 'yyyy-MM-dd'));
+
+                    return { rangeStart: start, rangeEnd: now, isRange: true };
+                },
+                5: () => {
+                    const yearStart = new Date(now.getFullYear(), 0, 1);
+                    if (isNaN(yearStart.getTime())) throw new Error("Invalid year start date.");
+
+                    setFromDate(format(yearStart, 'yyyy-MM-dd'));
+                    setToDate(format(now, 'yyyy-MM-dd'));
+
+                    return { rangeStart: yearStart, rangeEnd: now, isRange: true };
+                }
+            };
+
+            const selectedRange = dateRanges[period]?.();
+
+            if (!selectedRange) {
+                throw new Error("Unable to determine date range.");
+            }
+
+            if (
+                !Graphicaldata ||
+                !Array.isArray(Graphicaldata.labels) ||
+                !Array.isArray(Graphicaldata.datasets)
+            ) {
+                throw new Error("Invalid graphical data structure.");
+            }
+
+            const filtered = filterDataByDateRange(
+                Graphicaldata.labels,
+                Graphicaldata.datasets,
+                selectedRange
+            );
+
+            // Only update chart if data has changed
+            setChartData(prev =>
+                JSON.stringify(prev) !== JSON.stringify(filtered) ? filtered : prev
+            );
+
+        } catch (error) {
+            console.error("Error in handlePeriodChange:", error.message);
+            // Optional: fallback UI or toast notification
         }
-    }, [filterDataByDateRange, Graphicaldata, setFromDate, setToDate, startOfLastWeek, endOfLastWeek]);
+    }, [
+        filterDataByDateRange,
+        Graphicaldata,
+        setFromDate,
+        setToDate,
+        startOfLastWeek,
+        endOfLastWeek
+    ]);
 
     useEffect(() => {
         handlePeriodChange(2);
@@ -215,7 +328,7 @@ const OP_IP_Statistics = ({ Displaystyle, fromDate, setFromDate, toDate, setToDa
                 align: 'top', // Try 'start', 'end', or 'center'
                 color: 'rgba(var(--font-light))',
                 font: {
-                    size: 10,
+                    size: 12,
                     family: "'Roboto', sans-serif"
                 },
                 rotation: -90, // 🔄 This rotates the label
@@ -226,12 +339,12 @@ const OP_IP_Statistics = ({ Displaystyle, fromDate, setFromDate, toDate, setToDa
         },
         scales: {
             x: {
-                ticks: { font: { size: 10 } },
+                ticks: { font: { size: 11 } },
                 grid: { display: false }
             },
             y: {
                 beginAtZero: true,
-                ticks: { font: { size: 10 } }
+                ticks: { font: { size: 11 } }
             }
         }
     }), []);
@@ -272,57 +385,24 @@ const OP_IP_Statistics = ({ Displaystyle, fromDate, setFromDate, toDate, setToDa
     }, []);
 
     return (
+
         <Box sx={{ width: '100%', overflow: 'auto' }}>
-            <Box sx={{ flexWrap: "wrap", mt: 0.5, flex: 1, }}>
-                <ButtonGroup aria-label="date range selector" sx={{
-                    '--ButtonGroup-radius': '30px', display: "flex",
-                    flexWrap: { sm: "wrap", xl: 'nowrap' }, p: 0, size: "sm"
-                }}>
-                    {['Last Week', 'This Month', 'Last 6 months', 'This Year', 'Custom'].map((label, index) => (
-
-                        <Button key={label} onClick={() => handlePeriodChange(index + 2)}>
-
-                            {index === 4 ? (
-                                <Box sx={{ display: "flex", flexDirection: "row", gap: 1 }}>
-                                    <Input
-                                        type="date"
-                                        value={fromDate}
-                                        onChange={(e) => setFromDate(e.target.value)}
-                                        size='xs'
-                                        sx={{ p: 0, color: 'grey', }}
-                                    />
-                                    <Input
-                                        type="date"
-                                        value={toDate}
-                                        onChange={(e) => setToDate(e.target.value)}
-                                        size='xs'
-                                        sx={{
-                                            p: 0,
-                                            // backgroundColor: "rgba(175, 193, 210, 0.35)",
-                                            color: 'grey',
-                                        }}
-                                        slotProps={{ input: { min: fromDate } }}
-                                    />
-                                </Box>
-                            ) : (
-                                <Typography sx={{
-                                    fontSize: 11,
-                                    color: "rgba(var(--input-font-color))",
-                                    '&:hover': {
-                                        color: 'rgba(var(--font-black))',
-                                        backgroundColor: 'transparent',
-                                    }
-                                }}>{label}</Typography>
-                            )}
-                        </Button>
-                    ))}
-                </ButtonGroup>
-            </Box>
-
-            <Box sx={{ width: "100%", display: "flex", justifyContent: "flex-end", textAlign: "right" }}>
-                <Box sx={{ mt: 2, }}>
-                    <GraphicalRep Chartlayout={Chartlayout} seChartlayout={seChartlayout} />
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+                <Box sx={{ flexWrap: "wrap", mt: 0.5, flex: 1 }}>
+                    <CommonDateComp
+                        onPeriodChange={handlePeriodChange}
+                        fromDate={fromDate}
+                        setFromDate={setFromDate}
+                        toDate={toDate}
+                        setToDate={setToDate}
+                        Graphicaldata={chartData}
+                        dayCount={dayCount}
+                        setDayCount={setDayCount}
+                        chartData={chartData}
+                        setChartData={setChartData}
+                    />
                 </Box>
+                <GraphicalRep Chartlayout={Chartlayout} seChartlayout={seChartlayout} />
             </Box>
 
             <Box sx={{ mt: 2, height: 350 }}>

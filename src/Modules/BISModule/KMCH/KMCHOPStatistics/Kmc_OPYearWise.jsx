@@ -14,6 +14,7 @@ import {
 } from 'chart.js';
 import GraphicalRep from '../../BIS_CommoCode/GraphicalRep';
 import { useNavigate } from 'react-router-dom';
+import CommonGraphRep from '../../BIS_CommoCode/CommonGraphRep';
 
 ChartJS.register(
     CategoryScale,
@@ -93,7 +94,7 @@ const Kmc_OPYearWise = () => {
                 align: 'top', // Try 'start', 'end', or 'center'
                 color: 'rgba(var(--font-light))',
                 font: {
-                    size: 10,
+                    size: 12,
                     family: "'Roboto', sans-serif"
                 },
                 rotation: -90, // 🔄 This rotates the label
@@ -151,13 +152,13 @@ const Kmc_OPYearWise = () => {
             },
         },
     };
-    const lineOptions = {
-        ...options,
-        elements: {
-            line: { tension: 0.4, borderWidth: 2 },
-            point: { radius: 4, backgroundColor: 'rgba(96, 94, 163, 1)' }
-        }
-    };
+    // const lineOptions = {
+    //     ...options,
+    //     elements: {
+    //         line: { tension: 0.4, borderWidth: 2 },
+    //         point: { radius: 4, backgroundColor: 'rgba(96, 94, 163, 1)' }
+    //     }
+    // };
 
     return (
         <Box sx={{ width: { xs: '100%', md: 700, lg: '100%' }, overflow: "auto" }}>
@@ -168,15 +169,7 @@ const Kmc_OPYearWise = () => {
                     </Box>
                 </Box>
             </Box>
-            <Box sx={{ mt: 2, width: '100%', height: 350 }}>
-                {Chartlayout === 1 && <Bar data={singleValuePolarData} options={options} height={350} />}
-                {Chartlayout === 2 && <Line data={singleValuePolarData} options={lineOptions} height={350} />}
-                {Chartlayout === 3 && (
-                    <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: '100%' }}>
-                        <PolarArea data={singleValuePolarData} options={polarOptions} height={300} width={300} />
-                    </Box>
-                )}
-            </Box>
+            <CommonGraphRep Chartlayout={Chartlayout} chartData={singleValuePolarData} options={options} polarData={singleValuePolarData} polarOptions={polarOptions} />
         </Box>
     );
 };

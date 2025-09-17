@@ -2,16 +2,16 @@ import React, { memo, useMemo, useState } from "react";
 import { Box, Typography } from "@mui/joy";
 import { useQuery } from '@tanstack/react-query';
 import { endOfMonth, format, startOfMonth } from "date-fns";
-// import OverallSalesProgress from "../../BIS_CommoCode/SalesProgress/OverallSalesProgress"
-import KMCHeader from "../../BIS_CommoCode/KMCHeader"
 import { getIpDetails } from "../../../../api/commonAPI"
 import Tmc_IPYearWise from "./Tmc_IPYearWise";
 import Tmc_IpDeptWise from "./Tmc_IpDeptWise";
 import Tmc_IpDrWise from "./Tmc_IpDrWise";
 import Tmc_AllIpDeptWise from "./Tmc_AllIpDeptWise";
 import OverallSalesProgress from "../../BIS_CommoCode/OverallSalesProgress";
+import { barOptions, lineOptions } from "../../BIS_CommoCode/CommonDateRange/ChartCommonFuns/ChartCommonFun";
+import CommonHeader from "../../BIS_CommoCode/CommonHeader";
 
-const Kmch_Ip_Statistics = () => {
+const Tmch_Ip_Statistics = () => {
 
     const [fromDate, setFromDate] = useState(format(startOfMonth(new Date()), "yyyy-MM-dd"));
     const [toDate, setToDate] = useState(format(endOfMonth(new Date()), "yyyy-MM-dd"));
@@ -23,11 +23,21 @@ const Kmch_Ip_Statistics = () => {
     const [dept_toDate, setdept_ToDate] = useState(format(endOfMonth(new Date()), "yyyy-MM-dd"));
 
     const payloadDatas = useMemo(() => {
-        return {
-            fromDate: fromDate,
-            toDate: toDate
+        try {
+            const from = new Date(fromDate);
+            const to = new Date(toDate);
+
+            const isValidDate = (d) => d instanceof Date && !isNaN(d.getTime());
+
+            return {
+                fromDate: isValidDate(from) ? fromDate : null,
+                toDate: isValidDate(to) ? toDate : null,
+            };
+        } catch (error) {
+            console.error("Error validating payload dates:", error);
+            return { fromDate: null, toDate: null }; // fallback
         }
-    }, [fromDate, toDate])
+    }, [fromDate, toDate]);
 
     //usequery
     const { data: IpDetails } = useQuery({
@@ -38,7 +48,6 @@ const Kmch_Ip_Statistics = () => {
 
     const data = {
         labels: IpDetails?.map(val => val.tmc_ip_date) || [],
-
         datasets: IpDetails
             ? [
                 {
@@ -66,9 +75,6 @@ const Kmch_Ip_Statistics = () => {
             : [],
     };
 
-    //Doctorwise OP Count
-
-
     return (
         <Box
             sx={{
@@ -77,7 +83,7 @@ const Kmch_Ip_Statistics = () => {
                 overflow: "auto",
             }}
         >
-            <KMCHeader />
+            <CommonHeader />
             {/* Row 1 */}
             <Box
                 sx={{
@@ -90,7 +96,8 @@ const Kmch_Ip_Statistics = () => {
                 }}
             >
                 <DashboardCard title="Inpatient Count">
-                    <OverallSalesProgress Graphicaldata={data} Displaystyle={1} fromDate={fromDate} setFromDate={setFromDate} toDate={toDate} setToDate={setToDate} />
+                    <OverallSalesProgress Graphicaldata={data} Displaystyle={1} fromDate={fromDate} setFromDate={setFromDate} toDate={toDate} setToDate={setToDate} barOptions={barOptions}
+                        lineOptions={lineOptions} />
                 </DashboardCard>
                 <DashboardCard title="Inpatient Count (Year Wise)">
                     <Tmc_IPYearWise />
@@ -172,7 +179,7 @@ const DashboardCard = ({ title, children }) => (
     </Box>
 );
 
-export default memo(Kmch_Ip_Statistics);
+export default memo(Tmch_Ip_Statistics);
 
 
 

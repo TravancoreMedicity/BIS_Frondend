@@ -35,8 +35,6 @@ const labDetails = Array.from({ length: 180 }, (_, i) => {
     return {
         slno: i + 1,
         totalTest,
-        // totalOP,
-        // totalIP,
         testdate
     };
 });
@@ -69,8 +67,6 @@ const IP_occupanncy = () => {
 
         let labels = [];
         let totalTestData = [];
-        // let totalOPData = [];
-        // let totalIPData = [];
 
         if (period === 4 || period === 5) {
             const monthMap = {};
@@ -81,8 +77,6 @@ const IP_occupanncy = () => {
                     monthMap[key] = { totalTest: 0, totalOP: 0, totalIP: 0 };
                 }
                 monthMap[key].totalTest += totalTest;
-                // monthMap[key].totalOP += totalOP;
-                // monthMap[key].totalIP += totalIP;
             });
 
             const sortedKeys = Object.keys(monthMap).sort();
@@ -92,8 +86,6 @@ const IP_occupanncy = () => {
             });
 
             totalTestData = sortedKeys.map(key => monthMap[key].totalTest);
-            // totalOPData = sortedKeys.map(key => monthMap[key].totalOP);
-            // totalIPData = sortedKeys.map(key => monthMap[key].totalIP);
 
         } else {
             const dateMap = {};
@@ -102,15 +94,12 @@ const IP_occupanncy = () => {
                     dateMap[testdate] = { totalTest: 0 };
                 }
                 dateMap[testdate].totalTest += totalTest;
-                // dateMap[testdate].totalOP += totalOP;
-                // dateMap[testdate].totalIP += totalIP;
             });
 
             const sortedDates = Object.keys(dateMap).sort((a, b) => new Date(a) - new Date(b));
             labels = sortedDates.map(date => formatLabel(date, period));
             totalTestData = sortedDates.map(date => dateMap[date].totalTest);
-            // totalOPData = sortedDates.map(date => dateMap[date].totalOP);
-            // totalIPData = sortedDates.map(date => dateMap[date].totalIP);
+
         }
 
         setPolarData({
@@ -139,20 +128,6 @@ const IP_occupanncy = () => {
                     borderColor: 'rgba(75, 192, 192, 1)',
                     borderWidth: 1
                 },
-                // {
-                //     label: 'OP Test',
-                //     data: totalOPData,
-                //     backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                //     borderColor: 'rgba(54, 162, 235, 1)',
-                //     borderWidth: 1
-                // },
-                // {
-                //     label: 'IP Test',
-                //     data: totalIPData,
-                //     backgroundColor: 'rgba(255, 99, 132, 0.6)',
-                //     borderColor: 'rgba(255, 99, 132, 1)',
-                //     borderWidth: 1
-                // }
             ]
         };
     }, []);

@@ -1,6 +1,5 @@
 import { Box } from '@mui/joy';
 import React, { memo, useState } from 'react';
-import { Bar, Line, PolarArea } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -14,6 +13,7 @@ import {
 } from 'chart.js';
 import GraphicalRep from '../../BIS_CommoCode/GraphicalRep';
 import { useNavigate } from 'react-router-dom';
+import CommonGraphRep from '../../BIS_CommoCode/CommonGraphRep';
 
 ChartJS.register(
     CategoryScale,
@@ -151,13 +151,13 @@ const Kmc_OPYearWise = () => {
             },
         },
     };
-    const lineOptions = {
-        ...options,
-        elements: {
-            line: { tension: 0.4, borderWidth: 2 },
-            point: { radius: 4, backgroundColor: 'rgba(96, 94, 163, 1)' }
-        }
-    };
+    // const lineOptions = {
+    //     ...options,
+    //     elements: {
+    //         line: { tension: 0.4, borderWidth: 2 },
+    //         point: { radius: 4, backgroundColor: 'rgba(96, 94, 163, 1)' }
+    //     }
+    // };
 
     return (
         <Box sx={{ width: { xs: '100%', md: 700, lg: '100%' }, overflow: "auto" }}>
@@ -168,7 +168,7 @@ const Kmc_OPYearWise = () => {
                     </Box>
                 </Box>
             </Box>
-            <Box sx={{ mt: 2, width: '100%', height: 350 }}>
+            {/* <Box sx={{ mt: 2, width: '100%', height: 350 }}>
                 {Chartlayout === 1 && <Bar data={singleValuePolarData} options={options} height={350} />}
                 {Chartlayout === 2 && <Line data={singleValuePolarData} options={lineOptions} height={350} />}
                 {Chartlayout === 3 && (
@@ -176,7 +176,8 @@ const Kmc_OPYearWise = () => {
                         <PolarArea data={singleValuePolarData} options={polarOptions} height={300} width={300} />
                     </Box>
                 )}
-            </Box>
+            </Box> */}
+            <CommonGraphRep Chartlayout={Chartlayout} chartData={singleValuePolarData} options={options} polarData={singleValuePolarData} polarOptions={polarOptions} />
         </Box>
     );
 };
