@@ -441,10 +441,10 @@ const KmcDashboard = () => {
                     gap: 2,
                     px: 2,
                     mt: 1,
-                    flexWrap: "wrap",
+                    flexWrap: "wrap", // ✅ allow wrapping
                 }}
             >
-                {filteredCards.map((card, idx) => (
+                {filteredCards?.map((card, idx) => (
                     <DashboardCard
                         key={idx}
                         title={`${card.title}`}
@@ -470,19 +470,19 @@ const KmcDashboard = () => {
 const DashboardCard = ({ title, children }) => (
     <Box
         sx={{
-            flex: 1,
+            flex: "1 1 calc(50% - 16px)", // take ~50% width with gap
+            minWidth: "300px",             //don’t shrink below
             border: 1,
             borderColor: "#d2d2cf",
-            width: " 100%",
             p: 1,
-            overflowX: "scroll"
+            overflowX: "auto",
         }}
     >
         <Typography
             sx={{
                 textAlign: "center",
                 fontSize: 20,
-                color: 'rgba(var(--font-light))',
+                color: "rgba(var(--font-light))",
                 mb: 1,
             }}
         >

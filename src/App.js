@@ -72,6 +72,7 @@ const Pharmacy_Statistics = lazy(() => import("./Modules/BISModule/KMCH/KMCHPati
 const IP_occupanncy = lazy(() => import("./Modules/BISModule/KMCH/KMCHPatientStatistics/IP_occupanncy.jsx"))
 const GeneralBilling = lazy(() => import("./Modules/BISModule/KMCH/KMCHPatientStatistics/GeneralBilling.jsx"))
 const SubMenuMaster = lazy(() => import("./Modules/Settings/SubMenuMaster/SubMenuMaster.jsx"))
+// const CRFDashboardMian = lazy(() => import("./Modules/BISModule/TMCH/CRFDashboard/CRFDashboardMian.jsx"))
 
 
 // OP_IP_Statistics, DeptWise_OP_IP, Dr_Wise_IP_OP, IP_OP_LabStatistics, IP_OP_ReadioStastistics, Pharmacy_Statistics, IP_occupanncy, GeneralBilling
@@ -359,10 +360,12 @@ const routes = createBrowserRouter([
                 < GeneralBilling />
               </Suspense>, errorElement: <ErrorElement />
           },
-
-
-          // OP_IP_Statistics, DeptWise_OP_IP, Dr_Wise_IP_OP, IP_OP_LabStatistics, IP_OP_ReadioStastistics, Pharmacy_Statistics, IP_occupanncy, GeneralBilling
-
+          // {
+          //   path: "CRFDashboardMian", element:
+          //     <Suspense fallback={<CustomBackDropWithOutState message={"Loading..."} />} >
+          //       < CRFDashboardMian />
+          //     </Suspense>, errorElement: <ErrorElement />
+          // },
 
 
           { path: "UserManagement", element: <UserManagement />, errorElement: <ErrorElement /> },

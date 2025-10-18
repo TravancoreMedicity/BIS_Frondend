@@ -47,6 +47,8 @@ const DrawerWindow = memo(({ drawerWidth, handleDrawerClose }) => {
                 { menu_slno: 4, menu: "OP Statistics", text: "/Home/Tmch_Op_statistics", icon: <TimelineIcon /> },
                 { menu_slno: 5, menu: "Patient Statistics", text: "/Home/Tmch_Patient_Statiatics", icon: <BarChartIcon /> },
                 { menu_slno: 21, menu: "Inventory Matrix", text: "/Home/TMCH_InventoryMatrix", icon: <AccountTreeIcon /> },
+                // { menu_slno: 21, menu: "CRF Dashboard", text: "/Home/CRFDashboardMian", icon: <AccountTreeIcon /> },
+
             ],
             KMC: [
                 { menu_slno: 8, menu: "Dashboard", text: "/Home/KMCDashboard", icon: <DashboardIcon /> },
@@ -67,6 +69,7 @@ const DrawerWindow = memo(({ drawerWidth, handleDrawerClose }) => {
         }),
         []
     );
+
 
     // get authType from localStorage
     const authType = atob(JSON.parse(localStorage.getItem("app_auth"))?.authType);

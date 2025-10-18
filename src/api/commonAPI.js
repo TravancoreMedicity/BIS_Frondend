@@ -421,6 +421,14 @@ export const getKmcIpModuleDetails = () =>
     status: index === 0 ? 1 : 0,
   }));
 
+//Pharmacy Sales(18-09-2025)
+export const getKmcPharmacySalesMod = () =>
+  fetchModuleData("/bisKmcDataPush/getKmcPharmaSalesModuleData", (item, index) => ({
+    opslno: item?.kmc_pharmacy_slno ?? index + 1,
+    name: item?.kmc_pharma_labels,
+    date: item?.kmc_pharma_last_update,
+    status: index === 0 ? 1 : 0,
+  }));
 
 const fetchGetApi = async (axiosInstance, url) => {
   try {

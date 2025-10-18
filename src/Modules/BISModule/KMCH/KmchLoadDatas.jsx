@@ -8,13 +8,13 @@ import { addDays, endOfDay, format, startOfDay, subDays } from 'date-fns';
 import axiosApi, { axiosellider_kmc } from '../../../Axios/Axios';
 import { ToastContainer } from 'react-toastify';
 import { succesNofity, warningNofity } from '../../../Constant/Constant';
-import { getKmcIpModuleDetails, getkmcOpModuleDetails } from '../../../api/commonAPI';
+import { getKmcIpModuleDetails, getkmcOpModuleDetails, getKmcPharmacySalesMod } from '../../../api/commonAPI';
 import KMCHeader from '../BIS_CommoCode/KMCHeader';
+import PharmacyDataPush from './PharmacyDataPush/PharmacyDataPush';
 
 const KmchLoadDatas = () => {
 
     const queryClient = useQueryClient()
-
     const [updateDate, setUpdateDate] = useState({});
     const [firstUpdate_ststus, setFirstUpdate_ststus] = useState(0);
 
@@ -27,6 +27,13 @@ const KmchLoadDatas = () => {
         queryKey: ["ipkmcModuleDetails"],
         queryFn: () => getKmcIpModuleDetails(),
     })
+
+    const { data: ipkmcPharmacyModDatas } = useQuery({
+        queryKey: ["ipkmcPharmacyMod"],
+        queryFn: () => getKmcPharmacySalesMod(),
+    })
+
+    // console.log("ipkmcPharmacyModDatas", ipkmcPharmacyModDatas);
 
     const uploadData = useCallback(async (fromdate, todate, opslno) => {
         try {
@@ -537,7 +544,7 @@ const KmchLoadDatas = () => {
                     </Typography>
                     <Box sx={{
                         flex: 1, p: 1, borderColor: "#EBD3F8", overflowY: "auto",
-                        maxHeight: 450,
+                        maxHeight: 600,
                     }}>
                         {
                             IpModuleDatas && IpArrs?.map((item, index) => {
@@ -556,7 +563,6 @@ const KmchLoadDatas = () => {
                                             borderRadius: 5,
                                             p: 0.5,
                                             borderColor: 'rgba(194, 182, 182, 0.57)',
-
                                         }}
                                     >
                                         <Box sx={{ width: "30%", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -632,9 +638,7 @@ const KmchLoadDatas = () => {
                 </Box>
 
                 <Box sx={{ mt: 1, flex: 1, p: 1, border: 1, borderColor: "#EBD3F8" }}>
-                    <Typography sx={{ textAlign: "center", color: 'rgba(var(--font-light))', fontSize: 15 }}>
-                        Pharmacy Sales
-                    </Typography>
+                    <PharmacyDataPush ipkmcPharmacyModDatas={ipkmcPharmacyModDatas} />
                 </Box>
             </Box>
         </Box>

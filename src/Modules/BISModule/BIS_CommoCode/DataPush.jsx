@@ -3,7 +3,7 @@ import { Typography } from '@mui/material';
 import React, { useCallback, useState } from 'react';
 import { memo } from 'react';
 import UnarchiveIcon from '@mui/icons-material/Unarchive';
-import { getIpModuleDetails, getOpModuleDetails } from '../../../api/commonAPI';
+import { getIpModuleDetails, getKmcPharmacySalesMod, getOpModuleDetails } from '../../../api/commonAPI';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { addDays, endOfDay, format, startOfDay, subDays } from 'date-fns';
 import axiosApi, { axiosellider_tmc } from '../../../Axios/Axios';
@@ -11,6 +11,7 @@ import { ToastContainer } from 'react-toastify';
 import { succesNofity, warningNofity } from '../../../Constant/Constant';
 import CustomBackDrop from '../../../Components/CustomBackDrop';
 import CommonHeader from './CommonHeader';
+import Tmc_Pharma_Sales from '../TMCH/TMCH_DataPush/Tmc_Pharma_Sales';
 
 const DataPush = () => {
 
@@ -25,11 +26,14 @@ const DataPush = () => {
         queryFn: () => getOpModuleDetails(),
     })
 
-
-
     const { data: IpModuleDatas } = useQuery({
         queryKey: ["ipModuleDetails"],
         queryFn: () => getIpModuleDetails(),
+    })
+
+    const { data: ipTmcPharmacyModDatas } = useQuery({
+        queryKey: ["iptmcPharmacyMod"],
+        queryFn: () => getKmcPharmacySalesMod(),
     })
 
     // const uploadData = useCallback(async (fromdate, todate, opslno) => {
@@ -726,9 +730,11 @@ const DataPush = () => {
                 </Box>
 
                 <Box sx={{ mt: 1, flex: 1, p: 1, border: 1, borderColor: "#EBD3F8" }}>
-                    <Typography sx={{ textAlign: "center", color: 'rgba(var(--font-light))', fontSize: 15 }}>
+                    {/* <Typography sx={{ textAlign: "center", color: 'rgba(var(--font-light))', fontSize: 15 }}>
                         Pharmacy Sales
-                    </Typography>
+                    </Typography> */}
+
+                    <Tmc_Pharma_Sales ipKmcPharmacyModDatas={ipTmcPharmacyModDatas} />
                 </Box>
             </Box>
 
