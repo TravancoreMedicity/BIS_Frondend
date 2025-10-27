@@ -13,6 +13,8 @@ const Settings = () => {
 
     const loggedUser = atob(JSON.parse(localStorage.getItem("app_auth"))?.authType)
 
+    // console.log("loggedUser", loggedUser);
+
     const { data: userSettings } = useQuery({
         queryKey: ['getuserSettings', loggedUser],
         queryFn: () => userWiseSettingsRights(loggedUser),
@@ -21,26 +23,34 @@ const Settings = () => {
 
     // console.log(userSettings, "userSettings");
 
+    // console.log("jlkjlk");
 
     const menuName = [
         { menuSlno: 1, menuName: 'User Management', menuCodeName: 'UserManagement' },
-
-        { menuSlno: 12, menuName: 'user Type Master', menuCodeName: 'UserTypeMaster' },
+        { menuSlno: 12, menuName: 'User Type Master', menuCodeName: 'UserTypeMaster' },
         { menuSlno: 16, menuName: 'Module Name Master', menuCodeName: 'ModuleNameMaster' },
         { menuSlno: 15, menuName: 'Menu Name Master', menuCodeName: 'MenuNameMaster' },
         { menuSlno: 14, menuName: 'Module Group Master', menuCodeName: 'ModuleGroupMaster' },
         { menuSlno: 18, menuName: 'User Group Rights', menuCodeName: 'UserGroupRights' },
-
+        // { menuSlno: 19, menuName: 'Kmc Store Master', menuCodeName: 'StoreMaster' },
+        // { menuSlno: 20, menuName: 'Med Store', menuCodeName: 'MedStore' },
+        // { menuSlno: 21, menuName: 'Med Description', menuCodeName: 'MedDescription' },
+        // { menuSlno: 22, menuName: 'Tmc Store Master', menuCodeName: 'TmcStoreMaster' },
+        { menuSlno: 35, menuName: 'Sub Menu Master', menuCodeName: 'SubMenuMaster' },
+        { menuSlno: 25, menuName: 'Graphical View Master', menuCodeName: 'GraphicalViewMaster' },
     ]
 
-    // const employeemenu = menuName?.filter(menu =>
-    //     userSettings?.some(item => item.menu_slno === menu.menuSlno)
-    // );
+    const employeemenu = menuName?.filter(menu =>
+        userSettings?.some(item => item.bis_menu_slno === menu.menuSlno)
+    );
+
+    // console.log("employeemenu", employeemenu);
+
     return (
         <DefaultPageLayout label='Master Settings' >
             <Grid container spacing={1} sx={{ flexGrow: 0, px: 1 }}>
                 {
-                    menuName?.map((val, idx) => (
+                    employeemenu?.map((val, idx) => (
                         <Grid
                             size={{ xs: 12, sm: 12, md: 6, lg: 3, xl: 3 }}
                             key={idx} onClick={() => navigation(`/Home/${val.menuCodeName}`)} >
@@ -59,3 +69,4 @@ const Settings = () => {
 }
 
 export default memo(Settings)
+

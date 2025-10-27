@@ -47,53 +47,59 @@ const ModuleNameMaster = () => {
 
     const handleSubmitUserManagment = useCallback(async (e) => {
         e.preventDefault();
-        if (editData === 0) {
-            if (moduleDetails.module_name === '') {
-                warningNofity('Name Of the Module cannot be empty');
-                return;
-            }
-            const postdata = {
-                module_name: moduleDetails?.module_name,
-                module_status: moduleDetails?.module_status
-            }
-            const response = await axiosApi.post('/ModuleNameMaster/insertModuleName', postdata)
-            const { message, success } = response.data;
-            if (success === 1) {
-                queryClient.invalidateQueries(['AllmoduleList'])
-                succesNofity(message)
-                setmoduleDetails({
-                    module_slno: 0,
-                    module_name: '',
-                    module_status: 0
-                });
-            }
-            else {
-                warningNofity(message)
-            }
-        }
-        else {
-            const patchdata = {
-                module_slno: moduleDetails?.module_slno,
-                module_name: moduleDetails?.module_name,
-                module_status: moduleDetails?.module_status
+        try {
+            if (editData === 0) {
+                if (moduleDetails.module_name === '') {
+                    warningNofity('Name Of the Module cannot be empty');
+                    return;
+                }
 
+                const postdata = {
+                    module_name: moduleDetails?.module_name,
+                    module_status: moduleDetails?.module_status
+                };
+
+                const response = await axiosApi.post('/ModuleNameMaster/insertModuleName', postdata);
+                const { message, success } = response.data;
+
+                if (success === 1) {
+                    queryClient.invalidateQueries(['AllmoduleList']);
+                    succesNofity(message);
+                    setmoduleDetails({
+                        module_slno: 0,
+                        module_name: '',
+                        module_status: 0
+                    });
+                } else {
+                    warningNofity(message);
+                }
+            } else {
+                const patchdata = {
+                    module_slno: moduleDetails?.module_slno,
+                    module_name: moduleDetails?.module_name,
+                    module_status: moduleDetails?.module_status
+                };
+
+                const response = await axiosApi.patch('/ModuleNameMaster/editModuleName', patchdata);
+                const { message, success } = response.data;
+
+                if (success === 1) {
+                    queryClient.invalidateQueries(['AllmoduleList']);
+                    succesNofity(message);
+                    setmoduleDetails({
+                        module_slno: 0,
+                        module_name: '',
+                        module_status: 0
+                    });
+                } else {
+                    warningNofity(message);
+                }
             }
-            const response = await axiosApi.patch('/ModuleNameMaster/editModuleName', patchdata)
-            const { message, success } = response.data;
-            if (success === 1) {
-                queryClient.invalidateQueries(['AllmoduleList'])
-                succesNofity(message)
-                setmoduleDetails({
-                    module_slno: 0,
-                    module_name: '',
-                    module_status: 0
-                });
-            }
-            else {
-                warningNofity(message)
-            }
+        } catch (error) {
+            warningNofity("Something went wrong. Please try again later.");
         }
-    }, [moduleDetails, editData, queryClient, loggedUser])
+    }, [moduleDetails, editData, queryClient, loggedUser]);
+
 
     const viewuserList = useCallback(() => {
         setViewTable(1)

@@ -1,5 +1,6 @@
 .light {
-  --bg-nav: 76, 102, 117; /* Brightened for --bg-nav */
+  /* --bg-nav: 76, 102, 117;  Brightened for --bg-nav  */
+  --bg-nav: 124, 81, 161;
   --nav-header-color: 249, 249, 249;
   --bg-drawer: 63, 132, 170; /* Lightened for --bg-drawer */
   --bg-common: 240, 246, 245; /* Brighter counterpart for --bg-common */
@@ -64,6 +65,7 @@
   /* --graph-font-clr:238, 239, 241; */
   --graph-font-clr:47, 54, 69;
   --header-Font-Color:117, 134, 148;
+  --drawer_bg_clr:146, 111, 177;
 }
 
 .dark {
@@ -132,4 +134,19 @@
   /* --graph-font-clr:251, 251, 251; */
   --graph-font-clr:238, 237, 235;
   --header-Font-Color:166, 174, 191;
+
+
+  --drawer_bg_clr:0, 0, 0;
+  /* new colors */
+  --rose-pink-400: #d94b9b;
+  --rose-pink-300: #dc6aaf;
+  --rose-pink-200: #e393c6;
+  --rose-pink-100: #ecbddd;
+  --rose-pink-50: #f7e5f1;
+
+  --royal-purple-400: #7c51a1;
+  --royal-purple-300: #926fb1;
+  --royal-purple-200: #b098c7;
+  --royal-purple-100: #cfc1dd;
+  --royal-purple-50: #ece6f1;
 }

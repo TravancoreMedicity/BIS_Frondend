@@ -79,14 +79,16 @@ const Header = ({ handleDrawerToggle, drawerWidth, dark, handleChangeDarkMode })
                                 "--Switch-trackWidth": "64px",
                                 "--Switch-trackHeight": "31px",
                                 "--Switch-thumbWidth": "32px",
-                                "--Switch-thumbBackground": "rgb(216,75,154)",
+                                "--Switch-thumbBackground": "#be9cdbff",
                                 "--Switch-trackBackground": "rgba(15,18,20,0.5)",
                                 "&:hover": {
                                     "--Switch-trackBackground": "rgba(15,18,20,0.5)",
                                 },
                                 [`&.${switchClasses.checked}`]: {
                                     "--Switch-trackBackground": "rgba(15,18,20,0.5)",
-                                    "--Switch-thumbBackground": "rgb(216,75,154)",
+                                    "--Switch-thumbBackground": "#be9cdbff",
+
+                                    // "--Switch-thumbBackground": "rgb(216,75,154)",
                                     "&:hover": {
                                         "--Switch-trackBackground": "rgba(15,18,20,0.5)",
                                     },

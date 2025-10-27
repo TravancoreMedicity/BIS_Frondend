@@ -47,61 +47,73 @@ const MenuNameMaster = () => {
         staleTime: Infinity,
     });
 
+
+    // console.log("getmodulelist", getmodulelist);
+    // console.log("fetchMenus", fetchMenus);
+
     const handleChange = (e) => {
         setMenuNames({ ...MenuNames, [e.target.name]: sanitizeInput(e.target.value) })
     }
 
     const handleSubmitUserManagment = useCallback(async (e) => {
         e.preventDefault();
-        if (editData === 0) {
-            if (MenuNames.Menu_name.trim() === '') {
-                warningNofity('Name Of the Module Group cannot be empty');
-                return;
+        try {
+            if (editData === 0) {
+                if (MenuNames.Menu_name.trim() === '') {
+                    warningNofity('Name Of the Module Group cannot be empty');
+                    return;
+                }
+
+                const postdata = {
+                    Menu_name: MenuNames?.Menu_name,
+                    Menu_status: Number(MenuNames?.Menu_status),
+                    module_name: Number(MenuNames?.module_name),
+                };
+
+                const response = await axiosApi.post('/MenuNameMaster/insertMenuName', postdata);
+                const { message, success } = response.data;
+
+                if (success === 1) {
+                    queryClient.invalidateQueries(['GetMenuNames']);
+                    succesNofity(message);
+                    setMenuNames({
+                        Menu_slno: 0,
+                        Menu_name: '',
+                        module_name: '',
+                        Menu_status: 0
+                    });
+                } else {
+                    warningNofity(message);
+                }
+            } else {
+                const postdata = {
+                    Menu_slno: MenuNames?.Menu_slno,
+                    Menu_name: MenuNames?.Menu_name,
+                    Menu_status: Number(MenuNames?.Menu_status),
+                    module_name: MenuNames?.module_name,
+                };
+
+                const response = await axiosApi.patch('/MenuNameMaster/editMenuName', postdata);
+                const { message, success } = response.data;
+
+                if (success === 1) {
+                    queryClient.invalidateQueries(['GetMenuNames']);
+                    succesNofity(message);
+                    setMenuNames({
+                        Menu_slno: 0,
+                        Menu_name: '',
+                        module_name: '',
+                        Menu_status: 0
+                    });
+                } else {
+                    warningNofity(message);
+                }
             }
-            const postdata = {
-                Menu_name: MenuNames?.Menu_name,
-                Menu_status: Number(MenuNames?.Menu_status),
-                module_name: MenuNames?.module_name,
-            }
-            const response = await axiosApi.post('/MenuNameMaster/insertMenuName', postdata)
-            const { message, success } = response.data;
-            if (success === 1) {
-                queryClient.invalidateQueries(['GetMenuNames'])
-                succesNofity(message)
-                setMenuNames({
-                    Menu_slno: 0,
-                    Menu_name: '',
-                    module_name: '',
-                    Menu_status: 0
-                });
-            }
-            else {
-                warningNofity(message)
-            }
-        } else {
-            const postdata = {
-                Menu_slno: MenuNames?.Menu_slno,
-                Menu_name: MenuNames?.Menu_name,
-                Menu_status: Number(MenuNames?.Menu_status),
-                module_name: MenuNames?.module_name,
-            }
-            const response = await axiosApi.patch('/MenuNameMaster/editMenuName', postdata)
-            const { message, success } = response.data;
-            if (success === 1) {
-                queryClient.invalidateQueries(['GetMenuNames'])
-                succesNofity(message)
-                setMenuNames({
-                    Menu_slno: 0,
-                    Menu_name: '',
-                    module_name: '',
-                    Menu_status: 0
-                });
-            }
-            else {
-                warningNofity(message)
-            }
+        } catch (error) {
+            warningNofity("Something went wrong. Please try again later.");
         }
-    }, [MenuNames, queryClient, editData])
+    }, [MenuNames, queryClient, editData]);
+
 
     const viewuserList = useCallback(() => {
         setViewTable(1)
@@ -211,7 +223,7 @@ const MenuNameMaster = () => {
                                     }} /></td>
                                     <td>{idx + 1}</td>
                                     <td>{item?.bis_menu_name?.toUpperCase()}</td>
-                                    <td>{getmodulelist.find(module => module.value === item?.bis_menu_slno)?.label || 'Unknown Module'}</td>
+                                    <td>{getmodulelist.find(module => module.value === item?.bis_menu_module)?.label || 'Unknown Module'}</td>
                                     <td>{Number(item?.bis_menu_status) === 1 ? "Active" : Number(item?.bis_menu_status) === 2 ? "Inactive" : "Suspented"}</td>
                                 </tr>
                             ))

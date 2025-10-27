@@ -64,39 +64,54 @@ const UserGroupRights = () => {
 
     const handleSubmitUserManagment = useCallback(async (e) => {
         e.preventDefault();
-        if (user_type === 0 && module_name === 0) {
-            infoNofity("Select Group Name & Module Name")
-        } else {
-            const result = await axiosApi.post('/UserGroupRightMaster', postData)
-            const { success, data } = result.data
-
-            if (success === 1) {
-                setTableData(data)
+        try {
+            if (user_type === 0 && module_name === 0) {
+                infoNofity("Select Group Name & Module Name");
             } else {
-                setTableData([])
-                warningNofity("Menus Not Available")
+                const result = await axiosApi.post('/UserGroupRightMaster', postData);
+                const { success, data } = result.data;
+
+                if (success === 1) {
+                    setTableData(data);
+                } else {
+                    setTableData([]);
+                    warningNofity("Menus Not Available");
+                }
             }
+        } catch (error) {
+            console.error("Error in handleSubmitUserManagment:", error);
+            warningNofity("Something went wrong. Please try again later.");
+            setTableData([]);
         }
-    }, [postData, user_type, module_name])
+    }, [postData, user_type, module_name]);
+
 
     const groupRightUpdateDetl = useCallback(async (val) => {
-        const { bis_group_rights_slno, bis_menu_view } = val;
-        const postData = {
-            group_rights_slno: bis_group_rights_slno,
-            menu_view: bis_menu_view === 0 ? 1 : 0,
-            user_group_slno: user_type,
-            module_slno: module_name
+        try {
+            const { bis_group_rights_slno, bis_menu_view } = val;
+            const postData = {
+                group_rights_slno: bis_group_rights_slno,
+                menu_view: bis_menu_view === 0 ? 1 : 0,
+                user_group_slno: user_type,
+                module_slno: module_name
+            };
+
+            const result = await axiosApi.patch('/UserGroupRightMaster', postData);
+            const { success, message, data } = result.data;
+
+            if (success === 1) {
+                succesNofity(message);
+                setTableData(data);
+            } else {
+                setTableData([]);
+                warningNofity(message);
+            }
+        } catch (error) {
+            warningNofity("Something went wrong. Please try again later.");
+            setTableData([]);
         }
-        const result = await axiosApi.patch('/UserGroupRightMaster', postData)
-        const { success, message, data } = result.data
-        if (success === 1) {
-            succesNofity(message)
-            setTableData(data)
-        } else {
-            setTableData([])
-            warningNofity(message)
-        }
-    }, [user_type, module_name])
+    }, [user_type, module_name]);
+
 
     return (
         <DefaultPageLayout label="User Group Rights" >
@@ -196,7 +211,7 @@ const UserGroupRights = () => {
                 </Suspense>
             ) : null}
 
-        </DefaultPageLayout >
+        </DefaultPageLayout>
     )
 }
 

@@ -3,7 +3,7 @@ import { Typography } from '@mui/material';
 import React, { useCallback, useState } from 'react';
 import { memo } from 'react';
 import UnarchiveIcon from '@mui/icons-material/Unarchive';
-import { getIpModuleDetails, getOpModuleDetails } from '../../../api/commonAPI';
+import { getIpModuleDetails, getKmcPharmacySalesMod, getOpModuleDetails } from '../../../api/commonAPI';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { addDays, endOfDay, format, startOfDay, subDays } from 'date-fns';
 import axiosApi, { axiosellider_tmc } from '../../../Axios/Axios';
@@ -11,6 +11,7 @@ import { ToastContainer } from 'react-toastify';
 import { succesNofity, warningNofity } from '../../../Constant/Constant';
 import CustomBackDrop from '../../../Components/CustomBackDrop';
 import CommonHeader from './CommonHeader';
+import Tmc_Pharma_Sales from '../TMCH/TMCH_DataPush/Tmc_Pharma_Sales';
 
 const DataPush = () => {
 
@@ -25,64 +26,184 @@ const DataPush = () => {
         queryFn: () => getOpModuleDetails(),
     })
 
-
-
     const { data: IpModuleDatas } = useQuery({
         queryKey: ["ipModuleDetails"],
         queryFn: () => getIpModuleDetails(),
     })
 
+    const { data: ipTmcPharmacyModDatas } = useQuery({
+        queryKey: ["iptmcPharmacyMod"],
+        queryFn: () => getKmcPharmacySalesMod(),
+    })
+
+    // const uploadData = useCallback(async (fromdate, todate, opslno) => {
+    //     if (todate) {
+    //         const formattedFromDate = format(startOfDay(addDays(fromdate, 1)), 'dd/MM/yyyy 00:00:00');
+    //         const formattedToDate = format(endOfDay(todate), 'dd/MM/yyyy 23:59:59');
+    //         const tDate = format(todate, 'yyyy-MM-dd');
+
+    //         const payload = {
+    //             fromdate: formattedFromDate,
+    //             todate: formattedToDate,
+    //         };
+    //         const getOracleData = await axiosellider_tmc.post("/bisElliderData/opcount", payload)
+    //         const { data, success } = getOracleData.data;
+    //         if (opslno === 1 && success === 2 && data.length !== 0) {
+    //             const enrichedData = data?.map(item => ({
+    //                 ...item,
+    //                 tDate,
+    //                 c_name: 1
+    //             }));
+
+    //             const insertData = await axiosApi.post("/bisDataPush/insertOpcount", enrichedData);
+    //             const { success: insertSuccess, message } = insertData.data;
+    //             if (insertSuccess === 1) {
+    //                 setFirstUpdate_ststus(1)
+    //                 setUpdateDate({})
+    //                 queryClient.invalidateQueries('opModuleDetails')
+    //                 succesNofity(message)
+    //             } else {
+    //                 warningNofity(message)
+    //             }
+    //         }
+    //         else if (opslno === 2 && success === 2 && data.length !== 0) {
+    //             const updateData = data?.map(item => ({
+    //                 ...item,
+    //                 tDate
+    //             }));
+    //             //update to OP Table
+    //             const UpdateData = await axiosApi.post("/bisDataPush/updatOpCount", updateData)
+    //             const { success, message } = UpdateData.data;
+    //             if (success === 1) {
+    //                 queryClient.invalidateQueries('opModuleDetails')
+    //                 succesNofity(message)
+    //             }
+    //             else {
+    //                 warningNofity(message)
+    //             }
+    //         }
+    //         else if (opslno === 4) {
+    //             const getCashcredit = await axiosellider_tmc.post("/bisElliderData/cashcredit", payload)
+    //             const { data, success } = getCashcredit.data;
+    //             if (success === 2 && data.length !== 0) {
+    //                 const enrichedData = data?.map(item => ({
+    //                     ...item,
+    //                     tDate,
+    //                     c_name: 1
+    //                 }));
+
+    //                 const insertData = await axiosApi.patch("/bisDataPush/updateCashcredit", enrichedData);
+    //                 const { success: insertSuccess, message } = insertData.data;
+    //                 if (insertSuccess === 1) {
+    //                     setUpdateDate({})
+    //                     queryClient.invalidateQueries('opModuleDetails')
+    //                     succesNofity(message)
+    //                 } else {
+    //                     warningNofity(message)
+    //                 }
+    //             }
+    //         }
+    //         else {
+    //             warningNofity("No Data")
+    //         }
+    //     }
+    //     else {
+    //         warningNofity("Select Any Date")
+    //     }
+    // }, [queryClient])
+
+
     const uploadData = useCallback(async (fromdate, todate, opslno) => {
-        if (todate) {
-            const formattedFromDate = format(startOfDay(addDays(fromdate, 1)), 'dd/MM/yyyy 00:00:00');
-            const formattedToDate = format(endOfDay(todate), 'dd/MM/yyyy 23:59:59');
-            const tDate = format(todate, 'yyyy-MM-dd');
-            
+        try {
+            //  Convert to Date objects
+            const fromDateObj = new Date(fromdate);
+            const toDateObj = new Date(todate);
+
+            //  Validate fromdate
+            if (!(fromDateObj instanceof Date) || isNaN(fromDateObj.getTime())) {
+                warningNofity("Invalid From Date");
+                return;
+            }
+
+            //  Validate todate
+            if (!(toDateObj instanceof Date) || isNaN(toDateObj.getTime())) {
+                warningNofity("Invalid To Date");
+                return;
+            }
+
+            //  Validate opslno
+            if (typeof opslno !== "number" || isNaN(opslno)) {
+                warningNofity("Invalid Operation Slno");
+                return;
+            }
+
+            //  Format Dates
+            const formattedFromDate = format(startOfDay(addDays(fromDateObj, 1)), "dd/MM/yyyy 00:00:00");
+            const formattedToDate = format(endOfDay(toDateObj), "dd/MM/yyyy 23:59:59");
+            const tDate = format(toDateObj, "yyyy-MM-dd");
+
             const payload = {
                 fromdate: formattedFromDate,
                 todate: formattedToDate,
             };
-            const getOracleData = await axiosellider_tmc.post("/bisElliderData/opcount", payload)
-            const { data, success } = getOracleData.data;
-            if (opslno === 1 && success === 2 && data.length !== 0) {
-                const enrichedData = data?.map(item => ({
-                    ...item,
-                    tDate,
-                    c_name: 1
-                }));
 
-                const insertData = await axiosApi.post("/bisDataPush/insertOpcount", enrichedData);
-                const { success: insertSuccess, message } = insertData.data;
-                if (insertSuccess === 1) {
-                    setFirstUpdate_ststus(1)
-                    setUpdateDate({})
-                    queryClient.invalidateQueries('opModuleDetails')
-                    succesNofity(message)
-                } else {
-                    warningNofity(message)
-                }
-            }
-            else if (opslno === 2 && success === 2 && data.length !== 0) {
-                const updateData = data?.map(item => ({
-                    ...item,
-                    tDate
-                }));
-                //update to OP Table
-                const UpdateData = await axiosApi.post("/bisDataPush/updatOpCount", updateData)
-                const { success, message } = UpdateData.data;
-                if (success === 1) {
-                    queryClient.invalidateQueries('opModuleDetails')
-                    succesNofity(message)
-                }
-                else {
-                    warningNofity(message)
-                }
-            }
-            else if (opslno === 4) {
-                const getCashcredit = await axiosellider_tmc.post("/bisElliderData/cashcredit", payload)
-                const { data, success } = getCashcredit.data;
+            if (opslno === 1) {
+                const getOracleData = await axiosellider_tmc.post("/bisElliderData/opcount", payload);
+                const { data, success } = getOracleData.data;
+
                 if (success === 2 && data.length !== 0) {
-                    const enrichedData = data?.map(item => ({
+                    const enrichedData = data.map(item => ({
+                        ...item,
+                        tDate,
+                        c_name: 1
+                    }));
+
+                    const insertData = await axiosApi.post("/bisDataPush/insertOpcount", enrichedData);
+                    const { success: insertSuccess, message } = insertData.data;
+
+                    if (insertSuccess === 1) {
+                        setFirstUpdate_ststus(1);
+                        setUpdateDate({});
+                        queryClient.invalidateQueries("opModuleDetails");
+                        succesNofity(message);
+                    } else {
+                        warningNofity(message);
+                    }
+                } else {
+                    warningNofity("No Data for OP Count Insert");
+                }
+            }
+
+            else if (opslno === 2) {
+                const getOracleData = await axiosellider_tmc.post("/bisElliderData/opcount", payload);
+                const { data, success } = getOracleData.data;
+
+                if (success === 2 && data.length !== 0) {
+                    const updateData = data.map(item => ({
+                        ...item,
+                        tDate,
+                    }));
+
+                    const UpdateData = await axiosApi.post("/bisDataPush/updatOpCount", updateData);
+                    const { success: updateSuccess, message } = UpdateData.data;
+
+                    if (updateSuccess === 1) {
+                        queryClient.invalidateQueries("opModuleDetails");
+                        succesNofity(message);
+                    } else {
+                        warningNofity(message);
+                    }
+                } else {
+                    warningNofity("No Data for OP Count Update");
+                }
+            }
+
+            else if (opslno === 4) {
+                const getCashcredit = await axiosellider_tmc.post("/bisElliderData/cashcredit", payload);
+                const { data, success } = getCashcredit.data;
+
+                if (success === 2 && data.length !== 0) {
+                    const enrichedData = data.map(item => ({
                         ...item,
                         tDate,
                         c_name: 1
@@ -90,23 +211,27 @@ const DataPush = () => {
 
                     const insertData = await axiosApi.patch("/bisDataPush/updateCashcredit", enrichedData);
                     const { success: insertSuccess, message } = insertData.data;
+
                     if (insertSuccess === 1) {
-                        setUpdateDate({})
-                        queryClient.invalidateQueries('opModuleDetails')
-                        succesNofity(message)
+                        setUpdateDate({});
+                        queryClient.invalidateQueries("opModuleDetails");
+                        succesNofity(message);
                     } else {
-                        warningNofity(message)
+                        warningNofity(message);
                     }
+                } else {
+                    warningNofity("No Data for Cash/Credit Update");
                 }
             }
+
             else {
-                warningNofity("No Data")
+                warningNofity("Unknown Operation Slno");
             }
+        } catch (error) {
+            warningNofity("Something went wrong while uploading data.");
         }
-        else {
-            warningNofity("Select Any Date")
-        }
-    }, [queryClient])
+    }, [queryClient]);
+
 
     const OpArrs = [
         { opslno: 1, label: "Total OP", id: 1 },
@@ -127,36 +252,68 @@ const DataPush = () => {
     };
 
     const uploadIpData = useCallback(async (fromdate, todate, opslno) => {
-        if (todate) {
-            const formattedFromDate = format(startOfDay(addDays(fromdate, 1)), 'dd/MM/yyyy 00:00:00');
-            const formattedToDate = format(endOfDay(todate), 'dd/MM/yyyy 23:59:59');
-            const tDate = format(todate, 'yyyy-MM-dd');
+        try {
+            // Validate inputs
+            const fromDateObj = new Date(fromdate);
+            const toDateObj = new Date(todate);
+
+            if (!(fromDateObj instanceof Date) || isNaN(fromDateObj.getTime())) {
+                warningNofity("Invalid From Date");
+                return;
+            }
+
+            if (!(toDateObj instanceof Date) || isNaN(toDateObj.getTime())) {
+                warningNofity("Invalid To Date");
+                return;
+            }
+
+            if (typeof opslno !== "number" || isNaN(opslno)) {
+                warningNofity("Invalid Operation Slno");
+                return;
+            }
+
+            if (!todate) {
+                warningNofity("Select Any Date");
+                return;
+            }
+
+            // Format dates
+            const formattedFromDate = format(startOfDay(addDays(fromDateObj, 1)), 'dd/MM/yyyy 00:00:00');
+            const formattedToDate = format(endOfDay(toDateObj), 'dd/MM/yyyy 23:59:59');
+            const tDate = format(toDateObj, 'yyyy-MM-dd');
+
             const payload = {
                 fromdate: formattedFromDate,
                 todate: formattedToDate,
             };
-            const getOracleIPData = await axiosellider_tmc.post("/bisElliderData/ipAddmissioncount", payload)
+
+            // API Call - IP Admission
+            const getOracleIPData = await axiosellider_tmc.post("/bisElliderData/ipAddmissioncount", payload);
             const { data, success } = getOracleIPData.data;
+
             if (opslno === 1 && success === 2 && data.length !== 0) {
                 const InserteData = data?.map(item => ({
                     ...item,
                     tDate,
                     c_name: 1
                 }));
+
                 const insertData = await axiosApi.post("/bisDataPush/insertIpAdmission", InserteData);
                 const { success: insertSuccess, message } = insertData.data;
+
                 if (insertSuccess === 1) {
-                    setFirstUpdate_ststus(1)
-                    setUpdateDate({})
-                    queryClient.invalidateQueries('ipkmcModuleDetails')
-                    succesNofity(message)
+                    setFirstUpdate_ststus(1);
+                    setUpdateDate({});
+                    queryClient.invalidateQueries('ipkmcModuleDetails');
+                    succesNofity(message);
                 } else {
-                    warningNofity(message)
+                    warningNofity(message);
                 }
             }
             else if (opslno === 2) {
-                const getCashcredit = await axiosellider_tmc.post("/bisElliderData/getDischargeCount", payload)
+                const getCashcredit = await axiosellider_tmc.post("/bisElliderData/getDischargeCount", payload);
                 const { data, success } = getCashcredit.data;
+
                 if (success === 2 && data.length !== 0) {
                     const DischageData = data?.map(item => ({
                         ...item,
@@ -166,21 +323,81 @@ const DataPush = () => {
 
                     const insertData = await axiosApi.patch("/bisDataPush/updateDischargeCount", DischageData);
                     const { success: insertSuccess, message } = insertData.data;
+
                     if (insertSuccess === 1) {
-                        setUpdateDate({})
-                        queryClient.invalidateQueries('ipkmcModuleDetails')
-                        succesNofity(message)
+                        setUpdateDate({});
+                        queryClient.invalidateQueries('ipkmcModuleDetails');
+                        succesNofity(message);
                     } else {
-                        warningNofity(message)
+                        warningNofity(message);
                     }
                 }
             }
-        }
-        else {
-            warningNofity("Select Any Date")
-        }
+            else {
+                warningNofity("No matching operation for given Slno or no data found");
+            }
 
-    }, [queryClient])
+        } catch (error) {
+            warningNofity("An unexpected error occurred while uploading data");
+        }
+    }, [queryClient]);
+
+
+    // const uploadIpData = useCallback(async (fromdate, todate, opslno) => {
+    //     if (todate) {
+    //         const formattedFromDate = format(startOfDay(addDays(fromdate, 1)), 'dd/MM/yyyy 00:00:00');
+    //         const formattedToDate = format(endOfDay(todate), 'dd/MM/yyyy 23:59:59');
+    //         const tDate = format(todate, 'yyyy-MM-dd');
+    //         const payload = {
+    //             fromdate: formattedFromDate,
+    //             todate: formattedToDate,
+    //         };
+    //         const getOracleIPData = await axiosellider_tmc.post("/bisElliderData/ipAddmissioncount", payload)
+    //         const { data, success } = getOracleIPData.data;
+    //         if (opslno === 1 && success === 2 && data.length !== 0) {
+    //             const InserteData = data?.map(item => ({
+    //                 ...item,
+    //                 tDate,
+    //                 c_name: 1
+    //             }));
+    //             const insertData = await axiosApi.post("/bisDataPush/insertIpAdmission", InserteData);
+    //             const { success: insertSuccess, message } = insertData.data;
+    //             if (insertSuccess === 1) {
+    //                 setFirstUpdate_ststus(1)
+    //                 setUpdateDate({})
+    //                 queryClient.invalidateQueries('ipkmcModuleDetails')
+    //                 succesNofity(message)
+    //             } else {
+    //                 warningNofity(message)
+    //             }
+    //         }
+    //         else if (opslno === 2) {
+    //             const getCashcredit = await axiosellider_tmc.post("/bisElliderData/getDischargeCount", payload)
+    //             const { data, success } = getCashcredit.data;
+    //             if (success === 2 && data.length !== 0) {
+    //                 const DischageData = data?.map(item => ({
+    //                     ...item,
+    //                     tDate,
+    //                     c_name: 1,
+    //                 }));
+
+    //                 const insertData = await axiosApi.patch("/bisDataPush/updateDischargeCount", DischageData);
+    //                 const { success: insertSuccess, message } = insertData.data;
+    //                 if (insertSuccess === 1) {
+    //                     setUpdateDate({})
+    //                     queryClient.invalidateQueries('ipkmcModuleDetails')
+    //                     succesNofity(message)
+    //                 } else {
+    //                     warningNofity(message)
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     else {
+    //         warningNofity("Select Any Date")
+    //     }
+
+    // }, [queryClient])
 
     const IpArrs = [
         { opslno: 1, label: "Total IP" },
@@ -208,7 +425,7 @@ const DataPush = () => {
         <Box sx={{ width: "100%", height: { xl: 900, sm: 1060 } }}>
             <CommonHeader />
             <ToastContainer />
-            <CustomBackDrop setOpen={setOpen} open={open} />
+            <CustomBackDrop open={open} setOpen={setOpen} />
             <Box
                 sx={{
                     display: "flex",
@@ -513,12 +730,14 @@ const DataPush = () => {
                 </Box>
 
                 <Box sx={{ mt: 1, flex: 1, p: 1, border: 1, borderColor: "#EBD3F8" }}>
-                    <Typography sx={{ textAlign: "center", color: 'rgba(var(--font-light))', fontSize: 15 }}>
+                    {/* <Typography sx={{ textAlign: "center", color: 'rgba(var(--font-light))', fontSize: 15 }}>
                         Pharmacy Sales
-                    </Typography>
+                    </Typography> */}
+
+                    <Tmc_Pharma_Sales ipKmcPharmacyModDatas={ipTmcPharmacyModDatas} />
                 </Box>
             </Box>
-            <CustomBackDrop />
+
         </Box>
     );
 };
