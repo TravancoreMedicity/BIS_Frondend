@@ -30,10 +30,10 @@ const Settings = () => {
         { menuSlno: 15, menuName: 'Menu Name Master', menuCodeName: 'MenuNameMaster' },
         { menuSlno: 14, menuName: 'Module Group Master', menuCodeName: 'ModuleGroupMaster' },
         { menuSlno: 18, menuName: 'User Group Rights', menuCodeName: 'UserGroupRights' },
-        { menuSlno: 19, menuName: 'Kmc Store Master', menuCodeName: 'StoreMaster' },
+        // { menuSlno: 19, menuName: 'Kmc Store Master', menuCodeName: 'StoreMaster' },
         // { menuSlno: 20, menuName: 'Med Store', menuCodeName: 'MedStore' },
         // { menuSlno: 21, menuName: 'Med Description', menuCodeName: 'MedDescription' },
-        { menuSlno: 22, menuName: 'Tmc Store Master', menuCodeName: 'TmcStoreMaster' },
+        // { menuSlno: 22, menuName: 'Tmc Store Master', menuCodeName: 'TmcStoreMaster' },
         { menuSlno: 35, menuName: 'Sub Menu Master', menuCodeName: 'SubMenuMaster' },
         { menuSlno: 25, menuName: 'Graphical View Master', menuCodeName: 'GraphicalViewMaster' },
     ]

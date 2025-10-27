@@ -16,10 +16,25 @@ const createAxiosInstance = (baseURL) => {
         },
         timeout: 10000
     })
+    const fetchEliderToken = async () => {
+        try {
+            const result = await axiosApi.get(`/user/get-elider-token`)
+            const { success, data } = result.data
+            if (success === 1 && data.length > 0) {
+                const token = data?.[0]?.elider_token;
 
+                return token
+            } else {
+                return null
+            }
+        } catch (err) {
+            console.error("Failed to fetch elider token:", err);
+            return null;
+        }
+    }
     // attaching token || Credentials to request interceptors
     instance.interceptors.request.use(
-        (config) => {
+        async (config) => {
             // If no Credentials
             if (!userCredential) {
                 const userinfo = sessionStorage.getItem('userDetl');
@@ -31,8 +46,11 @@ const createAxiosInstance = (baseURL) => {
                 }
             }
             // if user Credential
-            if (userCredential?.token) {
-                config.headers.Authorization = `Bearer ${userCredential?.token}`;
+
+            const token = await fetchEliderToken()
+            if (token) {
+
+                config.headers.Authorization = `Token ${token}`;
             }
             return config;
         },
