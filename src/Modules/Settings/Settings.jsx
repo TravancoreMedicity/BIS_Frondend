@@ -23,6 +23,8 @@ const Settings = () => {
 
     // console.log(userSettings, "userSettings");
 
+    // console.log("jlkjlk");
+
     const menuName = [
         { menuSlno: 1, menuName: 'User Management', menuCodeName: 'UserManagement' },
         { menuSlno: 12, menuName: 'User Type Master', menuCodeName: 'UserTypeMaster' },
