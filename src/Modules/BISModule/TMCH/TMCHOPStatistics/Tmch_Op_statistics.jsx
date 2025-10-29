@@ -2,7 +2,7 @@ import React, { memo, useMemo, useState } from "react";
 import { Box, Typography } from "@mui/joy";
 import { useQuery } from '@tanstack/react-query';
 import { endOfMonth, format, startOfMonth } from "date-fns";
-import { getkmcOpDetails } from "../../../../api/commonAPI"
+import { getOpDetails } from "../../../../api/commonAPI"
 import Tmc_OPYearWise from "./Tmc_OPYearWise";
 import Tmc_OpDeptWise from "./Tmc_OpDeptWise";
 import Tmc_DrWise from "./Tmc_DrWise";
@@ -23,29 +23,18 @@ const Tmch_Op_statistics = () => {
     const [dept_toDate, setdept_ToDate] = useState(format(endOfMonth(new Date()), "yyyy-MM-dd"));
 
     const payloadDatas = useMemo(() => {
-        try {
-            const isValidDate = (date) => {
-                return date instanceof Date && !isNaN(date.getTime());
-            };
+        return {
+            fromDate: fromDate,
+            toDate: toDate
+        };
 
-            return {
-                fromDate: isValidDate(fromDate) ? fromDate : null,
-                toDate: isValidDate(toDate) ? toDate : null
-            };
-        } catch (error) {
-            console.error('Error validating dates in payloadDatas:', error);
-            return {
-                fromDate: null,
-                toDate: null
-            };
-        }
     }, [fromDate, toDate]);
 
 
     //usequery
     const { data: OpDetails } = useQuery({
         queryKey: ['opDataDetails', payloadDatas], // include payload in queryKey to cache per payload
-        queryFn: () => getkmcOpDetails(payloadDatas),
+        queryFn: () => getOpDetails(payloadDatas),
         enabled: !!payloadDatas, // ensures payload exists before running
     })
 

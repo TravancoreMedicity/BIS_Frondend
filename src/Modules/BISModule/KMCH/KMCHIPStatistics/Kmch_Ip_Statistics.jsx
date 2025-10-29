@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { endOfMonth, format, startOfMonth } from "date-fns";
 import KMCHeader from "../../BIS_CommoCode/KMCHeader"
 import { getKmcIpDetails } from "../../../../api/commonAPI"
-import Kmc_AllOpDeptWise from "../KMCHOPStatistics/Kmc_AllOpDeptWise";
+// import Kmc_AllOpDeptWise from "../KMCHOPStatistics/Kmc_AllOpDeptWise";
 import Kmc_IPYearWise from "./Kmc_IPYearWise";
 import Kmc_IpDeptWise from "./Kmc_IpDeptWise";
 import Kmc_IpDrWise from "./Kmc_IpDrWise";
