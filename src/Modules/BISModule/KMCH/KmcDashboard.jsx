@@ -1,7 +1,7 @@
 import React, { memo, useMemo, useState } from "react";
 import { Box, Typography } from "@mui/joy";
 import { useQuery } from '@tanstack/react-query';
-import { format } from "date-fns";
+import { addDays, format, startOfWeek, subWeeks } from "date-fns";
 import KMCHeader from "../BIS_CommoCode/KMCHeader";
 import { getgraphicalViewRights, getKmcdischargeDetails, getKmcIpDetails, getKmclabDetails, getkmcOpDetails, getKmcpharmacyDetails, getKmcradiologyDetails } from "../../../api/commonAPI";
 import { barOptions, lineOptions } from "../BIS_CommoCode/CommonDateRange/ChartCommonFuns/ChartCommonFun";
@@ -18,25 +18,30 @@ const KmcDashboard = () => {
         staleTime: Infinity,
     });
 
-    const [fromDate, setFromDate] = useState(format(new Date(), "yyyy-MM-dd"));
-    const [toDate, setToDate] = useState(format(new Date(), "yyyy-MM-dd"));
 
-    const [ipfromDate, setIpFromDate] = useState(format(new Date(), "yyyy-MM-dd"));
-    const [iptoDate, setIpToDate] = useState(format(new Date(), "yyyy-MM-dd"));
+    const startOfThisWeek = startOfWeek(new Date(), { weekStartsOn: 1 });
+    const startOfLastWeek = subWeeks(startOfThisWeek, 1);
+    const endOfLastWeek = addDays(startOfLastWeek, 6);
 
-    const [phfromDate, setPhFromDate] = useState(format(new Date(), "yyyy-MM-dd"));
-    const [phtoDate, setPhToDate] = useState(format(new Date(), "yyyy-MM-dd"));
+    const [fromDate, setFromDate] = useState(format(new Date(startOfLastWeek), "yyyy-MM-dd"));
+    const [toDate, setToDate] = useState(format(new Date(endOfLastWeek), "yyyy-MM-dd"));
+
+    const [ipfromDate, setIpFromDate] = useState(format(new Date(startOfLastWeek), "yyyy-MM-dd"));
+    const [iptoDate, setIpToDate] = useState(format(new Date(endOfLastWeek), "yyyy-MM-dd"));
+
+    const [phfromDate, setPhFromDate] = useState(format(new Date(startOfLastWeek), "yyyy-MM-dd"));
+    const [phtoDate, setPhToDate] = useState(format(new Date(endOfLastWeek), "yyyy-MM-dd"));
 
 
-    const [dcfromDate, setdcFromDate] = useState(format(new Date(), "yyyy-MM-dd"));
-    const [dctoDate, setdcToDate] = useState(format(new Date(), "yyyy-MM-dd"));
+    const [dcfromDate, setdcFromDate] = useState(format(new Date(startOfLastWeek), "yyyy-MM-dd"));
+    const [dctoDate, setdcToDate] = useState(format(new Date(endOfLastWeek), "yyyy-MM-dd"));
 
 
-    const [labfromDate, setlabFromDate] = useState(format(new Date(), "yyyy-MM-dd"));
-    const [labtoDate, setlabToDate] = useState(format(new Date(), "yyyy-MM-dd"));
+    const [labfromDate, setlabFromDate] = useState(format(new Date(startOfLastWeek), "yyyy-MM-dd"));
+    const [labtoDate, setlabToDate] = useState(format(new Date(endOfLastWeek), "yyyy-MM-dd"));
 
-    const [radfromDate, setradFromDate] = useState(format(new Date(), "yyyy-MM-dd"));
-    const [radtoDate, setradToDate] = useState(format(new Date(), "yyyy-MM-dd"));
+    const [radfromDate, setradFromDate] = useState(format(new Date(startOfLastWeek), "yyyy-MM-dd"));
+    const [radtoDate, setradToDate] = useState(format(new Date(endOfLastWeek), "yyyy-MM-dd"));
 
 
     const payloadDatas = useMemo(() => {
